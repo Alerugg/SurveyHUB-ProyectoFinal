@@ -34,6 +34,10 @@ def delete_user(id):
     db.session.commit()
     return jsonify({'message': 'User deleted'}), 200
 
+@api.route('/hello', methods=['GET'])
+def hello_world():
+    return jsonify({"message": "Hello from Flask!"}), 200
+
 # (Resto de los endpoints de surveys, questions, options, votes, invitations)
 
 
