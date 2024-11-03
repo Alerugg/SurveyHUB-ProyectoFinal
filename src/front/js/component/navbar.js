@@ -1,19 +1,16 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import logo from "../../img/logo.png";
+import { VscGraph } from "react-icons/vsc";
 
 export const Navbar = () => {
   return (
-    <nav className="navbar navbar-expand-lg" style={{ backgroundColor: '#0B0D17' }}>
+    <nav className="navbar navbar-expand-lg" style={{ height: "80px",backgroundColor: "rgb(27, 27, 27)"}}>
       <div className="container-fluid">
         {/* Brand */}
-        <Link className="navbar-brand text-light d-flex align-items-center" to="#" style={{ fontWeight: 'bold' }}>
-          <img
-            src="https://via.placeholder.com/30"
-            alt="Logo"
-            height="30"
-            className="me-2"
-          />
-          <span style={{ color: '#8A4FFF' }}>Pulse</span>Survey
+        <Link className="navbar-brand text-light d-flex align-items-center" to="#" style={{ fontWeight: 'bold'}}>
+        <VscGraph style={{ fontSize: "50px", color: '#8A4FFF'}} />
+          <span style={{ color: '#8A4FFF' }}>E-</span>Vote
         </Link>
 
         {/* Search form */}
@@ -29,6 +26,11 @@ export const Navbar = () => {
 
         {/* Right elements */}
         <ul className="navbar-nav ms-auto flex-row align-items-center">
+        <li className="nav-item">
+            <Link className="nav-link text-light d-flex align-items-center" to="#">
+              <i className="fas fa-user fa-lg me-1" ></i>
+            </Link>
+          </li>
           <li className="nav-item me-3">
             <Link className="nav-link text-light" to="#">
               <i className="fas fa-bell fa-lg"></i>
@@ -36,12 +38,7 @@ export const Navbar = () => {
           </li>
           <li className="nav-item me-3">
             <Link className="nav-link text-light" to="#">
-              <i className="fas fa-cog fa-lg"></i>
-            </Link>
-          </li>
-          <li className="nav-item">
-            <Link className="nav-link text-light d-flex align-items-center" to="#">
-              <i className="fas fa-user fa-lg me-1"></i> Perfil
+              <i className="fas fa-cog fa-lg" style={{ color: '#8A4FFF' }}></i>
             </Link>
           </li>
         </ul>
