@@ -34,8 +34,15 @@ class User(db.Model):
     votes = db.relationship('Vote', backref='user', lazy=True)
     invitations = db.relationship('Invitation', backref='user', lazy=True)
 
+    
+    def serialize(self):
+        return {
+            "id": self.id,
+            "email": self.email,           
+        }
+
     def __repr__(self):
-        return f'<User {self.email}>'
+        return f'{self.email}'
 
 
 class Survey(db.Model):
@@ -95,7 +102,7 @@ class Vote(db.Model):
     survey_id = db.Column(db.Integer, db.ForeignKey('surveys.id'), nullable=False)  # Nueva clave foránea para Survey
     question_id = db.Column(db.Integer, db.ForeignKey('questions.id'), nullable=False)
     option_id = db.Column(db.Integer, db.ForeignKey('options.id'))
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
     def __repr__(self):
         return f'<Vote by User {self.user_id} on Question {self.question_id}>'
