@@ -17,6 +17,11 @@ def get_user(id):
     user = User.query.get_or_404(id)
     return jsonify(user.serialize())
 
+@api.route('/users', methods=['GET'])
+def get_users():
+    users = User.query.all()
+    return jsonify([{"id":user.id, "full_name": user.full_name } for user in users]), 200      #### CON ESTA SALEN LAS RUTAS EN EL PREVISUALIZADOR HACER PARA TODOS LOS GETS 
+
 @api.route('/users/<int:id>', methods=['PUT'])
 def update_user(id):
     user = User.query.get_or_404(id)
