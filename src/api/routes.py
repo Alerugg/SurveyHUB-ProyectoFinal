@@ -6,11 +6,21 @@ api = Blueprint('api', __name__)
 # User Endpoints
 @api.route('/users', methods=['POST'])
 def create_user():
-    data = request.get_json()
-    new_user = User(email=data['email'], password_hash=data['password'], full_name=data['full_name'])
-    db.session.add(new_user)
-    db.session.commit()
-    return jsonify(new_user.serialize()), 201
+    if request.method == 'POST':
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "No data provided"}), 400
+
+        # Aquí debes incluir lógica para validar y crear un nuevo usuario
+        new_user = User(email=data['email'], password_hash=data['password'], full_name=data['full_name'])
+        db.session.add(new_user)
+        db.session.commit()
+
+        return jsonify({"message": "User created successfully"}), 201
+
+
+
+
 
 @api.route('/users/<int:id>', methods=['GET'])
 def get_user(id):
@@ -20,7 +30,7 @@ def get_user(id):
 @api.route('/users', methods=['GET'])
 def get_users():
     users = User.query.all()
-    return jsonify([{"id":user.id, "full_name": user.full_name } for user in users]), 200      #### CON ESTA SALEN LAS RUTAS EN EL PREVISUALIZADOR HACER PARA TODOS LOS GETS 
+    return jsonify([{"id":user.id, "full_name": user.full_name, "email": user.email, "created_at": user.created_at, "is_active": user.is_active } for user in users]), 200      #### CON ESTA SALEN LAS RUTAS EN EL PREVISUALIZADOR HACER PARA TODOS LOS GETS 
 
 @api.route('/users/<int:id>', methods=['PUT'])
 def update_user(id):
