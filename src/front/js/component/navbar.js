@@ -27,7 +27,7 @@ export const Navbar = () => {
         {/* Right elements */}
         <ul className="navbar-nav ms-auto flex-row align-items-center">
         <li className="nav-item">
-            <Link className="nav-link text-light d-flex align-items-center" to="#">
+            <Link className="nav-link text-light d-flex align-items-center" to="/profile">
               <i className="fas fa-user fa-lg me-1" ></i>
             </Link>
           </li>
