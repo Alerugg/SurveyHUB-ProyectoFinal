@@ -16,7 +16,7 @@ export const HomeUserLogued = () => {
                 <div className="jumbotron text-center p-5 mb-4" style={{ backgroundColor: "#2a2c31", color: "#ffffff", borderRadius: "20px" }}>
                     <h1 className="display-5 fw-bold">Crea tus encuestas asombrosas</h1>
                     <p className="lead">Obtén información de tus usuarios para tu negocio y más.</p>
-                    <Link to="/create-survey" className="btn btn-primary btn-lg mt-3" style={{ backgroundColor: "#6a0dad", border: "none", borderRadius: "20px" }}>Crear encuesta</Link>
+                    <Link to="/create_survey" className="btn btn-primary btn-lg mt-3" style={{ backgroundColor: "#6a0dad", border: "none", borderRadius: "20px" }}>Crear encuesta</Link>
                 </div>
 
                 {/* Active Surveys Section */}
