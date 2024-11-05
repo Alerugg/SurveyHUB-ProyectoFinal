@@ -4,23 +4,33 @@ from api.models import db, User, Survey, Question, Option, Vote, Invitation
 api = Blueprint('api', __name__)
 
 # User Endpoints
-@api.route('/users', methods=['POST'])
+@api.route('/users', methods=['POST'])              #### FUNCIONANDO
 def create_user():
-    data = request.get_json()
-    new_user = User(email=data['email'], password_hash=data['password'], full_name=data['full_name'])
-    db.session.add(new_user)
-    db.session.commit()
-    return jsonify(new_user.serialize()), 201
+    if request.method == 'POST':
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "No data provided"}), 400
 
-@api.route('/users/<int:id>', methods=['GET'])
+        # Aquí debes incluir lógica para validar y crear un nuevo usuario
+        new_user = User(email=data['email'], password_hash=data['password'], full_name=data['full_name'])
+        db.session.add(new_user)
+        db.session.commit()
+
+        return jsonify({"message": "User created successfully"}), 201
+
+
+
+
+
+@api.route('/users/<int:id>', methods=['GET'])   #### FUNCIONANDO
 def get_user(id):
     user = User.query.get_or_404(id)
     return jsonify(user.serialize())
 
-@api.route('/users', methods=['GET'])
+@api.route('/users', methods=['GET'])  #### FUNCIONANDO
 def get_users():
     users = User.query.all()
-    return jsonify([{"id":user.id, "full_name": user.full_name } for user in users]), 200      #### CON ESTA SALEN LAS RUTAS EN EL PREVISUALIZADOR HACER PARA TODOS LOS GETS 
+    return jsonify([{"id":user.id, "full_name": user.full_name, "email": user.email, "created_at": user.created_at, "is_active": user.is_active } for user in users]), 200      #### CON ESTA SALEN LAS RUTAS EN EL PREVISUALIZADOR HACER PARA TODOS LOS GETS 
 
 @api.route('/users/<int:id>', methods=['PUT'])
 def update_user(id):
@@ -29,6 +39,7 @@ def update_user(id):
     user.email = data.get('email', user.email)
     user.full_name = data.get('full_name', user.full_name)
     user.is_active = data.get('is_active', user.is_active)
+    user.password_hash = data.get('password', user.password_hash)
     db.session.commit()
     return jsonify(user.serialize())
 

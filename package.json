@@ -75,6 +75,7 @@
 	"dependencies": {
 		"cors": "^2.8.5",
 		"mdb-ui-kit": "^6.4.2",
+		"mermaid": "^11.4.0",
 		"prop-types": "^15.6.1",
 		"react": "^16.8.4",
 		"react-dom": "^16.8.4",
