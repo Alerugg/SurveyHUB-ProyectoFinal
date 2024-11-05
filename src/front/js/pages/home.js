@@ -20,7 +20,7 @@ export const Home = () => {
                     </div>
                 </div>
 
-                <img src={example} ></img>
+                {/* <img src={example} ></img> */}
 
                 {/* Feature Highlights Section */}
                 <section className="mt-5">

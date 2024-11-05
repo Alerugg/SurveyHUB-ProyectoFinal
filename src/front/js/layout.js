@@ -8,6 +8,7 @@ import {HomeUserLogued} from "./pages/home_user_logued"
 import { Demo } from "./pages/demo";
 import { Single } from "./pages/single";
 import injectContext from "./store/appContext";
+import { Login } from "./pages/login";
 
 import { Navbar } from "./component/navbar";
 import { Footer } from "./component/footer";
@@ -27,6 +28,7 @@ const Layout = () => {
                     <Navbar />
                     <Routes>
                         <Route element={<Home />} path="/" />
+                        <Route element={<Login />} path="/login" />
                         <Route element={<HomeUserLogued />} path="/user_logued" />
                         <Route element={<Demo />} path="/demo" />
                         <Route element={<Single />} path="/single/:theid" />
