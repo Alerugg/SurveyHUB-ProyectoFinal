@@ -8,7 +8,7 @@ export const Navbar = () => {
     <nav className="navbar navbar-expand-lg" style={{ height: "80px",backgroundColor: "rgb(27, 27, 27)"}}>
       <div className="container-fluid">
         {/* Brand */}
-        <Link className="navbar-brand text-light d-flex align-items-center" to="#" style={{ fontWeight: 'bold'}}>
+        <Link className="navbar-brand text-light d-flex align-items-center" to="/" style={{ fontWeight: 'bold'}}>
         <VscGraph style={{ fontSize: "50px", color: '#8A4FFF'}} />
           <span style={{ color: '#8A4FFF' }}>E-</span>Vote
         </Link>
