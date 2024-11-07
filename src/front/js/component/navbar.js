@@ -8,7 +8,7 @@ export const Navbar = () => {
     <nav className="navbar navbar-expand-lg" style={{ height: "80px",backgroundColor: "rgb(27, 27, 27)"}}>
       <div className="container-fluid">
         {/* Brand */}
-        <Link className="navbar-brand text-light d-flex align-items-center" to="#" style={{ fontWeight: 'bold'}}>
+        <Link className="navbar-brand text-light d-flex align-items-center" to="/" style={{ fontWeight: 'bold'}}>
         <VscGraph style={{ fontSize: "50px", color: '#8A4FFF'}} />
           <span style={{ color: '#8A4FFF' }}>E-</span>Vote
         </Link>
@@ -27,7 +27,7 @@ export const Navbar = () => {
         {/* Right elements */}
         <ul className="navbar-nav ms-auto flex-row align-items-center">
         <li className="nav-item">
-            <Link className="nav-link text-light d-flex align-items-center" to="#">
+            <Link className="nav-link text-light d-flex align-items-center" to="/profile">
               <i className="fas fa-user fa-lg me-1" ></i>
             </Link>
           </li>
