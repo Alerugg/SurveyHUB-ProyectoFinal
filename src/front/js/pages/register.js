@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import "../../styles/register.css";
 import { useNavigate } from "react-router-dom";
 
 export const Register = () => {
@@ -44,58 +45,52 @@ export const Register = () => {
     };
 
     return (
-        <div style={{ backgroundColor: "#f8f9fa", padding: "20px", minHeight: "100vh" }}>
-            <div className="container mt-5">
-                <div className="card shadow-sm border-0 p-4" style={{ backgroundColor: "#ffffff", color: "#333333", borderRadius: "20px" }}>
-                    <h2 className="text-center mb-4" style={{ color: "#6a0dad" }}>Registrarse</h2>
+        <div className="register-container">
+            <div className="container mt-5 d-flex justify-content-center">
+                <div className="card shadow-sm border-0 p-4 register-card">
+                    <h2 className="text-center mb-4">Registrarse</h2>
                     <form onSubmit={handleSubmit}>
                         <div className="mb-3">
                             <label className="form-label">Nombre completo</label>
                             <input
                                 type="text"
-                                className="form-control"
+                                className="form-control register-input"
                                 value={fullName}
                                 onChange={(e) => setFullName(e.target.value)}
                                 required
-                                style={{ borderRadius: "10px" }}
                             />
                         </div>
                         <div className="mb-3">
                             <label className="form-label">Correo electrónico</label>
                             <input
                                 type="email"
-                                className="form-control"
+                                className="form-control register-input"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
-                                style={{ borderRadius: "10px" }}
                             />
                         </div>
                         <div className="mb-3">
                             <label className="form-label">Contraseña</label>
                             <input
                                 type="password"
-                                className="form-control"
+                                className="form-control register-input"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
-                                style={{ borderRadius: "10px" }}
                             />
                         </div>
                         <div className="mb-3">
                             <label className="form-label">Confirmar contraseña</label>
                             <input
                                 type="password"
-                                className="form-control"
+                                className="form-control register-input"
                                 value={confirmPassword}
                                 onChange={(e) => setConfirmPassword(e.target.value)}
                                 required
-                                style={{ borderRadius: "10px" }}
                             />
                         </div>
-                        <button type="submit" className="btn btn-primary w-100" style={{ backgroundColor: "#6a0dad", border: "none", borderRadius: "20px" }}>
-                            Registrarse
-                        </button>
+                        <button type="submit" className="btn btn-lg register-btn w-100">Registrarse</button>
                     </form>
                 </div>
             </div>

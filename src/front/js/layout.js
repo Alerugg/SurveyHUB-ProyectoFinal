@@ -9,7 +9,7 @@ import { Demo } from "./pages/demo";
 import { Single } from "./pages/single";
 import injectContext from "./store/appContext";
 import { Login } from "./pages/login";
-import { UserProfile } from "./pages/myProfile";
+import { UserProfile } from "./pages/userProfile";
 import { CreateSurvey } from "./pages/createSurvey";
 import { Register } from "./pages/register";
 

@@ -1,0 +1,44 @@
+/* Footer.css */
+
+.footer-container {
+    background-color: rgb(63, 55, 77);
+    color: #ffffff;
+  }
+  
+  .facebook-btn {
+    background-color: #3b5998;
+  }
+  
+  .twitter-btn {
+    background-color: #55acee;
+  }
+  
+  .google-btn {
+    background-color: #dd4b39;
+  }
+  
+  .instagram-btn {
+    background-color: #ac2bac;
+  }
+  
+  .linkedin-btn {
+    background-color: #0082ca;
+  }
+  
+  .github-btn {
+    background-color: #333333;
+  }
+  
+  .footer-copyright {
+    background-color: rgba(0, 0, 0, 0.05);
+    color: #ffffff;
+  }
+  
+  .btn {
+    transition: transform 0.3s ease;
+  }
+  
+  .btn:hover {
+    transform: scale(1.05);
+  }
+  
