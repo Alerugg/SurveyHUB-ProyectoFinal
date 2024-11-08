@@ -44,10 +44,10 @@ export const Register = () => {
     };
 
     return (
-        <div style={{ backgroundColor: "#1e1f24", padding: "20px", minHeight: "100vh" }}>
+        <div style={{ backgroundColor: "#f8f9fa", padding: "20px", minHeight: "100vh" }}>
             <div className="container mt-5">
-                <div className="card shadow-sm border-0 p-4" style={{ backgroundColor: "#2a2c31", color: "#ffffff", borderRadius: "20px" }}>
-                    <h2 className="text-center mb-4">Registrarse</h2>
+                <div className="card shadow-sm border-0 p-4" style={{ backgroundColor: "#ffffff", color: "#333333", borderRadius: "20px" }}>
+                    <h2 className="text-center mb-4" style={{ color: "#6a0dad" }}>Registrarse</h2>
                     <form onSubmit={handleSubmit}>
                         <div className="mb-3">
                             <label className="form-label">Nombre completo</label>
@@ -57,7 +57,7 @@ export const Register = () => {
                                 value={fullName}
                                 onChange={(e) => setFullName(e.target.value)}
                                 required
-                                style={{ borderRadius: "10px", backgroundColor: "#3a3b3f", color: "#ffffff" }}
+                                style={{ borderRadius: "10px" }}
                             />
                         </div>
                         <div className="mb-3">
@@ -68,7 +68,7 @@ export const Register = () => {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
-                                style={{ borderRadius: "10px", backgroundColor: "#3a3b3f", color: "#ffffff" }}
+                                style={{ borderRadius: "10px" }}
                             />
                         </div>
                         <div className="mb-3">
@@ -79,7 +79,7 @@ export const Register = () => {
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
-                                style={{ borderRadius: "10px", backgroundColor: "#3a3b3f", color: "#ffffff" }}
+                                style={{ borderRadius: "10px" }}
                             />
                         </div>
                         <div className="mb-3">
@@ -90,7 +90,7 @@ export const Register = () => {
                                 value={confirmPassword}
                                 onChange={(e) => setConfirmPassword(e.target.value)}
                                 required
-                                style={{ borderRadius: "10px", backgroundColor: "#3a3b3f", color: "#ffffff" }}
+                                style={{ borderRadius: "10px" }}
                             />
                         </div>
                         <button type="submit" className="btn btn-primary w-100" style={{ backgroundColor: "#6a0dad", border: "none", borderRadius: "20px" }}>

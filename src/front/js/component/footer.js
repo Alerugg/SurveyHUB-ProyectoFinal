@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 
 export const Footer = () => (
-    <footer className="text-center" style={{ backgroundColor: "#1e1f24" }}>
+    <footer className="text-center" style={{ backgroundColor: "#3F374D" }}>
       {/* Grid container */}
       <div className="container p-4 pb-0">
         {/* Section: Social media */}
