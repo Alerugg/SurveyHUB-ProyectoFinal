@@ -6,22 +6,23 @@ import datetime
 
 api = Blueprint('api', __name__)
 
-SECRET_KEY = 'your_secret_key_here'  # Debes reemplazar esto por una clave secreta segura
+SECRET_KEY = 'Alex_Daniela_Jhow_Angela'
 
-# User Endpoints
-@api.route('/users', methods=['POST'])  #### FUNCIONANDO - Actualizado con hashing de contraseña
+# Estos seran los Endpoints de Users
+
+@api.route('/users', methods=['POST'])  #### FUNCIONANDO - Actualizado el de gaton con hashing de contraseña
 def create_user():
     if request.method == 'POST':
         data = request.get_json()
         if not data:
             return jsonify({"error": "No data provided"}), 400
 
-        # Verificar si el email ya está registrado
+        # Verifica si el email está registrado o no
         existing_user = User.query.filter_by(email=data['email']).first()
         if existing_user:
             return jsonify({"error": "Email already registered"}), 409
 
-        # Hashear la contraseña usando SHA256
+        # Esto Hashea la contraseña usando SHA256
         password_hash = generate_password_hash(data['password'], method='pbkdf2:sha256')
 
         # Crear el nuevo usuario
@@ -105,7 +106,7 @@ def delete_user(id):
     db.session.commit()
     return jsonify({'message': 'User deleted'}), 200
 
-# Survey Endpoints
+# Estos seran los Endpoints de Surveys
 @api.route('/surveys', methods=['POST'])
 def create_survey():
     data = request.get_json()
@@ -176,7 +177,7 @@ def delete_survey(id):
     db.session.commit()
     return jsonify({'message': 'Survey deleted'}), 200
 
-# Question Endpoints
+# Estos seran los Endpoints de Question
 @api.route('/questions', methods=['POST'])
 def create_question():
     data = request.get_json()
@@ -241,7 +242,7 @@ def delete_question(id):
     db.session.commit()
     return jsonify({'message': 'Question deleted'}), 200
 
-# Option Endpoints
+# Estos seran los Endpoints de Options
 @api.route('/options', methods=['POST'])
 def create_option():
     data = request.get_json()
