@@ -302,3 +302,6 @@ def delete_option(id):
     db.session.delete(option)
     db.session.commit()
     return jsonify({'message': 'Option deleted'}), 200
+
+
+
