@@ -1,4 +1,4 @@
-/* Home.css */
+/* HomeUserLogued.css */
 
 body {
     background-color: #f5f5f0; /* Blanco hueso */
@@ -7,7 +7,7 @@ body {
     font-family: Arial, sans-serif;
   }
   
-  .home-container {
+  .home-user-container {
     padding: 20px;
     min-height: 100vh;
   }
@@ -18,7 +18,7 @@ body {
     border-radius: 20px;
   }
   
-  .login-btn, .signup-btn {
+  .create-survey-btn {
     background-color: #DB6FEB;
     color: #ffffff;
     border: none;
@@ -26,41 +26,32 @@ body {
     transition: transform 0.3s ease;
   }
   
-  .login-btn:hover, .signup-btn:hover {
+  .create-survey-btn:hover {
     transform: scale(1.05);
   }
   
-  .feature-highlights h2 {
+  .active-surveys-section h2, .popular-surveys-section h2 {
     color: rgb(63, 55, 77); /* Morado oscuro */
   }
   
-  .feature-card {
+  .survey-card {
     background-color: #ffffff;
     color: rgb(63, 55, 77); /* Morado oscuro */
     border-radius: 20px;
   }
   
-  .roadmap-section h2, .hot-surveys-section h2 {
-    color: rgb(63, 55, 77); /* Morado oscuro */
-  }
-  
-  .roadmap-image {
-    border-radius: 20px;
-    max-height: 400px;
-  }
-  
-  .hot-survey-card {
-    background-color: #ffffff;
-    color: rgb(63, 55, 77); /* Morado oscuro */
-    border-radius: 20px;
-  }
-  
-  .hot-survey-img {
+  .survey-img {
     border-top-left-radius: 20px;
     border-top-right-radius: 20px;
   }
   
-  .participate-btn {
+  .active-badge {
+    background-color: #28a745;
+    color: #ffffff;
+    border-radius: 10px;
+  }
+  
+  .view-details-btn, .vote-now-btn {
     background-color: #DB6FEB;
     color: #ffffff;
     border: none;
@@ -68,7 +59,7 @@ body {
     transition: transform 0.3s ease;
   }
   
-  .participate-btn:hover {
+  .view-details-btn:hover, .vote-now-btn:hover {
     transform: scale(1.05);
   }
   

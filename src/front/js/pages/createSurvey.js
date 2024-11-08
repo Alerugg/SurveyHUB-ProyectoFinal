@@ -97,56 +97,52 @@ export const CreateSurvey = () => {
     };
 
     return (
-        <div style={{ backgroundColor: "#f8f9fa", padding: "20px", minHeight: "100vh" }}>
+        <div className="create-survey-container">
             <div className="container mt-5">
-                <div className="jumbotron text-center p-5 mb-4" style={{ backgroundColor: "#3F374D", color: "#ffffff", borderRadius: "20px" }}>
+                <div className="jumbotron text-center p-5 mb-4 header-section">
                     <h2 className="display-5 fw-bold">Create a New Survey</h2>
                 </div>
 
                 {/* Basic Information Form */}
-                <div className="card shadow-sm border-0 mb-4" style={{ backgroundColor: "rgba(63, 55, 77, 0.5)" , color: "#333333", borderRadius: "20px", padding: "20px" }}>
+                <div className="card shadow-sm border-0 mb-4 create-survey-card">
                     <form>
                         <div className="mb-3">
                             <label className="form-label">Survey Title</label>
                             <input
                                 type="text"
-                                className="form-control"
+                                className="form-control create-survey-input"
                                 value={title}
                                 onChange={(e) => setTitle(e.target.value)}
                                 required
-                                style={{ borderRadius: "10px" }}
                             />
                         </div>
                         <div className="mb-3">
                             <label className="form-label">Description</label>
                             <textarea
-                                className="form-control"
+                                className="form-control create-survey-input"
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
                                 required
-                                style={{ borderRadius: "10px" }}
                             ></textarea>
                         </div>
                         <div className="mb-3">
                             <label className="form-label">Start Date</label>
                             <input
                                 type="date"
-                                className="form-control"
+                                className="form-control create-survey-input"
                                 value={startDate}
                                 onChange={(e) => setStartDate(e.target.value)}
                                 required
-                                style={{ borderRadius: "10px" }}
                             />
                         </div>
                         <div className="mb-3">
                             <label className="form-label">End Date</label>
                             <input
                                 type="date"
-                                className="form-control"
+                                className="form-control create-survey-input"
                                 value={endDate}
                                 onChange={(e) => setEndDate(e.target.value)}
                                 required
-                                style={{ borderRadius: "10px" }}
                             />
                         </div>
                         <div className="form-check mb-3">
@@ -176,26 +172,23 @@ export const CreateSurvey = () => {
                                     <div key={index} className="d-flex mb-2">
                                         <input
                                             type="email"
-                                            className="form-control"
+                                            className="form-control create-survey-input"
                                             value={email}
                                             onChange={(e) => handleInviteEmailChange(index, e.target.value)}
                                             required
-                                            style={{ borderRadius: "10px" }}
                                         />
                                         <button
                                             type="button"
-                                            className="btn btn-danger ms-2"
+                                            className="btn btn-danger ms-2 remove-btn"
                                             onClick={() => handleRemoveInviteEmail(index)}
-                                            style={{ borderRadius: "10px" }}
                                         >
                                             Remove
                                         </button>
                                         {index === inviteEmails.length - 1 && (
                                             <button
                                                 type="button"
-                                                className="btn btn-secondary ms-2"
+                                                className="btn btn-secondary ms-2 add-btn"
                                                 onClick={() => handleAddInviteEmail(index)}
-                                                style={{ borderRadius: "10px" }}
                                             >
                                                 Add Email
                                             </button>
@@ -208,27 +201,25 @@ export const CreateSurvey = () => {
                 </div>
 
                 {/* Questions and Options Form */}
-                <div className="card shadow-sm border-0 mb-4" style={{ backgroundColor: "rgba(63, 55, 77, 0.5)" , color: "#333333", borderRadius: "20px", padding: "20px" }}>
+                <div className="card shadow-sm border-0 mb-4 create-survey-card">
                     <h4>Add Questions and Options</h4>
                     <form>
                         <div className="mb-3">
                             <label className="form-label">Question Text</label>
                             <input
                                 type="text"
-                                className="form-control"
+                                className="form-control create-survey-input"
                                 value={questionText}
                                 onChange={(e) => setQuestionText(e.target.value)}
                                 required
-                                style={{ borderRadius: "10px" }}
                             />
                         </div>
                         <div className="mb-3">
                             <label className="form-label">Question Type</label>
                             <select
-                                className="form-select"
+                                className="form-select create-survey-input"
                                 value={questionType}
                                 onChange={(e) => setQuestionType(e.target.value)}
-                                style={{ borderRadius: "10px" }}
                             >
                                 <option value="multiple_choice">Multiple Choice</option>
                                 <option value="yes_no">Yes/No</option>
@@ -243,26 +234,23 @@ export const CreateSurvey = () => {
                                     <div key={index} className="d-flex mb-2">
                                         <input
                                             type="text"
-                                            className="form-control"
+                                            className="form-control create-survey-input"
                                             value={option}
                                             onChange={(e) => handleOptionChange(index, e.target.value)}
                                             required
-                                            style={{ borderRadius: "10px" }}
                                         />
                                         <button
                                             type="button"
-                                            className="btn btn-danger ms-2"
+                                            className="btn btn-danger ms-2 remove-btn"
                                             onClick={() => handleRemoveOption(index)}
-                                            style={{ borderRadius: "10px" }}
                                         >
                                             Remove
                                         </button>
                                         {index === options.length - 1 && (
                                             <button
                                                 type="button"
-                                                className="btn btn-secondary ms-2"
+                                                className="btn btn-secondary ms-2 add-btn"
                                                 onClick={() => handleAddOption(index)}
-                                                style={{ borderRadius: "10px" }}
                                             >
                                                 Add Option
                                             </button>
@@ -271,7 +259,7 @@ export const CreateSurvey = () => {
                                 ))}
                             </div>
                         )}
-                        <button type="button" className="btn btn-primary mt-3" onClick={handleAddQuestion} style={{ backgroundColor: "#3F374D", border: "none", borderRadius: "20px", transition: "none" }} onMouseOver={(e) => { e.target.style.transform = "scale(1.05)" }} onMouseOut={(e) => { e.target.style.transform = "scale(1)" }}>
+                        <button type="button" className="btn btn-primary mt-3 add-question-btn" onClick={handleAddQuestion}>
                             Add Question
                         </button>
                     </form>
@@ -279,7 +267,7 @@ export const CreateSurvey = () => {
 
                 {/* Submit Survey Button */}
                 <div className="text-center mt-4">
-                    <button type="button" className="btn btn-success" onClick={handleSubmitSurvey} style={{ fontSize: '1.5rem', padding: '15px 50px', backgroundColor: "#3F374D", border: "none", borderRadius: "20px", transition: "none" }} onMouseOver={(e) => { e.target.style.transform = "scale(1.05)" }} onMouseOut={(e) => { e.target.style.transform = "scale(1)" }}>
+                    <button type="button" className="btn btn-success submit-survey-btn" onClick={handleSubmitSurvey}>
                         Create Survey
                     </button>
                 </div>
