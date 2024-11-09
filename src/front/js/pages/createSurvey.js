@@ -1,4 +1,6 @@
+// CreateSurvey.js
 import React, { useState } from "react";
+import axios from "axios";
 import "../../styles/createSurvey.css";
 import { useNavigate } from "react-router-dom";
 
@@ -13,8 +15,24 @@ export const CreateSurvey = () => {
     const [questionType, setQuestionType] = useState("multiple_choice");
     const [options, setOptions] = useState([""]);
     const [inviteEmails, setInviteEmails] = useState([""]);
+    const [suggestedQuestions, setSuggestedQuestions] = useState([]);
 
     const navigate = useNavigate();
+
+    const handleSuggestQuestions = async () => {
+        if (!title.trim()) {
+            alert("Please enter a topic for the survey title to get suggestions.");
+            return;
+        }
+
+        try {
+            const response = await axios.post("/api/suggest_questions", { topic: title });
+            setSuggestedQuestions(response.data.questions);
+        } catch (error) {
+            console.error("Error fetching suggested questions:", error);
+            alert("There was an error fetching suggestions. Please try again later.");
+        }
+    };
 
     const handleAddOption = (index) => {
         const newOptions = [...options];
@@ -259,6 +277,36 @@ export const CreateSurvey = () => {
                                 ))}
                             </div>
                         )}
+
+                        {/* Suggested Questions Section */}
+                        <div className="mb-3">
+                            <button type="button" className="btn btn-info" onClick={handleSuggestQuestions}>
+                                Get Suggested Questions
+                            </button>
+                        </div>
+                        {suggestedQuestions.length > 0 && (
+                            <div className="mb-3">
+                                <h5>Suggested Questions:</h5>
+                                {suggestedQuestions.map((question, index) => (
+                                    <div key={index} className="d-flex mb-2">
+                                        <input
+                                            type="text"
+                                            className="form-control create-survey-input"
+                                            value={question}
+                                            readOnly
+                                        />
+                                        <button
+                                            type="button"
+                                            className="btn btn-secondary ms-2 add-btn"
+                                            onClick={() => setQuestions([...questions, { text: question, type: 'multiple_choice', options: [] }])}
+                                        >
+                                            Add to Survey
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
                         <button type="button" className="btn btn-primary mt-3 add-question-btn" onClick={handleAddQuestion}>
                             Add Question
                         </button>
