@@ -4,61 +4,59 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 130vh;
     background-color: #2E2B3B;
     color: #FFFFFF;
+    flex-direction: row-reverse;
+    width: 100%;
+    height: calc(100vh - 60px - 40px);
 }
-
-.login-content {
-    display: flex;
-    width: 1300px;
-    background-color: #3C3A4E;
-    border-radius: 15px;
-    overflow: hidden;
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
-}
-
 .login-form-container {
-    flex: 1;
-    padding: 60px;
+    padding: 80px;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    align-items: center;
 }
 
-.login-title {
-    font-size: 51.84px;
+.highlight-e {
     font-weight: bold;
-    margin-bottom: 28.8px;
+    display: inline-block;
+    width: 64.28px;
+    font-size: 101.92px;
+    color: #DB6FEB;
 }
 
-.highlight {
-    color: #D07BE0;
+.highlight-vote {
+    font-weight: bold;
+    display: inline-block;
+    width: 121.75px;
+    font-size: 50px;
 }
 
-.form-group {
-    margin-bottom: 28.8px;
+input.form-control.email-input{
+    height: 43px;
+    width: 384px;
+    margin-bottom: 16px;
+    border-radius: 8px;
 }
-
+input.form-control.password-input{
+    height: 43px;
+    width: 384px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+}
 .login-input {
-    width: 100%;
-    padding: 14.4px;
-    font-size: 23.04px;
-    border: none;
-    border-radius: 7.2px;
-    outline: none;
-    margin-bottom: 14.4px;
+    height: 46px;
+    width: 382px;
+    border-radius: 8px;
 }
-
 .login-btn {
+    font-weight: bold;
     background-color: #D07BE0;
-    color: #FFFFFF;
-    border: none;
-    padding: 14.4px 28.8px;
-    font-size: 23.04px;
-    border-radius: 7.2px;
+    border-radius: 8px;
     cursor: pointer;
     transition: background-color 0.3s;
+    width: 382px;
+    height: 46px;
 }
 
 .login-btn:hover {
@@ -66,14 +64,17 @@
 }
 
 .forgot-password-link {
-    color: #D07BE0;
+    margin-left: auto;
+    font-size: 14px;
+    color: #ffffff;
     text-decoration: none;
-    font-size: 20.16px;
+    font-weight: bold;
+    margin-bottom: 24px;
 }
 
 .signup-prompt {
-    margin-top: 28.8px;
-    font-size: 20.16px;
+    margin-top: 24px;
+    font-size: 16px;
 }
 
 .signup-link {
@@ -81,8 +82,7 @@
     text-decoration: none;
 }
 
-.login-image {
-    flex: 1;
-    background-size: cover;
-    background-position: center;
+.login-image-small {
+    width: 500px;
+    margin-left: 10px
 }
