@@ -56,15 +56,16 @@ def login_user():
     else:
         return jsonify({"error": "Invalid email or password"}), 401
 
-@api.route('/users/<int:id>', methods=['GET'])  #### FUNCIONANDO
+@api.route('/users/<int:id>', methods=['GET'])
 def get_user(id):
-    user = User.query.get_or_404(id)
+    user = User.query.options(db.joinedload(User.surveys_created)).get_or_404(id)  # Ensure surveys are loaded
     user_data = {
         "id": user.id,
         "email": user.email,
         "full_name": user.full_name,
         "created_at": user.created_at,
-        "is_active": user.is_active
+        "is_active": user.is_active,
+        "surveys": [survey.serialize() for survey in user.surveys_created]  # Include related surveys
     }
     return jsonify(user_data)
 
