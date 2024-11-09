@@ -30,15 +30,18 @@ class User(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     is_active = db.Column(db.Boolean, default=True)
 
-    surveys_created = db.relationship('Survey', backref='creator', lazy=True)
+    surveys_created = db.relationship('Survey', backref='creator', lazy='joined')  # Load surveys with user
     votes = db.relationship('Vote', backref='user', lazy=True)
     invitations = db.relationship('Invitation', backref='user', lazy=True)
 
-    
     def serialize(self):
         return {
             "id": self.id,
-            "email": self.email,           
+            "email": self.email,
+            "full_name": self.full_name,
+            "created_at": self.created_at,
+            "is_active": self.is_active,
+            "surveys": [survey.serialize() for survey in self.surveys_created]  # Include related surveys
         }
 
     def __repr__(self):
@@ -46,6 +49,7 @@ class User(db.Model):
 
 
 class Survey(db.Model):
+    __table_args__ = {'extend_existing': True}
     __tablename__ = 'surveys'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     creator_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
@@ -54,16 +58,21 @@ class Survey(db.Model):
     start_date = db.Column(db.DateTime)
     end_date = db.Column(db.DateTime)
     is_public = db.Column(db.Boolean, default=True)
-
     status = db.Column(db.Enum('draft', 'active', 'closed', name='status'))
     type = db.Column(db.Enum('survey', 'poll', name='type'), nullable=False)
 
-    questions = db.relationship('Question', backref='survey', lazy=True)
-    votes = db.relationship('Vote', backref='survey', lazy=True)  # Relación corregida
-    invitations = db.relationship('Invitation', backref='survey', lazy=True)
-
-    def __repr__(self):
-        return f'<Survey {self.title}>'
+    def serialize(self):
+        return {
+            "id": self.id,
+            "creator_id": self.creator_id,
+            "title": self.title,
+            "description": self.description,
+            "start_date": self.start_date,
+            "end_date": self.end_date,
+            "is_public": self.is_public,
+            "status": self.status,
+            "type": self.type
+        }
 
 
 class Question(db.Model):
