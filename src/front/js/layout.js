@@ -12,6 +12,7 @@ import { Login } from "./pages/login";
 import { UserProfile } from "./pages/myProfile";
 import { CreateSurvey } from "./pages/createSurvey";
 import { Register } from "./pages/register";
+import { CreateSurveys } from "./pages/surveyform";
 
 import { Navbar } from "./component/navbar";
 import { Footer } from "./component/footer";
