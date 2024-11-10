@@ -114,7 +114,7 @@ class Vote(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     survey_id = db.Column(db.Integer, db.ForeignKey('surveys.id'), nullable=False)
     question_id = db.Column(db.Integer, db.ForeignKey('questions.id'), nullable=False)
-    option_id = db.Column(db.Integer, db.ForeignKey('options.id'))
+    option_id = db.Column(db.Integer, db.ForeignKey('options.id'), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
     def serialize(self):

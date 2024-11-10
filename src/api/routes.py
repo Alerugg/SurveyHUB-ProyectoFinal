@@ -1,10 +1,23 @@
 #ENDPOINTS
 
 from flask import Flask, Blueprint, request, jsonify
+#ENDPOINTS
+
+from flask import Flask, Blueprint, request, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from api.models import db, User, Survey, Question, Option
 import jwt
 import datetime
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_cors import CORS  # Importa CORS
+
+# Inicializa la aplicación de Flask
+app = Flask(__name__)
+
+# Habilita CORS para todo el dominio de tu frontend (ajusta la URL si es necesario)
+CORS(app, resources={r"/*": {"origins": "*"}})  # Permite solicitudes de cualquier origen
+
+# Aquí va el resto de la configuración y rutas
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_cors import CORS  # Importa CORS
 
@@ -37,10 +50,12 @@ def create_user():
             return jsonify({"error": "No data provided"}), 400
 
         # Verificar si el email ya está registrado
+        # Verificar si el email ya está registrado
         existing_user = User.query.filter_by(email=data['email']).first()
         if existing_user:
             return jsonify({"error": "Email already registered"}), 409
 
+        # Hashear la contraseña usando SHA256
         # Hashear la contraseña usando SHA256
         password_hash = generate_password_hash(data['password'], method='pbkdf2:sha256')
 
