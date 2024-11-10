@@ -182,12 +182,46 @@ def add_option_to_question(id):
     db.session.add(new_option)
     db.session.commit()
 
-    return jsonify({"message": "Option added successfully", "option_id": new_option.id}), 201
+    return jsonify({"message": "Option created successfully"}), 201
 
-# Agregar las demás rutas según sea necesario
+@api.route('/options/<int:id>', methods=['GET'])
+def get_option(id):
+    option = Option.query.get_or_404(id)
+    question = Question.query.get_or_404(option.question_id)
+    survey = Survey.query.get_or_404(question.survey_id)
+    option_data = {
+        "id": option.id,
+        "question_id": option.question_id,
+        "option_text": option.option_text,
+        "order": option.order
+    }
+    return jsonify(option_data)
 
-# Configura el blueprint y la aplicación
-app.register_blueprint(api, url_prefix='/api')
+@api.route('/options', methods=['GET'])
+def get_options():
+    options = Option.query.all()
+    return jsonify([option.serialize() for option in options]), 200
 
-if __name__ == '__main__':
-    app.run(debug=True)
+@api.route('/options/<int:id>', methods=['PUT'])
+def update_option(id):
+    option = Option.query.get_or_404(id)
+    question = Question.query.get_or_404(option.question_id)
+    survey = Survey.query.get_or_404(question.survey_id)
+    data = request.get_json()
+    option.option_text = data.get('option_text', option.option_text)
+    db.session.commit()
+    return jsonify({
+        "id": option.id,
+        "question_id": option.question_id,
+        "option_text": option.option_text,
+        "order": option.order
+    })
+
+@api.route('/options/<int:id>', methods=['DELETE'])
+def delete_option(id):
+    option = Option.query.get_or_404(id)
+    question = Question.query.get_or_404(option.question_id)
+    survey = Survey.query.get_or_404(question.survey_id)
+    db.session.delete(option)
+    db.session.commit()
+    return jsonify({'message': 'Option deleted'}), 200
