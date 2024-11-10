@@ -1,3 +1,5 @@
+#ENDPOINTS
+
 from flask import Flask, Blueprint, request, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from api.models import db, User, Survey, Question, Option
@@ -16,9 +18,15 @@ CORS(app, resources={r"/*": {"origins": "*"}})  # Permite solicitudes de cualqui
 
 api = Blueprint('api', __name__)
 
-SECRET_KEY = 'Alex_Daniela_Jhow_Angela'
+SECRET_KEY = 'your_secret_key_here'  # Debes reemplazar esto por una clave secreta segura
 
-# Estos seran los Endpoints de Users
+
+@api.route('/users', methods=['GET'])
+@jwt_required()  # Requiere autenticación
+def get_users():
+    users = User.query.all()
+    users_data = [{"id": user.id, "email": user.email, "full_name": user.full_name} for user in users]
+    return jsonify(users_data), 200
 
 # User Endpoints
 @api.route('/users', methods=['POST'])
@@ -28,12 +36,12 @@ def create_user():
         if not data:
             return jsonify({"error": "No data provided"}), 400
 
-        # Verifica si el email está registrado o no
+        # Verificar si el email ya está registrado
         existing_user = User.query.filter_by(email=data['email']).first()
         if existing_user:
             return jsonify({"error": "Email already registered"}), 409
 
-        # Esto Hashea la contraseña usando SHA256
+        # Hashear la contraseña usando SHA256
         password_hash = generate_password_hash(data['password'], method='pbkdf2:sha256')
 
         # Crear el nuevo usuario
