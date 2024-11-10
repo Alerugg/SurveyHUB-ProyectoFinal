@@ -12,7 +12,9 @@ import { Login } from "./pages/login";
 import { UserProfile } from "./pages/userProfile";
 import { CreateSurvey } from "./pages/createSurvey";
 import { Register } from "./pages/register";
-import SurveyResults from "./pages/survey_results";
+import SurveyResults from "./pages/surveyResults";
+
+
 
 
 import { Navbar } from "./component/navbar";
@@ -35,9 +37,9 @@ const Layout = () => {
                         <Route element={<Home />} path="/" />
                         <Route element={<Login />} path="/login" />
                         <Route element={<HomeUserLogued />} path="/user_logued" />
+                        <Route element={<SurveyResults/>} path="/surveys/:theid" />
                         <Route element={<Register />} path="/register" />
                         <Route element={< CreateSurvey/>} path="/create_survey" />
-                        <Route element={<SurveyResults />} path="/survey/:theid" />
                         <Route element={<UserProfile/>} path="/profile" />
                         <Route element={<Demo />} path="/demo" />
                         <Route element={<Single />} path="/single/:theida" />

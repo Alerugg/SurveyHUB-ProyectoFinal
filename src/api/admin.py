@@ -16,13 +16,15 @@ def setup_admin(app):
     class SurveyAdmin(ModelView):
         form_excluded_columns = ['questions', 'votes', 'invitations']
 
-    # Personaliza la vista de Question para excluir relaciones no deseadas
+    # Personaliza la vista de Question para incluir el campo de Survey relacionado
     class QuestionAdmin(ModelView):
         form_excluded_columns = ['options', 'votes']
+        form_columns = ['survey', 'question_text', 'question_type', 'order', 'required']
 
-    # Personaliza la vista de Option para excluir relaciones no deseadas
+    # Personaliza la vista de Option para incluir los campos de Survey y Question relacionados
     class OptionAdmin(ModelView):
         form_excluded_columns = ['votes']
+        form_columns = ['question', 'question.survey', 'option_text', 'order']
 
     # Añadir las vistas al administrador
     admin.add_view(UserAdmin(User, db.session))
