@@ -1,25 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
-
 db = SQLAlchemy()
-
-# class User(db.Model):
-#     id = db.Column(db.Integer, primary_key=True)
-#     email = db.Column(db.String(120), unique=True, nullable=False)
-#     password = db.Column(db.String(80), unique=False, nullable=False)
-#     is_active = db.Column(db.Boolean(), unique=False, nullable=False)
-
-#     def __repr__(self):
-#         return f'<User {self.email}>'
-
-#     def serialize(self):
-#         return {
-#             "id": self.id,
-#             "email": self.email,
-#             # do not serialize the password, its a security breach
-#         }
-    
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -30,7 +12,7 @@ class User(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     is_active = db.Column(db.Boolean, default=True)
 
-    surveys_created = db.relationship('Survey', backref='creator', lazy='joined')  # Load surveys with user
+    surveys_created = db.relationship('Survey', backref='creator', lazy='joined')
     votes = db.relationship('Vote', backref='user', lazy=True)
     invitations = db.relationship('Invitation', backref='user', lazy=True)
 
@@ -41,7 +23,7 @@ class User(db.Model):
             "full_name": self.full_name,
             "created_at": self.created_at,
             "is_active": self.is_active,
-            "surveys": [survey.serialize() for survey in self.surveys_created]  # Include related surveys
+            "surveys": [survey.serialize() for survey in self.surveys_created]
         }
 
     def __repr__(self):
@@ -61,6 +43,10 @@ class Survey(db.Model):
     status = db.Column(db.Enum('draft', 'active', 'closed', name='status'))
     type = db.Column(db.Enum('survey', 'poll', name='type'), nullable=False)
 
+    questions = db.relationship('Question', backref='survey', lazy=True)
+    votes = db.relationship('Vote', backref='survey', lazy=True)
+    invitations = db.relationship('Invitation', backref='survey', lazy=True)
+
     def serialize(self):
         return {
             "id": self.id,
@@ -73,6 +59,10 @@ class Survey(db.Model):
             "status": self.status,
             "type": self.type
         }
+
+    def __repr__(self):
+        return f'{self.title}'
+
 
 
 class Question(db.Model):
@@ -103,14 +93,23 @@ class Option(db.Model):
     def __repr__(self):
         return f'<Option {self.option_text}>'
 
+    def serialize(self):
+        return {
+            "id": self.id,
+            "question_id": self.question_id,
+            "option_text": self.option_text,
+            "order": self.order,
+            "survey_title": self.question.survey.title if self.question and self.question.survey else None
+        }
+
 
 class Vote(db.Model):
     __tablename__ = 'votes'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    survey_id = db.Column(db.Integer, db.ForeignKey('surveys.id'), nullable=False)  # Nueva clave foránea para Survey
+    survey_id = db.Column(db.Integer, db.ForeignKey('surveys.id'), nullable=False)
     question_id = db.Column(db.Integer, db.ForeignKey('questions.id'), nullable=False)
-    option_id = db.Column(db.Integer, db.ForeignKey('options.id'))
+    option_id = db.Column(db.Integer, db.ForeignKey('options.id'), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
     def __repr__(self):
@@ -129,5 +128,3 @@ class Invitation(db.Model):
 
     def __repr__(self):
         return f'<Invitation {self.token} for Survey {self.survey_id}>'
-
-
