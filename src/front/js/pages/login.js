@@ -16,7 +16,7 @@ export const Login = () => {
                 <h1 className="login-title">
                     <span className="highlight-e">E</span>
                     <span className="highlight-vote">vote</span>
-                </h1>                
+                </h1>
                 <form>
                     <div className="form-group-placeholder">
                         <input
@@ -45,6 +45,6 @@ export const Login = () => {
             <div className="login-image" style={{ backgroundImage: `url(${login})` }}></div>
 
         </div>
-        
+
     );
 };
