@@ -16,7 +16,9 @@ CORS(app, resources={r"/*": {"origins": "*"}})  # Permite solicitudes de cualqui
 
 api = Blueprint('api', __name__)
 
-SECRET_KEY = 'your_secret_key_here'  # Debes reemplazar esto por una clave secreta segura
+SECRET_KEY = 'Alex_Daniela_Jhow_Angela'
+
+# Estos seran los Endpoints de Users
 
 # User Endpoints
 @api.route('/users', methods=['POST'])
@@ -26,12 +28,12 @@ def create_user():
         if not data:
             return jsonify({"error": "No data provided"}), 400
 
-        # Verificar si el email ya está registrado
+        # Verifica si el email está registrado o no
         existing_user = User.query.filter_by(email=data['email']).first()
         if existing_user:
             return jsonify({"error": "Email already registered"}), 409
 
-        # Hashear la contraseña usando SHA256
+        # Esto Hashea la contraseña usando SHA256
         password_hash = generate_password_hash(data['password'], method='pbkdf2:sha256')
 
         # Crear el nuevo usuario

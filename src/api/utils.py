@@ -37,46 +37,84 @@ def generate_sitemap(app):
     additional_data_html = """
         <h2 style="margin: 20px 0px 10px 0px; font-size:40px;">ENDPOINTS REQUESTS GUIDE</h2>
         <div style="text-align: left; padding: 40px; margin: 20px 100px; background-color: #333; border-radius: 10px; color: white;">
-            <p><strong>SIGNUP:</strong></p>
+            <p><strong>CREATE USER:</strong></p>
             <p><strong>method: POST</strong></p>
-            <p><strong>path request:</strong> /signup</p>
+            <p><strong>path request:</strong> /users</p>
             <pre style="background-color: #f5f5f5; padding: 10px; border-radius: 5px; overflow: auto; color: black;">
                     {
-                        "username": "Magdalena",
-                        "password": "1234",
-                        "photo_url": "https://pbs.twimg.com/profile_images/1309266094889332737/G-o2UUH2_400x400.jpg"
+                        "email": "newuser@example.com",
+                        "password": "new_password",
+                        "full_name": "New User"
                     }
-                
+            </pre>
+
+            <p><strong>CREATE SURVEY:</strong></p>
+            <p><strong>method: POST</strong></p>
+            <p><strong>path request:</strong> /surveys</p>
+            <pre style="background-color: #f5f5f5; padding: 10px; border-radius: 5px; overflow: auto; color: black;">
+                    {
+                        "creator_id": 1,
+                        "title": "Customer Satisfaction",
+                        "description": "Survey to understand customer satisfaction",
+                        "start_date": "2024-01-01",
+                        "end_date": "2024-01-31",
+                        "is_public": true,
+                        "status": "draft",
+                        "type": "survey"
+                    }
+            </pre>
+
+            <p><strong>CREATE QUESTION:</strong></p>
+            <p><strong>method: POST</strong></p>
+            <p><strong>path request:</strong> /questions</p>
+            <pre style="background-color: #f5f5f5; padding: 10px; border-radius: 5px; overflow: auto; color: black;">
+                    {
+                        "survey_id": 1,
+                        "question_text": "How satisfied are you with our service?",
+                        "question_type": "multiple_choice",
+                        "order": 1,
+                        "required": true
+                    }
+            </pre>
+
+            <p><strong>CREATE OPTION:</strong></p>
+            <p><strong>method: POST</strong></p>
+            <p><strong>path request:</strong> /options</p>
+            <pre style="background-color: #f5f5f5; padding: 10px; border-radius: 5px; overflow: auto; color: black;">
+                    {
+                        "question_id": 1,
+                        "option_text": "Very Satisfied",
+                        "order": 1
+                    }
             </pre>
         </div>
-
-                <h2 style="margin: 20px 0px 10px 0px; font-size:40px;">ENDPOINTS REQUESTS GUIDE</h2>
         <div style="text-align: left; padding: 40px; margin: 20px 100px; background-color: #333; border-radius: 10px; color: white;">
-            <p><strong>SIGNUP:</strong></p>
-            <p><strong>method: POST</strong></p>
-            <p><strong>path request:</strong> /signup</p>
+            <p><strong>DELETE USER:</strong></p>
+            <p><strong>method: DELETE</strong></p>
+            <p><strong>path request:</strong> /users/&lt;int:id&gt;</p>
             <pre style="background-color: #f5f5f5; padding: 10px; border-radius: 5px; overflow: auto; color: black;">
-                    {
-                        "username": "Magdalena",
-                        "password": "1234",
-                        "photo_url": "https://pbs.twimg.com/profile_images/1309266094889332737/G-o2UUH2_400x400.jpg"
-                    }
-                
+                /users/&lt;int:id&gt;
             </pre>
-        </div>
 
-                <h2 style="margin: 20px 0px 10px 0px; font-size:40px;">ENDPOINTS REQUESTS GUIDE</h2>
-        <div style="text-align: left; padding: 40px; margin: 20px 100px; background-color: #333; border-radius: 10px; color: white;">
-            <p><strong>SIGNUP:</strong></p>
-            <p><strong>method: POST</strong></p>
-            <p><strong>path request:</strong> /signup</p>
+            <p><strong>DELETE SURVEY:</strong></p>
+            <p><strong>method: DELETE</strong></p>
+            <p><strong>path request:</strong> /surveys/&lt;int:id&gt;</p>
             <pre style="background-color: #f5f5f5; padding: 10px; border-radius: 5px; overflow: auto; color: black;">
-                    {
-                        "username": "Magdalena",
-                        "password": "1234",
-                        "photo_url": "https://pbs.twimg.com/profile_images/1309266094889332737/G-o2UUH2_400x400.jpg"
-                    }
-                
+                /surveys/&lt;int:id&gt;
+            </pre>
+
+            <p><strong>DELETE QUESTION:</strong></p>
+            <p><strong>method: DELETE</strong></p>
+            <p><strong>path request:</strong> /questions/&lt;int:id&gt;</p>
+            <pre style="background-color: #f5f5f5; padding: 10px; border-radius: 5px; overflow: auto; color: black;">
+                /questions/&lt;int:id&gt;
+            </pre>
+
+            <p><strong>DELETE OPTION:</strong></p>
+            <p><strong>method: DELETE</strong></p>
+            <p><strong>path request:</strong> /options/&lt;int:id&gt;</p>
+            <pre style="background-color: #f5f5f5; padding: 10px; border-radius: 5px; overflow: auto; color: black;">
+                /options/&lt;int:id&gt;
             </pre>
         </div>
     """
@@ -111,6 +149,7 @@ def generate_sitemap(app):
         </body>
         </html>
         """
+
 
 
 

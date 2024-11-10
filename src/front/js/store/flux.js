@@ -21,27 +21,6 @@ const getState = ({ getStore, getActions, setStore }) => {
                 getActions().changeColor(0, "green");
             },
 
-            getMessage: async () => {
-                try {
-                    // fetching data from the backend
-                    const resp = await fetch(process.env.BACKEND_URL + "/api/hello", {
-                        mode: 'cors' // Habilita el modo CORS
-                    });
-        
-                    if (!resp.ok) {
-                        throw new Error(`HTTP error! Status: ${resp.status}`);
-                    }
-        
-                    const data = await resp.json();
-                    setStore({ message: data.message });
-                    
-                    // don't forget to return something, that is how the async resolves
-                    return data;
-                } catch (error) {
-                    console.error("Error loading message from backend", error);
-                    alert("An error occurred while trying to fetch the data. Please check your connection and try again.");
-                }
-            },
 
             changeColor: (index, color) => {
                 // Get the store

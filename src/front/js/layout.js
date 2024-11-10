@@ -9,9 +9,11 @@ import { Demo } from "./pages/demo";
 import { Single } from "./pages/single";
 import injectContext from "./store/appContext";
 import { Login } from "./pages/login";
-import { UserProfile } from "./pages/myProfile";
+import { UserProfile } from "./pages/userProfile";
 import { CreateSurvey } from "./pages/createSurvey";
 import { Register } from "./pages/register";
+import SurveyResults from "./pages/survey_results";
+
 
 import { Navbar } from "./component/navbar";
 import { Footer } from "./component/footer";
@@ -35,9 +37,10 @@ const Layout = () => {
                         <Route element={<HomeUserLogued />} path="/user_logued" />
                         <Route element={<Register />} path="/register" />
                         <Route element={< CreateSurvey/>} path="/create_survey" />
+                        <Route element={<SurveyResults />} path="/survey/:theid" />
                         <Route element={<UserProfile/>} path="/profile" />
                         <Route element={<Demo />} path="/demo" />
-                        <Route element={<Single />} path="/single/:theid" />
+                        <Route element={<Single />} path="/single/:theida" />
                         <Route element={<h1>Not found!</h1>} />
                     </Routes>
                     <Footer />

@@ -1,6 +1,15 @@
+<<<<<<< HEAD
 import React, { useState } from "react";
 import "../../styles/home.css";
 import { Link, useNavigate } from "react-router-dom";
+=======
+import React, { useContext } from "react";
+import "../../styles/login.css";
+import { Context } from "../store/appContext";
+import { Link } from "react-router-dom";
+import login from '/workspaces/PROYECTO-FINAL-REPO-FINAL/src/front/img/login.png';
+
+>>>>>>> 8ed97c3c01c92dcb6f5814646a1b837789688a39
 
 // Función login para hacer la solicitud al endpoint de login
 const login = async (email, password) => {
@@ -47,6 +56,7 @@ const login = async (email, password) => {
 
 // Componente de Login
 export const Login = () => {
+<<<<<<< HEAD
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState(null);
@@ -103,7 +113,47 @@ export const Login = () => {
                 <p style={{ marginTop: "10px" }}>
                     Don't have an account? <Link to="/register">Register here</Link>
                 </p>
+=======
+    const { store, actions } = useContext(Context);
+
+    return (
+        <div className="login-container">
+            <img src={login} alt="Login" className="login-image-small" />
+
+            <div className="login-form-container">
+                <h1 className="login-title">
+                    <span className="highlight-e">E</span>
+                    <span className="highlight-vote">vote</span>
+                </h1>
+                <form>
+                    <div className="form-group-placeholder">
+                        <input
+                            type="email"
+                            className="form-control email-input"
+                            placeholder="Email"
+                            required
+                        />
+                        <input
+                            type="password"
+                            className="form-control password-input"
+                            placeholder="Password"
+                            required
+                        />
+
+                    </div>
+                    <div className="form-group d-flex justify-content-between">
+                        <Link to="/forgot-password" className="forgot-password-link">Forgot password?</Link>
+                    </div>
+                    <button type="submit" className="btn login-btn">Log in</button>
+                </form>
+                <div className="signup-prompt">
+                    Don't have an account? <Link to="/register" className="signup-link">Sign up</Link>
+                </div>
+>>>>>>> 8ed97c3c01c92dcb6f5814646a1b837789688a39
             </div>
+            <div className="login-image" style={{ backgroundImage: `url(${login})` }}></div>
+
         </div>
+
     );
 };
