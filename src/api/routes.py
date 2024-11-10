@@ -3,6 +3,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from api.models import db, User, Survey, Question, Option
 import jwt
 import datetime
+from .auth import requires_auth
+
 
 api = Blueprint('api', __name__)
 
@@ -56,16 +58,16 @@ def login_user():
     else:
         return jsonify({"error": "Invalid email or password"}), 401
 
-@api.route('/users/<int:id>', methods=['GET'])
+@api.route('/users/<int:id>', methods=['GET'])  #### FUNCIONANDO
+@requires_auth
 def get_user(id):
-    user = User.query.options(db.joinedload(User.surveys_created)).get_or_404(id)  # Ensure surveys are loaded
+    user = User.query.get_or_404(id)
     user_data = {
         "id": user.id,
         "email": user.email,
         "full_name": user.full_name,
         "created_at": user.created_at,
-        "is_active": user.is_active,
-        "surveys": [survey.serialize() for survey in user.surveys_created]  # Include related surveys
+        "is_active": user.is_active
     }
     return jsonify(user_data)
 
@@ -109,6 +111,7 @@ def delete_user(id):
 
 # Estos seran los Endpoints de Surveys
 @api.route('/surveys', methods=['POST'])
+@requires_auth  # Protección con Auth0
 def create_survey():
     data = request.get_json()
     if not data:
@@ -130,6 +133,7 @@ def create_survey():
     return jsonify({"message": "Survey created successfully"}), 201
 
 @api.route('/surveys/<int:id>', methods=['GET'])
+@requires_auth  # Protección con Auth0
 def get_survey(id):
     survey = Survey.query.get_or_404(id)
     survey_data = {
@@ -146,11 +150,13 @@ def get_survey(id):
     return jsonify(survey_data)
 
 @api.route('/surveys', methods=['GET'])
+@requires_auth  # Protección con Auth0
 def get_surveys():
     surveys = Survey.query.all()
     return jsonify([survey.serialize() for survey in surveys]), 200
 
 @api.route('/surveys/<int:id>', methods=['PUT'])
+@requires_auth  # Protección con Auth0
 def update_survey(id):
     survey = Survey.query.get_or_404(id)
     data = request.get_json()
@@ -172,6 +178,7 @@ def update_survey(id):
     })
 
 @api.route('/surveys/<int:id>', methods=['DELETE'])
+@requires_auth  # Protección con Auth0
 def delete_survey(id):
     survey = Survey.query.get_or_404(id)
     db.session.delete(survey)
@@ -180,6 +187,7 @@ def delete_survey(id):
 
 # Estos seran los Endpoints de Question
 @api.route('/questions', methods=['POST'])
+@requires_auth  # Protección con Auth0
 def create_question():
     data = request.get_json()
     if not data:
@@ -199,6 +207,7 @@ def create_question():
     return jsonify({"message": "Question created successfully"}), 201
 
 @api.route('/questions/<int:id>', methods=['GET'])
+@requires_auth  # Protección con Auth0
 def get_question(id):
     question = Question.query.get_or_404(id)
     survey = Survey.query.get_or_404(question.survey_id)
@@ -213,11 +222,13 @@ def get_question(id):
     return jsonify(question_data)
 
 @api.route('/questions', methods=['GET'])
+@requires_auth  # Protección con Auth0
 def get_questions():
     questions = Question.query.all()
     return jsonify([question.serialize() for question in questions]), 200
 
 @api.route('/questions/<int:id>', methods=['PUT'])
+@requires_auth  # Protección con Auth0
 def update_question(id):
     question = Question.query.get_or_404(id)
     survey = Survey.query.get_or_404(question.survey_id)
@@ -236,6 +247,7 @@ def update_question(id):
     })
 
 @api.route('/questions/<int:id>', methods=['DELETE'])
+@requires_auth  # Protección con Auth0
 def delete_question(id):
     question = Question.query.get_or_404(id)
     survey = Survey.query.get_or_404(question.survey_id)
@@ -245,6 +257,7 @@ def delete_question(id):
 
 # Estos seran los Endpoints de Options
 @api.route('/options', methods=['POST'])
+@requires_auth  # Protección con Auth0
 def create_option():
     data = request.get_json()
     if not data:
@@ -263,6 +276,7 @@ def create_option():
     return jsonify({"message": "Option created successfully"}), 201
 
 @api.route('/options/<int:id>', methods=['GET'])
+@requires_auth  # Protección con Auth0
 def get_option(id):
     option = Option.query.get_or_404(id)
     question = Question.query.get_or_404(option.question_id)
@@ -276,11 +290,13 @@ def get_option(id):
     return jsonify(option_data)
 
 @api.route('/options', methods=['GET'])
+@requires_auth  # Protección con Auth0
 def get_options():
     options = Option.query.all()
     return jsonify([option.serialize() for option in options]), 200
 
 @api.route('/options/<int:id>', methods=['PUT'])
+@requires_auth  # Protección con Auth0
 def update_option(id):
     option = Option.query.get_or_404(id)
     question = Question.query.get_or_404(option.question_id)
@@ -296,6 +312,7 @@ def update_option(id):
     })
 
 @api.route('/options/<int:id>', methods=['DELETE'])
+@requires_auth  # Protección con Auth0
 def delete_option(id):
     option = Option.query.get_or_404(id)
     question = Question.query.get_or_404(option.question_id)
