@@ -12,35 +12,38 @@ class User(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     is_active = db.Column(db.Boolean, default=True)
 
-    surveys_created = db.relationship('Survey', backref='creator', lazy='joined')  # Load surveys with user
+    surveys_created = db.relationship('Survey', backref='creator', lazy=True)
     votes = db.relationship('Vote', backref='user', lazy=True)
     invitations = db.relationship('Invitation', backref='user', lazy=True)
 
     def serialize(self):
         return {
             "id": self.id,
-            "email": self.email,
+            "email": self.email, 
             "full_name": self.full_name,
             "created_at": self.created_at,
             "is_active": self.is_active,
-            "surveys": [survey.serialize() for survey in self.surveys_created]  # Include related surveys
         }
 
     def __repr__(self):
         return f'<User {self.email}>'
 
 class Survey(db.Model):
-    __table_args__ = {'extend_existing': True}
     __tablename__ = 'surveys'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     creator_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     title = db.Column(db.String, nullable=False)
     description = db.Column(db.Text)
-    start_date = db.Column(db.DateTime, default=datetime.utcnow)
+    start_date = db.Column(db.DateTime)
     end_date = db.Column(db.DateTime)
     is_public = db.Column(db.Boolean, default=True)
-    status = db.Column(db.Enum('draft', 'active', 'closed', name='status'))
+
+    status = db.Column(db.Enum('draft', 'active', 'closed', name='status'), nullable=False)
     type = db.Column(db.Enum('survey', 'poll', name='type'), nullable=False)
+
+    questions = db.relationship('Question', backref='survey', lazy=True)
+    votes = db.relationship('Vote', backref='survey', lazy=True)
+    invitations = db.relationship('Invitation', backref='survey', lazy=True)
 
     def serialize(self):
         return {
@@ -52,8 +55,12 @@ class Survey(db.Model):
             "end_date": self.end_date,
             "is_public": self.is_public,
             "status": self.status,
-            "type": self.type
+            "type": self.type,
+            "questions": [question.serialize() for question in self.questions],
         }
+
+    def __repr__(self):
+        return f'<Survey {self.title}>'
 
 class Question(db.Model):
     __tablename__ = 'questions'
@@ -107,7 +114,7 @@ class Vote(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     survey_id = db.Column(db.Integer, db.ForeignKey('surveys.id'), nullable=False)
     question_id = db.Column(db.Integer, db.ForeignKey('questions.id'), nullable=False)
-    option_id = db.Column(db.Integer, db.ForeignKey('options.id'))
+    option_id = db.Column(db.Integer, db.ForeignKey('options.id'), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
     def serialize(self):
@@ -129,18 +136,13 @@ class Invitation(db.Model):
     survey_id = db.Column(db.Integer, db.ForeignKey('surveys.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     token = db.Column(db.String, unique=True, nullable=False)
-    expires_at = db.Column(db.DateTime, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    expires_at = db.Column(db.DateTime, nullable=False)  # Elimina ForeignKey
     used = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    def __init__(self, survey_id, user_id, token):
-        self.survey_id = survey_id
-        self.user_id = user_id
-        self.token = token
-        survey = Survey.query.get(survey_id)
-        if survey:
-            self.created_at = survey.start_date if survey.start_date else datetime.utcnow()
-            self.expires_at = survey.end_date if survey.end_date else datetime.utcnow()
+    # Lógica para establecer expires_at programáticamente
+    def set_expiration(self, survey):
+        self.expires_at = survey.end_date
 
     def serialize(self):
         return {
@@ -149,8 +151,8 @@ class Invitation(db.Model):
             "user_id": self.user_id,
             "token": self.token,
             "expires_at": self.expires_at,
-            "created_at": self.created_at,
             "used": self.used,
+            "created_at": self.created_at,
         }
 
     def __repr__(self):
