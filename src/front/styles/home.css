@@ -11,6 +11,18 @@ body {
   padding: 20px;
   min-height: 100vh;
 }
+.jumbotron {
+  flex-direction: column;
+  align-items: flex-start;
+  display: flex; /* Usa flexbox para organizar los elementos */
+  justify-content: space-between; /* Distribuye el espacio entre los elementos */
+}
+
+.jumbotron-image {
+  max-width: 150px; 
+  height: auto; /* Mantiene la proporción de la imagen */
+  margin-left: 20px; /* Espacio a la izquierda de la imagen */
+}
   
 .header-section {
   background-color: rgb(63, 55, 77);
@@ -18,12 +30,33 @@ body {
   border-radius: 20px;
 }
   
-.login-btn, .signup-btn {
+.home-login-btn {
   background-color: #DB6FEB;
   color: #ffffff;
   border: none;
-  border-radius: 20px;
   transition: transform 0.3s ease;
+  border-radius: 16px;
+  cursor: pointer;
+  width: 260px;
+  height: 46px;
+}
+.home-signup-btn{
+  background-color: #DB6FEB;
+  color: #ffffff;
+  border: none;
+  transition: transform 0.3s ease;
+  border-radius: 16px;
+  cursor: pointer;
+  width: 260px;
+  height: 46px;
+}
+
+.home-e{
+  margin-left: 14px;
+  font-weight: bold;
+  display: inline-block;
+  font-size: 70px;
+  color: #DB6FEB;
 }
   
 .login-btn:hover, .signup-btn:hover {

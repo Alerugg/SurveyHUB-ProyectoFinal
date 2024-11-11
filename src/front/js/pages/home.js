@@ -4,6 +4,7 @@ import "../../styles/home.css";
 import { Link } from "react-router-dom";
 import example from "/workspaces/PROYECTO-FINAL-REPO-FINAL/src/front/img/roadmapexample.png";
 import { GrActions } from "react-icons/gr";
+import HomeImg from "/workspaces/PROYECTO-FINAL-REPO-FINAL/src/front/img/homeimg.png"
 
 export const Home = () => {
   const { store, actions } = useContext(Context);
@@ -23,12 +24,19 @@ export const Home = () => {
     <div className="home-container">
       {/* Header Section */}
       <div className="container mt-5">
-        <div className="jumbotron text-center p-5 mb-4 header-section">
-          <h1 className="display-4 fw-bold">Welcome to PulseSurvey</h1>
-          <p className="lead">Discover how our surveys can help you gather valuable insights and make better decisions.</p>
+        <div className="jumbotron p-5 mb-4 header-section">
+          <h1 className="home-tittle fw-bold">Welcome to
+            <span className="home-e">E</span>
+            <span className="home-vote">vote</span>
+          </h1>
+          <p className="lead">
+            Discover how our surveys can help you gather valuable insights <br />
+            and make better decisions.
+          </p>
+          <img src={HomeImg} alt="Home" className="jumbotron-image" />         
           <div className="mt-4">
-            <Link to="/login" className="btn btn-lg login-btn mx-2">Login</Link>
-            <Link to="/register" className="btn btn-lg signup-btn mx-2">Sign Up</Link>
+            <Link to="/login" className="btn btn-lg home-login-btn mx-2">Login</Link>
+            <Link to="/register" className="btn btn-lg home-signup-btn mx-2">Sign Up</Link>
           </div>
         </div>
 
