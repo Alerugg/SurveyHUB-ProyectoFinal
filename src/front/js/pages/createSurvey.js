@@ -240,8 +240,6 @@ export const CreateSurvey = () => {
                             >
                                 <option value="multiple_choice">Multiple Choice</option>
                                 <option value="yes_no">Yes/No</option>
-                                <option value="open_ended">Open Ended</option>
-                                <option value="scale">Scale</option>
                             </select>
                         </div>
                         {questionType === "multiple_choice" && (

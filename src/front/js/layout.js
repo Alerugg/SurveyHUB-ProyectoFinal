@@ -13,6 +13,7 @@ import { UserProfile } from "./pages/userProfile";
 import { CreateSurvey } from "./pages/createSurvey";
 import { Register } from "./pages/register";
 import SurveyResults from "./pages/surveyResults";
+import { ForgotPassword } from "./pages/recoverPassword";
 
 
 
@@ -41,6 +42,7 @@ const Layout = () => {
                         <Route element={<Register />} path="/register" />
                         <Route element={< CreateSurvey/>} path="/create_survey" />
                         <Route element={<UserProfile/>} path="/profile" />
+                        <Route element={<ForgotPassword />} path="/password_recovery" />
                         <Route element={<Demo />} path="/demo" />
                         <Route element={<Single />} path="/single/:theida" />
                         <Route element={<h1>Not found!</h1>} />
