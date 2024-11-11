@@ -8,7 +8,7 @@ const performLogin = async (email, password) => {
     try {
         console.log("Enviando email:", email, "y password:", password);
 
-        const resp = await fetch("https://didactic-space-tribble-vx74pxvwv9rcpxrp-3001.app.github.dev/api/login", {
+        const resp = await fetch(process.env.BACKEND_URL+"/api/login", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -55,10 +55,10 @@ export const Login = () => {
         try {
             const data = await performLogin(email, password);
             console.log("Login exitoso:", data.message);
-            actions.login(data); // Guarda el token y cambia el estado de autenticación
-            navigate("/user_logued"); // Redirige al área protegida o a otra página
+            actions.login(data);                                         // Guarda el token y cambia el estado de autenticación
+            navigate("/user_logued");                                    // Redirige al área protegida o a otra página
         } catch (err) {
-            setError(err.message); // Mostrar el mensaje de error en la interfaz
+            setError(err.message);                                       // Mostrar el mensaje de error en la interfaz
         }
     };
 
