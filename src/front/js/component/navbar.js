@@ -1,9 +1,18 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Context } from "../store/appContext";
 import { VscGraph } from "react-icons/vsc";
 import "/workspaces/PROYECTO-FINAL-REPO-FINAL/src/front/styles/navbar.css";
 
 export const Navbar = () => {
+  const { store, actions } = useContext(Context);
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    actions.logout();
+    navigate("/"); // Redirige a la pantalla de inicio sin loguear
+  };
+
   return (
     <nav className="navbar navbar-expand-lg navbar-custom">
       <div className="container-fluid">
@@ -30,6 +39,11 @@ export const Navbar = () => {
               <i className="fas fa-user fa-lg me-1"></i>
             </Link>
           </li>
+          {store.isAuthenticated && (
+            <li className="nav-item">
+              <button className="btn btn-logout nav-link" onClick={handleLogout}>Logout</button>
+            </li>
+          )}
           <li className="nav-item me-3">
             <Link className="nav-link" to="#">
               <i className="fas fa-bell fa-lg"></i>

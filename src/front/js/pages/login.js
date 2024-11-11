@@ -1,14 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import "../../styles/login.css";
-import { Link, useNavigate } from "react-router-dom";
-import loginImage from '/workspaces/PROYECTO-FINAL-REPO-FINAL/src/front/img/login.png';
+import { useNavigate, Link } from "react-router-dom";
+import { Context } from "../store/appContext";
+import loginImage from "/workspaces/PROYECTO-FINAL-REPO-FINAL/src/front/img/login.png";
 
-// Función para hacer la solicitud al endpoint de login
 const performLogin = async (email, password) => {
     try {
         console.log("Enviando email:", email, "y password:", password);
 
-        const resp = await fetch("https://sturdy-xylophone-r4r7qrjrvj49f5w7p-3001.app.github.dev/api/login", {
+        const resp = await fetch("https://didactic-space-tribble-vx74pxvwv9rcpxrp-3001.app.github.dev/api/login", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -33,8 +33,6 @@ const performLogin = async (email, password) => {
         const data = await resp.json();
         console.log("Datos de respuesta del login:", data);
 
-        localStorage.setItem("jwt-token", data.token);
-
         return data;
 
     } catch (err) {
@@ -43,11 +41,11 @@ const performLogin = async (email, password) => {
     }
 };
 
-// Componente de Login
 export const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState(null);
+    const { actions } = useContext(Context);
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
@@ -57,6 +55,7 @@ export const Login = () => {
         try {
             const data = await performLogin(email, password);
             console.log("Login exitoso:", data.message);
+            actions.login(data); // Guarda el token y cambia el estado de autenticación
             navigate("/user_logued"); // Redirige al área protegida o a otra página
         } catch (err) {
             setError(err.message); // Mostrar el mensaje de error en la interfaz
