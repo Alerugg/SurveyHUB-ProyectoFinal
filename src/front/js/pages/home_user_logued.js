@@ -1,10 +1,17 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import "../../styles/home_user_logued.css";
 import { Context } from "../store/appContext";
 import { Link } from "react-router-dom";
 
 export const HomeUserLogued = () => {
     const { store, actions } = useContext(Context);
+
+    useEffect(()=>{
+        actions.getSurveys()       
+    
+      },[])
+    
+
 
     return (
         <div className="home-user-container">
@@ -43,13 +50,13 @@ export const HomeUserLogued = () => {
                 <section className="mt-5 popular-surveys-section">
                     <h2 className="mb-4">Browse today's most popular surveys</h2>
                     <div className="row">
-                        {[1, 2, 3, 4].map((survey, index) => (
+                        {store.surveys.map((survey, index) => (
                             <div key={index} className="col-md-3 mb-4">
                                 <div className="card shadow-sm border-0 survey-card">
                                     <img src="https://placehold.co/600x400?text=Popular+Survey+Placeholder" alt="Popular Survey Placeholder" className="card-img-top survey-img" />
                                     <div className="card-body">
-                                        <h5 className="card-title">Popular survey {index + 1}</h5>
-                                        <p className="card-text">A brief description...</p>
+                                        <h5 className="card-title">{survey.title}</h5>
+                                        <p className="card-text">{survey.description}</p>
                                         <Link to={`/vote/${index}`} className="btn btn-sm vote-now-btn">Vote now</Link>
                                     </div>
                                 </div>

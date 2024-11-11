@@ -1,7 +1,11 @@
 {
     "_meta": {
         "hash": {
+<<<<<<< HEAD
+            "sha256": "94a6703b952d22b68d3a5c0a0ba5acfe0104b92d0f991a972ff1bc9d0b15c43b"
+=======
             "sha256": "49e5efba354591a9bc4a2befe40e04ff0823a503c8e394a4fd1866aec78aeb58"
+>>>>>>> 8ed97c3c01c92dcb6f5814646a1b837789688a39
         },
         "pipfile-spec": 6,
         "requires": {
@@ -23,6 +27,8 @@
             ],
             "markers": "python_version >= '3.8'",
             "version": "==1.14.0"
+<<<<<<< HEAD
+=======
         },
         "annotated-types": {
             "hashes": [
@@ -39,6 +45,7 @@
             ],
             "markers": "python_version >= '3.9'",
             "version": "==4.6.2.post1"
+>>>>>>> 8ed97c3c01c92dcb6f5814646a1b837789688a39
         },
         "blinker": {
             "hashes": [
@@ -788,11 +795,19 @@
         },
         "werkzeug": {
             "hashes": [
+<<<<<<< HEAD
+                "sha256:4f7d1a5de312c810a8a2c6f0b47e9f6a7cffb7c8322def35e4d4d9841ff85597",
+                "sha256:f471a4cd167233077e9d2a8190c3471c5bc520c636a9e3c1e9300c33bced03bc"
+            ],
+            "markers": "python_version >= '3.9'",
+            "version": "==3.1.2"
+=======
                 "sha256:54b78bf3716d19a65be4fceccc0d1d7b89e608834989dfae50ea87564639213e",
                 "sha256:60723ce945c19328679790e3282cc758aa4a6040e4bb330f53d30fa546d44746"
             ],
             "markers": "python_version >= '3.9'",
             "version": "==3.1.3"
+>>>>>>> 8ed97c3c01c92dcb6f5814646a1b837789688a39
         },
         "wtforms": {
             "hashes": [

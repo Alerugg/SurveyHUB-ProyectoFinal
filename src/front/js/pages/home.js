@@ -1,9 +1,24 @@
-import React from "react";
+import React, { useEffect , useContext} from "react";
+import { Context } from "../store/appContext";
 import "../../styles/home.css";
 import { Link } from "react-router-dom";
 import example from "/workspaces/PROYECTO-FINAL-REPO-FINAL/src/front/img/roadmapexample.png";
+import { GrActions } from "react-icons/gr";
 
 export const Home = () => {
+  const { store, actions } = useContext(Context);
+
+
+  useEffect(()=>{
+    actions.getSurveys() 
+  },[])
+
+
+
+
+
+
+
   return (
     <div className="home-container">
       {/* Header Section */}
@@ -48,13 +63,13 @@ export const Home = () => {
         <section className="mt-5 hot-surveys-section">
           <h2 className="mb-4">Hot Public Surveys</h2>
           <div className="row">
-            {[1, 2, 3, 4].map((survey, index) => (
+            {store.surveys.map((survey, index) => (
               <div key={index} className="col-md-3 mb-4">
                 <div className="card shadow-sm border-0 hot-survey-card">
                   <img src="https://placehold.co/600x400" className="card-img-top hot-survey-img" alt="Hot Survey" />
                   <div className="card-body">
-                    <h5 className="card-title">Hot Survey {index + 1}</h5>
-                    <p className="card-text">A brief description...</p>
+                    <h5 className="card-title">Hot Survey {survey.title}</h5>
+                    <p className="card-text">{survey.description}</p>
                     <Link to={`/survey/${index}`} className="btn btn-sm participate-btn">Participate now</Link>
                   </div>
                 </div>

@@ -1,30 +1,73 @@
-from flask import Blueprint, request, jsonify
+#ENDPOINTS
+
+from flask import Flask, Blueprint, request, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from api.models import db, User, Survey, Question, Option
 import jwt
 import datetime
+<<<<<<< HEAD
 from .auth import requires_auth
 
+=======
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_cors import CORS  # Importa CORS
+
+# Inicializa la aplicación de Flask
+app = Flask(__name__)
+
+# Habilita CORS para todo el dominio de tu frontend (ajusta la URL si es necesario)
+CORS(app, resources={r"/*": {"origins": "*"}})  # Permite solicitudes de cualquier origen
+
+# Aquí va el resto de la configuración y rutas
+>>>>>>> 9e5a270a42a9ff13156212fe04dcffcf3b6de46f
 
 api = Blueprint('api', __name__)
 
-SECRET_KEY = 'Alex_Daniela_Jhow_Angela'
+SECRET_KEY = 'your_secret_key_here'  # Debes reemplazar esto por una clave secreta segura
 
-# Estos seran los Endpoints de Users
 
-@api.route('/users', methods=['POST'])  #### FUNCIONANDO - Actualizado el de gaton con hashing de contraseña
+@api.route('/users', methods=['GET'])
+
+def get_users():
+    users = User.query.all()
+    users_list = [
+        {
+            "id": user.id,
+            "email": user.email,
+            "full_name": user.full_name,
+            "created_at": user.created_at,
+            "is_active": user.is_active
+        } for user in users
+    ]
+    return jsonify(users_list), 200
+
+@api.route('/users/<int:id>', methods=['GET'])
+def get_user(id):
+    user = User.query.options(db.joinedload(User.surveys_created)).get_or_404(id)  # Ensure surveys are loaded
+    user_data = {
+        "id": user.id,
+        "email": user.email,
+        "full_name": user.full_name,
+        "created_at": user.created_at,
+        "is_active": user.is_active,
+        "surveys": [survey.serialize() for survey in user.surveys_created]  # Include related surveys
+    }
+    return jsonify(user_data)
+
+# User Endpoints
+@api.route('/users', methods=['POST'])
 def create_user():
     if request.method == 'POST':
         data = request.get_json()
         if not data:
             return jsonify({"error": "No data provided"}), 400
 
-        # Verifica si el email está registrado o no
+        # Verificar si el email ya está registrado
         existing_user = User.query.filter_by(email=data['email']).first()
         if existing_user:
             return jsonify({"error": "Email already registered"}), 409
 
-        # Esto Hashea la contraseña usando SHA256
+        # Hashear la contraseña usando SHA256
         password_hash = generate_password_hash(data['password'], method='pbkdf2:sha256')
 
         # Crear el nuevo usuario
@@ -33,8 +76,27 @@ def create_user():
         db.session.commit()
 
         return jsonify({"message": "User created successfully"}), 201
+    
 
-@api.route('/login', methods=['POST'])  #### Nuevo endpoint para login
+
+@api.route('/users/<int:id>', methods=['PUT'])
+def update_user(id):
+    user = User.query.get_or_404(id)
+    data = request.get_json()
+    user.email = data.get('email', user.email)
+    user.full_name = data.get('full_name', user.full_name)
+    user.is_active = data.get('is_active', user.is_active)
+    user.password_hash = generate_password_hash(data.get('password', user.password_hash), method='pbkdf2:sha256')
+    db.session.commit()
+    return jsonify({
+        "id": user.id,
+        "email": user.email,
+        "full_name": user.full_name,
+        "created_at": user.created_at,
+        "is_active": user.is_active
+    })
+
+@api.route('/login', methods=['POST'])
 def login_user():
     data = request.get_json()
     if not data:
@@ -58,6 +120,7 @@ def login_user():
     else:
         return jsonify({"error": "Invalid email or password"}), 401
 
+<<<<<<< HEAD
 @api.route('/users/<int:id>', methods=['GET'])  #### FUNCIONANDO
 @requires_auth
 def get_user(id):
@@ -110,6 +173,8 @@ def delete_user(id):
     return jsonify({'message': 'User deleted'}), 200
 
 # Estos seran los Endpoints de Surveys
+=======
+>>>>>>> 9e5a270a42a9ff13156212fe04dcffcf3b6de46f
 @api.route('/surveys', methods=['POST'])
 @requires_auth  # Protección con Auth0
 def create_survey():
@@ -321,5 +386,10 @@ def delete_option(id):
     db.session.commit()
     return jsonify({'message': 'Option deleted'}), 200
 
+# Agregar las demás rutas según sea necesario
 
+# Configura el blueprint y la aplicación
+app.register_blueprint(api, url_prefix='/api')
 
+if __name__ == '__main__':
+    app.run(debug=True)
