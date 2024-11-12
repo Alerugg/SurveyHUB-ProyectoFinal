@@ -21,28 +21,46 @@ const getState = ({ getStore, getActions, setStore }) => {
                     redirect: "follow"
                 };
 
-                fetch(process.env.BACKEND_UR+"/api/surveys", requestOptions)
-                    .then((response) => response.json())
-                    .then((result) => setStore({ surveys: result }))
-                    .catch((error) => console.error(error));
-            },
+                fetch(process.env.BACKEND_URL + "/api/surveys", requestOptions)
+                .then((response) => response.json())
+                .then((result) => {
+                    console.log("Result from getSurveys: ", result);
+                    setStore({ surveys: result });
+                })
+                .catch((error) => console.error("Error fetching surveys: ", error));
+        },
 
-            getSurvey: () => {
-
-                const myHeaders = new Headers();
-                myHeaders.append("Cookie", ".Tunnels.Relay.WebForwarding.Cookies=CfDJ8E0FHi1JCVNKrny-ARCYWxMgYjc5ouJAvbs4MCmw74Ekyt95Plqt8PcDBJ7oKGv3U3hLTusXCeY9OVgRclTmq34qxdyKC-lKYJnpwCayM8UZFSMhvZra8egft3pSJO5WLk7luzyl2fTqrhBuxfSeSkXpyEwyPW-AHASk607pEQhELRTjpNsATdyxeI6paY6_xwWz-QkxYn0wyl9VyzVO0Q-UyqKsMC2teX62KGvWrsA6pEDgldXMx_E1FKqPV1vaVPdu_l41HTXS-ckI4Byntd0zcVLRQ_52zHa960mXOwzSzTSUthL2uMCmQa25EqMaHTi6JZGOGYia-ZxjOG__CsdXsCCuSVeSuZwEWLZOOOIS6dHJXWhVs9pDB26iBWSNGKWGPYmfQywWHoDp6qJ8eTYP1lJpYu2Fy1ued0zIXYuKWLjdZzxKUeUEruyKR8HJn56d0f5LQvs6R4U9yhR2bzlojBAXKHbSihQcpkHZZJ30elgMH3S3BERTGobztLicdxqpEceHsMGyil0ZQbZ3lqp-T08dxDxLnq3jhxdv_hBLqf10YAoiwSp0wq1L8z5xVDGbO4bgDYBVlf2LsHn3tq5M9IzpHCprKby62ysKZtARvq9YvYzhPxp9hgqfpy1ItqAILSyIp_LVoK2ankcS3wNalluQpP5CjrtoW9kRJwZnSc-Uo8aTwomO6FEGfl-dFt3V5QNi6JKVzKGfbKuKObK0e9rOFLchPuI-SUZ7ojKW2mFrogpSNC2C9afgRPCw8qmxaM9tIB4_T3K_i80MjdYy9Y6o2jMexpHIzXdCXRnWe1HIuidbCN69a9sTS3TTJWZxYrj3EEdItaxNCJcXWJzMIrfvkPGeQU-lNOhCRo5fgLRSrYTpaW6iccCFzR-XcLVoIWm3LA9f38-f7EpwUPC6XKny24RDzF2fUeHuknBTOuFofj6p28bAZ2Za3d2fizBos_CDQXmK5Q1sjo_YFIXomuVUyoZ76qpYLZyqJngu");
-                
-                const requestOptions = {
-                  method: "GET",
-                  headers: myHeaders,
-                  redirect: "follow"
-                };
-                
-                fetch(process.env.BACKEND_UR+`/api/surveys/6`, requestOptions)
-                  .then((response) => response.json())
-                  .then((result) => setStore({survey: result}))
-                  .catch((error) => console.error(error));
-            },
+        getSurvey: (id) => {
+            const myHeaders = new Headers();
+            myHeaders.append(
+                "Cookie",
+                ".Tunnels.Relay.WebForwarding.Cookies=CfDJ8E0FHi1JCVNKrny-ARCYWxMgYjc5ouJAvbs4MCmw74Ekyt95Plqt8PcDBJ7oKGv3U3hLTusXCeY9OVgRclTmq34qxdyKC-lKYJnpwCayM8UZFSMhvZra8egft3pSJO5WLk7luzyl2fTqrhBuxfSeSkXpyEwyPW-AHASk607pEQhELRTjpNsATdyxeI6paY6_xwWz-QkxYn0wyl9VyzVO0Q-UyqKsMC2teX62KGvWrsA6pEDgldXMx_E1FKqPV1vaVPdu_l41HTXS-ckI4Byntd0zcVLRQ_52zHa960mXOwzSzTSUthL2uMCmQa25EqMaHTi6JZGOGYia-ZxjOG__CsdXsCCuSVeSuZwEWLZOOOIS6dHJXWhVs9pDB26iBWSNGKWGPYmfQywWHoDp6qJ8eTYP1lJpYu2Fy1ued0zIXYuKWLjdZzxKUeUEruyKR8HJn56d0f5LQvs6R4U9yhR2bzlojBAXKHbSihQcpkHZZJ30elgMH3S3BERTGobztLicdxqpEceHsMGyil0ZQbZ3lqp-T08dxDxLnq3jhxdv_hBLqf10YAoiwSp0wq1L8z5xVDGbO4bgDYBVlf2LsHn3tq5M9IzpHCprKby62ysKZtARvq9YvYzhPxp9hgqfpy1ItqAILSyIp_LVoK2ankcS3wNalluQpP5CjrtoW9kRJwZnSc-Uo8aTwomO6FEGfl-dFt3V5QNi6JKVzKGfbKuKObK0e9rOFLchPuI-SUZ7ojKW2mFrogpSNC2C9afgRPCw8qmxaM9tIB4_T3K_i80MjdYy9Y6o2jMexpHIzXdCXRnWe1HIuidbCN69a9sTS3TTJWZxYrj3EEdItaxNCJcXWJzMIrfvkPGeQU-lNOhCRo5fgLRSrYTpaW6iccCFzR-XcLVoIWm3LA9f38-f7EpwUPC6XKny24RDzF2fUeHuknBTOuFofj6p28bAZ2Za3d2fizBos_CDQXmK5Q1sjo_YFIXomuVUyoZ76qpYLZyqJngu"
+            );
+        
+            const requestOptions = {
+                method: "GET",
+                headers: myHeaders,
+                redirect: "follow",
+            };
+        
+            // Revisar si la URL del backend está definida correctamente
+            console.log("Backend URL:", process.env.BACKEND_URL);
+            
+            fetch(process.env.BACKEND_URL + `/api/surveys/${id}`, requestOptions)
+                .then((response) => {
+                    console.log("Fetch response:", response); // Verificar la respuesta antes de convertir a JSON
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then((result) => {
+                    console.log("Fetch result (JSON):", result); // Verificar el resultado convertido a JSON
+                    setStore({ survey: result });
+                })
+                .catch((error) => console.error("Error fetching survey:", error));
+        },
+        
 
             login: (data) => {
                 localStorage.setItem("jwt-token", data.token);
