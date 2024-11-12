@@ -12,7 +12,7 @@ import { Login } from "./pages/login";
 import { UserProfile } from "./pages/userProfile";
 import { CreateSurvey } from "./pages/createSurvey";
 import { Register } from "./pages/register";
-import SurveyResults from "./pages/surveyResults";
+import { SurveyResults } from "./pages/surveyResults";
 import { ForgotPassword } from "./pages/recoverPassword";
 
 

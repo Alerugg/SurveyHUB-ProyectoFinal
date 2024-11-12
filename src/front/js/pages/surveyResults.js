@@ -1,134 +1,72 @@
-// SurveyResults.js
-import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import React, { useEffect, useContext } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import "../../styles/surveyResults.css";
 import { Context } from "../store/appContext";
 
-const SurveyResults = () => {
-    const { id } = useParams(); // Get the survey ID from the URL parameters
-    const [survey, setSurvey] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+export const SurveyResults = () => {
+    const { id } = useParams();
     const { store, actions } = useContext(Context);
-
-    useEffect(()=>{
-        actions.getSurveys()       
-    
-      },[])
-    
+    const navigate = useNavigate();
 
     useEffect(() => {
-        // Mock data for demonstration purposes
-        if (id === '1') {
-            const exampleSurvey = {
-                id: 1,
-                title: "Customer Satisfaction Survey",
-                description: "We value your feedback to improve our services.",
-                creator_id: 101,
-                start_date: "2024-10-01T00:00:00Z",
-                end_date: "2024-12-31T00:00:00Z",
-                status: "active",
-                type: "survey",
-                is_public: true,
-                questions: [
-                    {
-                        question_text: "How would you rate our service?",
-                        question_type: "scale",
-                        options: [
-                            { option_text: "1 - Very Poor" },
-                            { option_text: "2 - Poor" },
-                            { option_text: "3 - Average" },
-                            { option_text: "4 - Good" },
-                            { option_text: "5 - Excellent" }
-                        ]
-                    },
-                    {
-                        question_text: "What did you like most about our service?",
-                        question_type: "open_ended",
-                        options: []
-                    },
-                    {
-                        question_text: "Would you recommend us to a friend?",
-                        question_type: "yes_no",
-                        options: [
-                            { option_text: "Yes" },
-                            { option_text: "No" }
-                        ]
-                    }
-                ]
-            };
-            setSurvey(exampleSurvey);
-            setLoading(false);
-        } else {
-            const fetchSurvey = async () => {
-                try {
-                    const response = await fetch(`/api/surveys/${id}`);
-                    if (!response.ok) {
-                        throw new Error("Failed to fetch survey data");
-                    }
-                    const data = await response.json();
-                    setSurvey(data);
-                    setLoading(false);
-                } catch (error) {
-                    console.error("Error fetching survey data:", error);
-                    setError("Failed to load survey. Please try again later.");
-                    setLoading(false);
-                }
-            };
-            
-            fetchSurvey();
-        }
-    }, [id]);
+        const fetchSurvey = async () => {
+            try {
+                await actions.getSurvey(id);
+            } catch (err) {
+                console.error("Error loading survey data", err);
+            }
+        };
+        fetchSurvey();
+    }, [id, actions]);
 
-    if (loading) return <div className="loading">Loading survey...</div>;
-    if (error) return <div className="error">{error}</div>;
+    const handleBack = () => {
+        navigate("/user_logued");
+    };
+
+    const handleSubmit = () => {
+        alert("Thank you for your responses!");
+        navigate("/user_logued");
+    };
+
+    if (!store.survey) {
+        return <div className="loading">Loading survey details...</div>;
+    }
+
+    const survey = store.survey;
 
     return (
-        <div className="view-survey-container">
-            <div className="container mt-5">
-                <div className="jumbotron text-center p-5 mb-4 header-section">
-                    <h2 className="display-5 fw-bold">{survey.title}</h2>
-                    <p className="lead">{survey.description}</p>
-                    <div className="survey-details mt-4">
-                        <p><strong>Created by:</strong> User {survey.creator_id}</p>
-                        <p><strong>Start Date:</strong> {new Date(survey.start_date).toLocaleDateString()}</p>
-                        <p><strong>End Date:</strong> {new Date(survey.end_date).toLocaleDateString()}</p>
-                        <p><strong>Status:</strong> {survey.status}</p>
-                        <p><strong>Type:</strong> {survey.type}</p>
-                        <p><strong>Visibility:</strong> {survey.is_public ? "Public" : "Private"}</p>
-                    </div>
-                </div>
-
-                {/* Display questions if available */}
-                <section className="questions-section mt-5">
-                    <h3 className="mb-4">Questions</h3>
-                    {survey.questions && survey.questions.length > 0 ? (
-                        <div className="question-list">
-                            {survey.questions.map((question, index) => (
-                                <div key={index} className="card shadow-sm border-0 mb-4 question-card">
-                                    <div className="card-body">
-                                        <h5 className="card-title">{index + 1}. {question.question_text}</h5>
-                                        <p className="card-text"><strong>Type:</strong> {question.question_type}</p>
-                                        {question.options && question.options.length > 0 && (
-                                            <ul className="options-list">
-                                                {question.options.map((option, optionIndex) => (
-                                                    <li key={optionIndex} className="option-item">
-                                                        {option.option_text}
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        )}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <p>No questions found for this survey.</p>
-                    )}
-                </section>
+        <div className="survey-results-container">
+            <div className="survey-header">
+                <button className="back-button" onClick={handleBack}>← Back to explore surveys</button>
+                <h2 className="survey-title">{survey.title}</h2>
+                <img src={"https://placehold.co/1800x400"} alt="Survey" className="survey-image" />
+                <p className="survey-description">{survey.description}</p>
             </div>
+            <div className="survey-questions">
+                {survey.questions && survey.questions.map((question, index) => (
+                    <div key={question.id} className="question-container">
+                        <h4 className="question-text">{index + 1}. {question.question_text}</h4>
+                        <div className="options-container">
+                            {question.question_type === "open_ended" ? (
+                                <textarea className="open-ended-response" placeholder="Type your answer here..."></textarea>
+                            ) : (
+                                question.options.map((option) => (
+                                    <div key={option.id} className="option">
+                                        <input
+                                            type={question.question_type === "multiple_choice" ? "checkbox" : "radio"}
+                                            id={`option-${option.id}`}
+                                            name={`question-${question.id}`}
+                                            value={option.id}
+                                        />
+                                        <label htmlFor={`option-${option.id}`}>{option.option_text}</label>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    </div>
+                ))}
+            </div>
+            <button className="btn submit-btn" onClick={handleSubmit}>Submit my responses</button>
         </div>
     );
 };
-
-export default SurveyResults;
