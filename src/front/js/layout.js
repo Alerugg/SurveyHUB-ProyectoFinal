@@ -12,8 +12,9 @@ import { Login } from "./pages/login";
 import { UserProfile } from "./pages/userProfile";
 import { CreateSurvey } from "./pages/createSurvey";
 import { Register } from "./pages/register";
-import SurveyResults from "./pages/surveyResults";
+import { SurveyResults } from "./pages/surveyResults";
 import { ForgotPassword } from "./pages/recoverPassword";
+import { AvailableSurveys } from "./pages/surveys";
 
 
 
@@ -38,9 +39,10 @@ const Layout = () => {
                         <Route element={<Home />} path="/" />
                         <Route element={<Login />} path="/login" />
                         <Route element={<HomeUserLogued />} path="/user_logued" />
-                        <Route element={<SurveyResults/>} path="/surveys/:theid" />
+                        <Route element={<SurveyResults/>} path="/surveys/:id" />
                         <Route element={<Register />} path="/register" />
                         <Route element={< CreateSurvey/>} path="/create_survey" />
+                        <Route element={< AvailableSurveys/>} path="/surveys" />
                         <Route element={<UserProfile/>} path="/profile" />
                         <Route element={<ForgotPassword />} path="/password_recovery" />
                         <Route element={<Demo />} path="/demo" />
