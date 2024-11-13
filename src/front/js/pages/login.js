@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import "../../styles/login.css";
 import { Link, useNavigate } from "react-router-dom";
 import loginImage from '/workspaces/PROYECTO-FINAL-REPO-FINAL/src/front/img/login.png';
-import { Auth0Client } from "@auth0/auth0-spa-js";
+import { useAuth0 } from "@auth0/auth0-react"; 
 
 // Función para hacer la solicitud al endpoint de login
 const performLogin = async (email, password) => {
@@ -51,42 +51,44 @@ export const Login = () => {
     const [error, setError] = useState(null);
     const navigate = useNavigate();
 
-    useEffect(() => {
-        // Inicializar Auth0 Client solo cuando el componente se monta
-        const initAuth0 = async () => {
-            try {
-                const auth0 = new Auth0Client({
-                    domain: "dev-pc4ip6ajno471us8.auth0.com",
-                    client_id: "4GEmDYtNKQSRvu8H3yQNbumneMDQXCQV",
-                    redirect_uri: window.location.origin + "/callback" // URL de callback
-                });
+    const { loginWithRedirect } = useAuth0(); 
 
-                // Si ya hay una respuesta de Auth0, maneja la redirección
-                if (window.location.search.includes("code=") && window.location.search.includes("state=")) {
-                    const result = await auth0.handleRedirectCallback();
-                    navigate("/user_logued"); // Redirige al usuario después de que se loguea
-                }
-            } catch (e) {
-                setError("Error al inicializar Auth0: " + e.message);
-            }
-        };
+    // useEffect(() => {
+    //     // Inicializar Auth0 Client solo cuando el componente se monta
+    //     const initAuth0 = async () => {
+    //         try {
+    //             const auth0 = new Auth0Client({
+    //                 domain: "dev-pc4ip6ajno471us8.auth0.com",
+    //                 client_id: "4GEmDYtNKQSRvu8H3yQNbumneMDQXCQV",
+    //                 redirect_uri: window.location.origin + "/callback" // URL de callback
+    //             });
 
-        initAuth0();
-    }, [navigate]);
+    //             // Si ya hay una respuesta de Auth0, maneja la redirección
+    //             if (window.location.search.includes("code=") && window.location.search.includes("state=")) {
+    //                 const result = await auth0.handleRedirectCallback();
+    //                 navigate("/user_logued"); // Redirige al usuario después de que se loguea
+    //             }
+    //         } catch (e) {
+    //             setError("Error al inicializar Auth0: " + e.message);
+    //         }
+    //     };
 
-    // Función para iniciar sesión con Auth0
-    const loginWithAuth0 = async () => {
-        try {
-            const auth0 = new Auth0Client({
-                domain: "dev-pc4ip6ajno471us8.auth0.com",
-                client_id: "4GEmDYtNKQSRvu8H3yQNbumneMDQXCQV",
-                redirect_uri: window.location.origin + "/callback" // URL de callback
-            });
-            await auth0.loginWithRedirect(); // Redirige al usuario al flujo de login de Auth0
-        } catch (e) {
-            setError("Error al iniciar sesión con Auth0: " + e.message);
-        }
-    };
+    //     initAuth0();
+    // }, [navigate]);
+
+    // // Función para iniciar sesión con Auth0
+    // const loginWithAuth0 = async () => {
+    //     try {
+    //         const auth0 = new Auth0Client({
+    //             domain: "dev-pc4ip6ajno471us8.auth0.com",
+    //             client_id: "4GEmDYtNKQSRvu8H3yQNbumneMDQXCQV",
+    //             redirect_uri: window.location.origin + "/callback" // URL de callback
+    //         });
+    //         await auth0.loginWithRedirect(); // Redirige al usuario al flujo de login de Auth0
+    //     } catch (e) {
+    //         setError("Error al iniciar sesión con Auth0: " + e.message);
+    //     }
+    // };
 
     // Función de submit para el login tradicional
     const handleSubmit = async (e) => {
@@ -139,10 +141,9 @@ export const Login = () => {
                 <div className="signup-prompt">
                     Don't have an account? <Link to="/register" className="signup-link">Sign up</Link>
                 </div>
-                <div className="auth0-login">
-                    <button type="button" className="btn btn-secondary" onClick={loginWithAuth0}>Login with Auth0</button>
-                </div>
-
+                <button type="button" className="btn btn-secondary" onClick={() => loginWithRedirect()}>
+                        Login with Auth0
+                </button>
             </div>
             <div className="login-image" style={{ backgroundImage: `url(${loginImage})` }}></div>
         </div>
