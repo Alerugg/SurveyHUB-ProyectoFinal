@@ -21,11 +21,6 @@ const getState = ({ getStore, getActions, setStore }) => {
                     redirect: "follow"
                 };
 
-                fetch(process.env.BACKEND_URL+"/api/surveys")
-                  .then((response) => response.json())
-                  .then((result) => setStore({surveys: result}) )
-                  .catch((error) => console.error(error));
-            },
                 fetch(process.env.BACKEND_URL + "/api/surveys", requestOptions)
                 .then((response) => response.json())
                 .then((result) => {
@@ -48,7 +43,7 @@ const getState = ({ getStore, getActions, setStore }) => {
                 redirect: "follow",
             };
         
-            // Revisar si la URL del backend está definida correctamente
+            // Revisar si la URL del backend estÃ¡ definida correctamente
             console.log("Backend URL:", process.env.BACKEND_URL);
             
             fetch(process.env.BACKEND_URL + `/api/surveys/${id}`, requestOptions)
