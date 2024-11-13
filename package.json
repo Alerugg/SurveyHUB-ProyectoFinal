@@ -76,6 +76,8 @@
 		"axios": "^1.7.7",
 		"chart.js": "^3.7.1",
 		"cors": "^2.8.5",
+		"echarts": "^5.5.1",
+		"echarts-for-react": "^3.0.2",
 		"mdb-ui-kit": "^6.4.2",
 		"mermaid": "^11.4.0",
 		"prop-types": "^15.6.1",

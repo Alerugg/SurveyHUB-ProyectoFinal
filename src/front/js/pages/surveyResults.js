@@ -1,9 +1,11 @@
+// Este archivo utiliza una librería moderna para gráficos, como ECharts.
 import React, { useEffect, useContext, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "../../styles/surveyResults.css";
 import { Context } from "../store/appContext";
 import ClosedSurveyResults from "../component/closedSurveyView";
 import PendingSurveyView from "../component/pendingSurveyView";
+import ReactECharts from 'echarts-for-react';
 
 export const SurveyResults = () => {
     const { id } = useParams();
@@ -151,7 +153,90 @@ export const SurveyResults = () => {
             </div>
         );
     } else if (survey.status === "closed") {
-        return <ClosedSurveyResults survey={survey} />;
+        // Renderizar análisis estadístico usando un dashboard moderno
+        const barOptions = {
+            xAxis: {
+                type: 'category',
+                data: survey.questions.map((q) => q.question_text),
+            },
+            yAxis: {
+                type: 'value',
+            },
+            series: [
+                {
+                    data: survey.questions.map((q) => q.options.reduce((acc, opt) => acc + (opt.votes ? opt.votes.length : 0), 0)),
+                    type: 'bar',
+                    showBackground: true,
+                    backgroundStyle: {
+                        color: 'rgba(220, 220, 220, 0.8)',
+                    },
+                },
+            ],
+        };
+
+        const pieOptions = survey.questions.map((question) => ({
+            title: {
+                text: `Responses for: ${question.question_text}`,
+                left: 'center',
+            },
+            tooltip: {
+                trigger: 'item',
+            },
+            series: [
+                {
+                    name: 'Responses',
+                    type: 'pie',
+                    radius: '50%',
+                    data: question.options.map((opt) => ({
+                        value: opt.votes ? opt.votes.length : 0,
+                        name: opt.option_text,
+                    })) || [],
+                },
+            ],
+        }));
+
+        const lineOptions = {
+            xAxis: {
+                type: 'category',
+                data: survey.questions.map((q) => q.question_text),
+            },
+            yAxis: {
+                type: 'value',
+            },
+            series: [
+                {
+                    data: survey.questions.map((q) => q.options.reduce((acc, opt) => acc + (opt.votes ? opt.votes.length : 0), 0)),
+                    type: 'line',
+                    smooth: true,
+                },
+            ],
+        };
+
+        return (
+            <div className="survey-results-container">
+                <div className="survey-header">
+                    <button className="back-button" onClick={handleBack}>← Back to explore surveys</button>
+                    <h2 className="survey-title">{survey.title}</h2>
+                    <p className="survey-description">{survey.description}</p>
+                </div>
+                <div className="dashboard-container">
+                    <div className="chart-card">
+                        <h3 className="chart-title">Bar Chart Analysis</h3>
+                        <ReactECharts option={barOptions} />
+                    </div>
+                    {pieOptions.map((options, index) => (
+                        <div key={index} className="chart-card">
+                            <h3 className="chart-title">Pie Chart Analysis</h3>
+                            <ReactECharts option={options} />
+                        </div>
+                    ))}
+                    <div className="chart-card">
+                        <h3 className="chart-title">Line Chart Analysis</h3>
+                        <ReactECharts option={lineOptions} />
+                    </div>
+                </div>
+            </div>
+        );
     } else if (survey.status === "draft") {
         return <PendingSurveyView survey={survey} />;
     }
