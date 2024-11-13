@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
-from api.models import db, User, Survey, Question, Option
+from api.models import db, User, Survey, Question, Option, Vote
 import jwt
 import datetime
 import os
@@ -9,22 +9,88 @@ from .auth import requires_auth
 
 api = Blueprint('api', __name__)
 
-# SECRET_KEY = 'Alex_Daniela_Jhow_Angela'
+SECRET_KEY = 'your_secret_key_here'  # Debes reemplazar esto por una clave secreta segura
 
-# Usando una variable de entorno para la clave secreta (deberías tener esta clave en el archivo .env)
-SECRET_KEY = os.getenv('SECRET_KEY', 'mi_clave_secreta_por_defecto')  # Usar .env para producción
-
-# Validación de los datos de entrada (asegurándonos de que los datos estén completos)
-def validate_login_data(data):
+@api.route('/surveys', methods=['POST'])
+def create_full_survey():
+    data = request.get_json()
     if not data:
         return jsonify({"error": "No data provided"}), 400
-    if not data.get('email') or not data.get('password'):
-        return jsonify({"error": "Email and password are required"}), 400
-    return None
 
-# Estos seran los Endpoints de Users
+    try:
+        # Crear la encuesta principal
+        new_survey = Survey(
+            creator_id=data['creator_id'],
+            title=data['title'],
+            description=data.get('description'),
+            start_date=data.get('start_date'),
+            end_date=data.get('end_date'),
+            is_public=data.get('is_public', True),
+            status=data.get('status', 'draft'),
+            type=data['type']
+        )
+        db.session.add(new_survey)
+        db.session.flush()  # Obtener el ID de la encuesta antes de confirmar
 
-@api.route('/users', methods=['POST'])  #### FUNCIONANDO - Actualizado el de gaton con hashing de contraseña
+        # Crear las preguntas y opciones asociadas
+        for question_data in data.get('questions', []):
+            new_question = Question(
+                survey_id=new_survey.id,
+                question_text=question_data['question_text'],
+                question_type=question_data['question_type'],
+                order=question_data.get('order'),
+                required=question_data.get('required', True)
+            )
+            db.session.add(new_question)
+            db.session.flush()  # Obtener el ID de la pregunta antes de confirmar
+
+            # Crear las opciones asociadas a la pregunta
+            for option_data in question_data.get('options', []):
+                new_option = Option(
+                    question_id=new_question.id,
+                    option_text=option_data['option_text'],
+                    order=option_data.get('order')
+                )
+                db.session.add(new_option)
+
+        db.session.commit()
+        return jsonify({"message": "Survey, questions, and options created successfully"}), 201
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e), "message": "There was an error processing your request."}), 500
+
+
+@api.route('/users', methods=['GET'])
+
+def get_users():
+    users = User.query.all()
+    users_list = [
+        {
+            "id": user.id,
+            "email": user.email,
+            "full_name": user.full_name,
+            "created_at": user.created_at,
+            "is_active": user.is_active
+        } for user in users
+    ]
+    return jsonify(users_list), 200
+
+@api.route('/users/<int:id>', methods=['GET'])
+def get_user(id):
+    user = User.query.options(db.joinedload(User.surveys_created)).get_or_404(id)  # Ensure surveys are loaded
+    user_data = {
+        "id": user.id,
+        "email": user.email,
+        "full_name": user.full_name,
+        "created_at": user.created_at,
+        "is_active": user.is_active,
+        "surveys": [survey.serialize() for survey in user.surveys_created]  # Include related surveys
+    }
+    return jsonify(user_data)
+
+# User Endpoints
+@api.route('/users', methods=['POST'])
 def create_user():
     if request.method == 'POST':
         data = request.get_json()
@@ -69,6 +135,24 @@ def login_user():
         return jsonify({"message": "Login successful", "token": token}), 200
     else:
         return jsonify({"error": "Invalid email or password"}), 401
+    
+@api.route('/surveys', methods=['GET'])
+def get_surveys():
+    surveys = Survey.query.all()
+    surveys_list = [
+        {
+            "id": survey.id,
+            "creator_id": survey.creator_id,
+            "title": survey.title,
+            "description": survey.description,
+            "start_date": survey.start_date,
+            "end_date": survey.end_date,
+            "is_public": survey.is_public,
+            "status": survey.status,
+            "type": survey.type
+        } for survey in surveys
+    ]
+    return jsonify(surveys_list), 200
 
 @api.route('/users/<int:id>', methods=['GET'])  #### FUNCIONANDO
 @requires_auth
@@ -162,7 +246,6 @@ def get_survey(id):
     return jsonify(survey_data)
 
 @api.route('/surveys', methods=['GET'])
-@requires_auth  # Protección con Auth0
 def get_surveys():
     surveys = Survey.query.all()
     return jsonify([survey.serialize() for survey in surveys]), 200
@@ -333,27 +416,10 @@ def delete_option(id):
     db.session.commit()
     return jsonify({'message': 'Option deleted'}), 200
 
-# Manejo global de errores para rutas protegidas
-@api.route('/users/protected', methods=['GET'])
-@requires_auth
-def protected_data():
-    return jsonify({"message": "You have access to this protected route!"})
+# Agregar las demás rutas según sea necesario
 
-# Otras rutas (encuestas, preguntas, opciones) serían similares
+# Configura el blueprint y la aplicación
+app.register_blueprint(api, url_prefix='/api')
 
-# Error handler global para manejar excepciones y devolver respuestas estructuradas
-@api.errorhandler(404)
-def not_found(error):
-    return jsonify({"error": "Not found"}), 404
-
-@api.errorhandler(500)
-def internal_error(error):
-    return jsonify({"error": "Internal server error"}), 500
-
-# Cualquier otro error se maneja aquí de manera centralizada
-@api.errorhandler(Exception)
-def handle_unexpected_error(error):
-    return jsonify({"error": "An unexpected error occurred", "message": str(error)}), 500
-
-
-
+if __name__ == '__main__':
+    app.run(debug=True)

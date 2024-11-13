@@ -1,134 +1,160 @@
-// SurveyResults.js
-import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import React, { useEffect, useContext, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import "../../styles/surveyResults.css";
 import { Context } from "../store/appContext";
+import ClosedSurveyResults from "../component/closedSurveyView";
+import PendingSurveyView from "../component/pendingSurveyView";
 
-const SurveyResults = () => {
-    const { id } = useParams(); // Get the survey ID from the URL parameters
-    const [survey, setSurvey] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+export const SurveyResults = () => {
+    const { id } = useParams();
     const { store, actions } = useContext(Context);
-
-    useEffect(()=>{
-        actions.getSurveys()       
-    
-      },[])
-    
+    const navigate = useNavigate();
+    const [isFormValid, setIsFormValid] = useState(false);
+    const [responses, setResponses] = useState({});
 
     useEffect(() => {
-        // Mock data for demonstration purposes
-        if (id === '1') {
-            const exampleSurvey = {
-                id: 1,
-                title: "Customer Satisfaction Survey",
-                description: "We value your feedback to improve our services.",
-                creator_id: 101,
-                start_date: "2024-10-01T00:00:00Z",
-                end_date: "2024-12-31T00:00:00Z",
-                status: "active",
-                type: "survey",
-                is_public: true,
-                questions: [
-                    {
-                        question_text: "How would you rate our service?",
-                        question_type: "scale",
-                        options: [
-                            { option_text: "1 - Very Poor" },
-                            { option_text: "2 - Poor" },
-                            { option_text: "3 - Average" },
-                            { option_text: "4 - Good" },
-                            { option_text: "5 - Excellent" }
-                        ]
-                    },
-                    {
-                        question_text: "What did you like most about our service?",
-                        question_type: "open_ended",
-                        options: []
-                    },
-                    {
-                        question_text: "Would you recommend us to a friend?",
-                        question_type: "yes_no",
-                        options: [
-                            { option_text: "Yes" },
-                            { option_text: "No" }
-                        ]
-                    }
-                ]
-            };
-            setSurvey(exampleSurvey);
-            setLoading(false);
-        } else {
-            const fetchSurvey = async () => {
-                try {
-                    const response = await fetch(`/api/surveys/${id}`);
-                    if (!response.ok) {
-                        throw new Error("Failed to fetch survey data");
-                    }
-                    const data = await response.json();
-                    setSurvey(data);
-                    setLoading(false);
-                } catch (error) {
-                    console.error("Error fetching survey data:", error);
-                    setError("Failed to load survey. Please try again later.");
-                    setLoading(false);
-                }
-            };
-            
-            fetchSurvey();
+        // Solo realiza la llamada si no se tiene ya la encuesta correcta en el store
+        if (!store.survey || store.survey.id !== parseInt(id)) {
+            actions.getSurvey(id);
         }
     }, [id]);
 
-    if (loading) return <div className="loading">Loading survey...</div>;
-    if (error) return <div className="error">{error}</div>;
+    // Validar el formulario solo si la encuesta se ha cargado correctamente
+    useEffect(() => {
+        if (store.survey && store.survey.id) {
+            validateForm();
+        }
+    }, [store.survey]);
 
-    return (
-        <div className="view-survey-container">
-            <div className="container mt-5">
-                <div className="jumbotron text-center p-5 mb-4 header-section">
-                    <h2 className="display-5 fw-bold">{survey.title}</h2>
-                    <p className="lead">{survey.description}</p>
-                    <div className="survey-details mt-4">
-                        <p><strong>Created by:</strong> User {survey.creator_id}</p>
-                        <p><strong>Start Date:</strong> {new Date(survey.start_date).toLocaleDateString()}</p>
-                        <p><strong>End Date:</strong> {new Date(survey.end_date).toLocaleDateString()}</p>
-                        <p><strong>Status:</strong> {survey.status}</p>
-                        <p><strong>Type:</strong> {survey.type}</p>
-                        <p><strong>Visibility:</strong> {survey.is_public ? "Public" : "Private"}</p>
-                    </div>
+    const validateForm = () => {
+        if (!store.survey || !store.survey.questions) {
+            setIsFormValid(false);
+            return;
+        }
+
+        const allQuestionsAnswered = store.survey.questions.every((question) => {
+            if (question.question_type === "open_ended") {
+                const textarea = document.getElementById(`question-${question.id}`);
+                return textarea && textarea.value.trim() !== "";
+            } else {
+                const options = document.getElementsByName(`question-${question.id}`);
+                return Array.from(options).some((option) => option.checked);
+            }
+        });
+
+        setIsFormValid(allQuestionsAnswered);
+    };
+
+    const handleBack = () => {
+        navigate("/user_logued");
+    };
+
+    const handleInputChange = (questionId, value) => {
+        setResponses((prevResponses) => ({
+            ...prevResponses,
+            [questionId]: value,
+        }));
+        validateForm();
+    };
+
+    const handleSubmit = async () => {
+        try {
+            const userId = store.currentUser?.id || 1; // Usar 1 como un valor por defecto temporalmente
+
+            // Construye los datos de votos usando el estado responses
+            const votesData = Object.entries(responses).map(([questionId, optionId]) => ({
+                user_id: userId,
+                survey_id: parseInt(id), // `id` es el ID de la encuesta obtenido de los parámetros de la URL
+                question_id: parseInt(questionId),
+                option_id: parseInt(optionId),
+            }));
+
+            // Envía cada voto al backend usando un bucle
+            for (let vote of votesData) {
+                const response = await fetch("https://didactic-space-tribble-vx74pxvwv9rcpxrp-3001.app.github.dev/api/votes", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(vote),
+                });
+
+                if (!response.ok) {
+                    throw new Error("Failed to submit vote for question " + vote.question_id);
+                }
+            }
+
+            // Si todos los votos se envían exitosamente
+            alert("Thank you for your responses!");
+            navigate("/user_logued");
+        } catch (error) {
+            console.error("Error submitting responses:", error);
+            alert("Failed to submit your responses. Please try again.");
+        }
+    };
+
+    // Verificar si la encuesta está disponible
+    if (!store.survey || store.survey.id !== parseInt(id)) {
+        return <div className="loading">Loading survey details...</div>;
+    }
+
+    const survey = store.survey;
+
+    // Renderizado condicional basado en el estado de la encuesta
+    if (survey.status === "active") {
+        return (
+            <div className="survey-results-container">
+                <div className="survey-header">
+                    <button className="back-button" onClick={handleBack}>← Back to explore surveys</button>
+                    <h2 className="survey-title">{survey.title}</h2>
+                    <img src={"https://placehold.co/1800x400"} alt="Survey" className="survey-image" />
+                    <p className="survey-description">{survey.description}</p>
                 </div>
-
-                {/* Display questions if available */}
-                <section className="questions-section mt-5">
-                    <h3 className="mb-4">Questions</h3>
-                    {survey.questions && survey.questions.length > 0 ? (
-                        <div className="question-list">
-                            {survey.questions.map((question, index) => (
-                                <div key={index} className="card shadow-sm border-0 mb-4 question-card">
-                                    <div className="card-body">
-                                        <h5 className="card-title">{index + 1}. {question.question_text}</h5>
-                                        <p className="card-text"><strong>Type:</strong> {question.question_type}</p>
-                                        {question.options && question.options.length > 0 && (
-                                            <ul className="options-list">
-                                                {question.options.map((option, optionIndex) => (
-                                                    <li key={optionIndex} className="option-item">
-                                                        {option.option_text}
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        )}
-                                    </div>
-                                </div>
-                            ))}
+                <div className="survey-questions">
+                    {survey.questions && survey.questions.map((question, index) => (
+                        <div key={question.id} className="question-container question-board">
+                            <h4 className="question-text">{index + 1}. {question.question_text}</h4>
+                            <div className="options-container">
+                                {question.question_type === "open_ended" ? (
+                                    <textarea
+                                        id={`question-${question.id}`}
+                                        className="open-ended-response"
+                                        placeholder="Type your answer here..."
+                                        onChange={(e) => handleInputChange(question.id, e.target.value)}
+                                    ></textarea>
+                                ) : (
+                                    question.options && question.options.map((option) => (
+                                        <div key={option.id} className="option">
+                                            <input
+                                                type={question.question_type === "multiple_choice" ? "checkbox" : "radio"}
+                                                id={`option-${option.id}`}
+                                                name={`question-${question.id}`}
+                                                value={option.id}
+                                                onChange={() => handleInputChange(question.id, option.id)}
+                                            />
+                                            <label htmlFor={`option-${option.id}`}>{option.option_text}</label>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
                         </div>
-                    ) : (
-                        <p>No questions found for this survey.</p>
-                    )}
-                </section>
+                    ))}
+                </div>
+                <button
+                    className="btn submit-btn"
+                    onClick={handleSubmit}
+                    disabled={!isFormValid}
+                    style={{ backgroundColor: isFormValid ? '#DB6FEB' : '#e0e0e0', cursor: isFormValid ? 'pointer' : 'not-allowed' }}
+                >
+                    Submit my responses
+                </button>
             </div>
-        </div>
-    );
-};
+        );
+    } else if (survey.status === "closed") {
+        return <ClosedSurveyResults survey={survey} />;
+    } else if (survey.status === "draft") {
+        return <PendingSurveyView survey={survey} />;
+    }
 
-export default SurveyResults;
+    return null;
+};

@@ -37,7 +37,6 @@ class Survey(db.Model):
     start_date = db.Column(db.DateTime)
     end_date = db.Column(db.DateTime)
     is_public = db.Column(db.Boolean, default=True)
-
     status = db.Column(db.Enum('draft', 'active', 'closed', name='status'), nullable=False)
     type = db.Column(db.Enum('survey', 'poll', name='type'), nullable=False)
 
@@ -56,9 +55,8 @@ class Survey(db.Model):
             "is_public": self.is_public,
             "status": self.status,
             "type": self.type,
-            "questions": [question.serialize() for question in self.questions],
+            "questions": [question.serialize() for question in self.questions]
         }
-
     def __repr__(self):
         return f'<Survey {self.title}>'
 
@@ -82,7 +80,7 @@ class Question(db.Model):
             "question_type": self.question_type,
             "order": self.order,
             "required": self.required,
-            "options": [option.serialize() for option in self.options],
+            "options": [option.serialize() for option in self.options]
         }
 
     def __repr__(self):
