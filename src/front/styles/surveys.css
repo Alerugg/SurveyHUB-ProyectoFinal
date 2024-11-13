@@ -1,0 +1,66 @@
+/* AvailableSurveys.css */
+
+.available-surveys-container {
+    max-width: 1352px;
+    margin: 0 auto;
+    padding: 30px;
+    background-color: #ffffff;
+    border-radius: 15px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    font-family: 'Poppins', sans-serif;
+}
+
+.available-surveys-title {
+    text-align: center;
+    font-size: 2.5em;
+    color: rgb(63, 55, 77);
+    font-weight: bold;
+    margin-bottom: 40px;
+}
+
+.surveys-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.survey-card {
+    padding: 20px;
+    border: 1px solid #e0e0e0;
+    border-radius: 15px;
+    background-color: #f9f9f9;
+    transition: box-shadow 0.3s, transform 0.3s;
+    cursor: pointer;
+}
+
+.survey-card:hover {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    transform: translateY(-5px);
+}
+
+.survey-card-title {
+    font-size: 1.8em;
+    color: rgb(63, 55, 77);
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.survey-card-description {
+    font-size: 1.1em;
+    color: #4A4A4A;
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+
+.survey-card-dates {
+    font-size: 0.9em;
+    color: #6C6C6C;
+}
+
+.loading {
+    text-align: center;
+    font-size: 1.5em;
+    color: #DB6FEB;
+    font-weight: bold;
+    margin-top: 50px;
+} 
