@@ -20,6 +20,55 @@ api = Blueprint('api', __name__)
 
 SECRET_KEY = 'your_secret_key_here'  # Debes reemplazar esto por una clave secreta segura
 
+@api.route('/surveys', methods=['POST'])
+def create_full_survey():
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No data provided"}), 400
+
+    try:
+        # Crear la encuesta principal
+        new_survey = Survey(
+            creator_id=data['creator_id'],
+            title=data['title'],
+            description=data.get('description'),
+            start_date=data.get('start_date'),
+            end_date=data.get('end_date'),
+            is_public=data.get('is_public', True),
+            status=data.get('status', 'draft'),
+            type=data['type']
+        )
+        db.session.add(new_survey)
+        db.session.flush()  # Obtener el ID de la encuesta antes de confirmar
+
+        # Crear las preguntas y opciones asociadas
+        for question_data in data.get('questions', []):
+            new_question = Question(
+                survey_id=new_survey.id,
+                question_text=question_data['question_text'],
+                question_type=question_data['question_type'],
+                order=question_data.get('order'),
+                required=question_data.get('required', True)
+            )
+            db.session.add(new_question)
+            db.session.flush()  # Obtener el ID de la pregunta antes de confirmar
+
+            # Crear las opciones asociadas a la pregunta
+            for option_data in question_data.get('options', []):
+                new_option = Option(
+                    question_id=new_question.id,
+                    option_text=option_data['option_text'],
+                    order=option_data.get('order')
+                )
+                db.session.add(new_option)
+
+        db.session.commit()
+        return jsonify({"message": "Survey, questions, and options created successfully"}), 201
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e), "message": "There was an error processing your request."}), 500
+
 
 @api.route('/users', methods=['GET'])
 
