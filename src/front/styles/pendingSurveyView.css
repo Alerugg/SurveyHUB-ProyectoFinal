@@ -1,0 +1,31 @@
+/* PendingSurveyView.css */
+
+.pending-survey-view {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin: 20px auto;
+    max-width: 600px;
+  }
+  
+  .pending-survey-view h2 {
+    color: #333;
+    margin-bottom: 10px;
+  }
+  
+  .pending-survey-view p {
+    color: #555;
+    margin: 10px 0;
+  }
+  
+  .countdown-timer {
+    font-size: 1.5em;
+    color: #d9534f;
+    margin-top: 20px;
+    font-weight: bold;
+  }
+  
