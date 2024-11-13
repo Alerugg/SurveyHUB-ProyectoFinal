@@ -20,7 +20,7 @@ const getState = ({ getStore, getActions, setStore }) => {
                   redirect: "follow"
                 };
 
-                fetch("https://didactic-space-tribble-vx74pxvwv9rcpxrp-3001.app.github.dev/api/surveys", requestOptions)
+                fetch(process.env.BACKEND_URL+"/api/surveys")
                   .then((response) => response.json())
                   .then((result) => setStore({surveys: result}) )
                   .catch((error) => console.error(error));
