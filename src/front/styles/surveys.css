@@ -1,207 +1,157 @@
-/* AvailableSurveys.css */
-
-/* Contenedor Principal */
 .available-surveys-container {
-    max-width: 1800px;
-    margin: 0 auto;
-    padding: 40px;
-    background-color: #ffffff;
-    border-radius: 15px;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
-    font-family: 'Poppins', sans-serif;
-    position: relative;
-    padding-right: 50px;
+  max-width: 1352px;
+  margin: 0 auto;
+  padding: 30px;
+  background-color: #ffffff;
+  border-radius: 15px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+  font-family: 'Poppins', sans-serif;
 }
 
 .available-surveys-title {
-    text-align: center;
-    font-size: 2.5em;
-    color: rgb(63, 55, 77);
-    font-weight: bold;
-    margin-bottom: 30px;
+  text-align: center;
+  font-size: 2.5em;
+  color: rgb(63, 55, 77);
+  font-weight: bold;
+  margin-bottom: 40px;
 }
 
-/* Filtros */
-.filter-container {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+.available-surveys-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 20px;
 }
 
-.filter-container label {
-    font-weight: bold;
-    color: #4A4A4A;
+.available-survey-card {
+  border-radius: 15px;
+  background-color: #f9f9f9;
+  transition: box-shadow 0.3s, transform 0.3s;
+  cursor: pointer;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 20px;
 }
 
-.filter-container select {
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: box-shadow 0.2s ease;
+.available-survey-card:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  transform: translateY(-5px);
 }
 
-.filter-container select:hover {
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+.available-survey-card-header {
+  position: relative;
 }
 
-/* Lista de Encuestas */
-.surveys-list {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 40px;
-    justify-items: center;
+.available-survey-image {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 10px;
 }
 
-/* Diseño del Card */
-.survey-card {
-    border-radius: 20px;
-    background-color: #ffffff;
-    transition: box-shadow 0.3s ease, transform 0.3s ease;
-    cursor: pointer;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    width: 550px;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.08);
-    border: 1px solid #ddd;
+.available-survey-status {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  padding: 5px 10px;
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 0.8em;
+  font-weight: bold;
 }
 
-.survey-card:hover {
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-    transform: translateY(-7px);
+.available-survey-status.public {
+  background-color: #28a745;
 }
 
-.survey-card-header {
-    position: relative;
+.available-survey-status.private {
+  background-color: #6c757d;
 }
 
-.survey-image {
-    width: 100%;
-    height: 250px;
-    object-fit: cover;
-    margin-top: 0;
-    padding: 0;
-    border-radius: 20px 20px 0 0;
+.available-survey-card-body {
+  padding: 20px;
+  flex: 1;
 }
 
-.survey-status {
-    position: absolute;
-    top: 15px;
-    left: 15px;
-    padding: 8px 15px;
-    border-radius: 12px;
-    color: #ffffff;
-    font-size: 0.9em;
-    font-weight: bold;
-    text-transform: uppercase;
-    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.15);
+.available-survey-card-title {
+  font-size: 1.6em;
+  color: rgb(63, 55, 77);
+  font-weight: 600;
+  margin-bottom: 10px;
 }
 
-.survey-status.public {
-    background-color: #2ecc71;
+.available-survey-card-description {
+  font-size: 1em;
+  color: #4A4A4A;
+  line-height: 1.5;
+  margin-bottom: 10px;
 }
 
-.survey-status.private {
-    background-color: #6c757d;
+.available-survey-status-badge {
+  margin-bottom: 10px;
 }
 
-.survey-card-body {
-    padding: 25px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+.available-status-badge {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 12px;
+  font-weight: bold;
+  color: #ffffff;
+  font-size: 0.8em;
 }
 
-.survey-card-title {
-    font-size: 1.4em;
-    color: rgb(63, 55, 77);
-    font-weight: bold;
-    line-height: 1.2;
+.available-status-badge.active {
+  background-color: #28a745;
 }
 
-.survey-card-description {
-    font-size: 1em;
-    color: #4A4A4A;
-    line-height: 1.6;
+.available-status-badge.draft {
+  background-color: #ffc107;
 }
 
-/* Status Badge */
-.survey-status-badge {
-    display: inline-block;
-    padding: 5px 15px;
-    border-radius: 20px;
-    font-weight: bold;
-    color: #ffffff;
-    font-size: 0.85em;
-    align-self: flex-start;
-    text-transform: uppercase;
+.available-status-badge.closed {
+  background-color: #dc3545;
 }
 
-.status-badge.active {
-    background-color: #28a745;
+.available-survey-card-footer {
+  margin-top: auto;
 }
 
-.status-badge.draft {
-    background-color: #ffc107;
-    color: #ffffff;
+.available-survey-card-dates {
+  font-size: 0.9em;
+  color: #6C6C6C;
+  margin-bottom: 10px;
 }
 
-.status-badge.closed {
-    background-color: #dc3545;
+.available-survey-goal {
+  font-size: 1em;
+  color: rgb(63, 55, 77);
+  font-weight: 600;
+  margin-bottom: 10px;
 }
 
-/* Footer del Card */
-.survey-card-footer {
-    background-color: #f8f8f8;
-    padding: 20px;
-    border-top: 1px solid #e0e0e0;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    align-items: flex-start;
-    border-radius: 0 0 20px 20px;
+.available-survey-goal span {
+  color: #28a745;
 }
 
-.survey-card-dates {
-    font-size: 0.9em;
-    color: #6C6C6C;
+.available-survey-creator {
+  display: flex;
+  align-items: center;
+  font-size: 0.9em;
+  color: #6C6C6C;
 }
 
-.survey-goal {
-    font-size: 1em;
-    color: #4A4A4A;
-    font-weight: 500;
-    margin-bottom: 5px;
+.available-survey-creator-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  margin-right: 10px;
 }
 
-.survey-goal span {
-    color: #28a745;
-    font-weight: bold;
-}
-
-.survey-creator {
-    display: flex;
-    align-items: center;
-    font-size: 0.9em;
-    color: #6C6C6C;
-}
-
-.creator-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    margin-right: 10px;
-}
-
-.loading {
-    text-align: center;
-    font-size: 1.5em;
-    color: #DB6FEB;
-    font-weight: bold;
-    margin-top: 50px;
+.available-surveys-loading {
+  text-align: center;
+  font-size: 1.5em;
+  color: #DB6FEB;
+  font-weight: bold;
+  margin-top: 50px;
 }
