@@ -1,11 +1,18 @@
-from flask import Blueprint, request, jsonify
+from flask import Flask, Blueprint, request, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from api.models import db, User, Survey, Question, Option, Vote
 import jwt
 import datetime
-import os
-from .auth import requires_auth
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_cors import CORS  # Importa CORS
 
+# Inicializa la aplicación de Flask
+app = Flask(__name__)
+
+# Habilita CORS para todo el dominio de tu frontend (ajusta la URL si es necesario)
+CORS(app, resources={r"/*": {"origins": "*"}})  # Permite solicitudes de cualquier origen
+
+# Aquí va el resto de la configuración y rutas
 
 api = Blueprint('api', __name__)
 
@@ -97,12 +104,12 @@ def create_user():
         if not data:
             return jsonify({"error": "No data provided"}), 400
 
-        # Verifica si el email está registrado o no
+        # Verificar si el email ya está registrado
         existing_user = User.query.filter_by(email=data['email']).first()
         if existing_user:
             return jsonify({"error": "Email already registered"}), 409
 
-        # Esto Hashea la contraseña usando SHA256
+        # Hashear la contraseña usando SHA256
         password_hash = generate_password_hash(data['password'], method='pbkdf2:sha256')
 
         # Crear el nuevo usuario
@@ -111,8 +118,27 @@ def create_user():
         db.session.commit()
 
         return jsonify({"message": "User created successfully"}), 201
+    
 
-@api.route('/login', methods=['POST'])  #### Nuevo endpoint para login
+
+@api.route('/users/<int:id>', methods=['PUT'])
+def update_user(id):
+    user = User.query.get_or_404(id)
+    data = request.get_json()
+    user.email = data.get('email', user.email)
+    user.full_name = data.get('full_name', user.full_name)
+    user.is_active = data.get('is_active', user.is_active)
+    user.password_hash = generate_password_hash(data.get('password', user.password_hash), method='pbkdf2:sha256')
+    db.session.commit()
+    return jsonify({
+        "id": user.id,
+        "email": user.email,
+        "full_name": user.full_name,
+        "created_at": user.created_at,
+        "is_active": user.is_active
+    })
+
+@api.route('/login', methods=['POST'])
 def login_user():
     data = request.get_json()
     if not data:
@@ -154,60 +180,7 @@ def get_surveys():
     ]
     return jsonify(surveys_list), 200
 
-@api.route('/users/<int:id>', methods=['GET'])  #### FUNCIONANDO
-@requires_auth
-def get_user(id):
-    user = User.query.get_or_404(id)
-    user_data = {
-        "id": user.id,
-        "email": user.email,
-        "full_name": user.full_name,
-        "created_at": user.created_at,
-        "is_active": user.is_active
-    }
-    return jsonify(user_data)
-
-@api.route('/users', methods=['GET'])  #### FUNCIONANDO
-def get_users():
-    users = User.query.all()
-    users_list = [
-        {
-            "id": user.id,
-            "email": user.email,
-            "full_name": user.full_name,
-            "created_at": user.created_at,
-            "is_active": user.is_active
-        } for user in users
-    ]
-    return jsonify(users_list), 200
-
-@api.route('/users/<int:id>', methods=['PUT'])
-def update_user(id):
-    user = User.query.get_or_404(id)
-    data = request.get_json()
-    user.email = data.get('email', user.email)
-    user.full_name = data.get('full_name', user.full_name)
-    user.is_active = data.get('is_active', user.is_active)
-    user.password_hash = generate_password_hash(data.get('password', user.password_hash), method='pbkdf2:sha256')
-    db.session.commit()
-    return jsonify({
-        "id": user.id,
-        "email": user.email,
-        "full_name": user.full_name,
-        "created_at": user.created_at,
-        "is_active": user.is_active
-    })
-
-@api.route('/users/<int:id>', methods=['DELETE'])
-def delete_user(id):
-    user = User.query.get_or_404(id)
-    db.session.delete(user)
-    db.session.commit()
-    return jsonify({'message': 'User deleted'}), 200
-
-# Estos seran los Endpoints de Surveys
 @api.route('/surveys', methods=['POST'])
-@requires_auth  # Protección con Auth0
 def create_survey():
     data = request.get_json()
     if not data:
@@ -229,29 +202,50 @@ def create_survey():
     return jsonify({"message": "Survey created successfully"}), 201
 
 @api.route('/surveys/<int:id>', methods=['GET'])
-@requires_auth  # Protección con Auth0
 def get_survey(id):
-    survey = Survey.query.get_or_404(id)
-    survey_data = {
-        "id": survey.id,
-        "creator_id": survey.creator_id,
-        "title": survey.title,
-        "description": survey.description,
-        "start_date": survey.start_date,
-        "end_date": survey.end_date,
-        "is_public": survey.is_public,
-        "status": survey.status,
-        "type": survey.type
-    }
-    return jsonify(survey_data)
+    try:
+        print(f"Fetching survey with id: {id}")
+        survey = Survey.query.options(db.joinedload(Survey.questions).joinedload(Question.options)).get_or_404(id)
 
-@api.route('/surveys', methods=['GET'])
-def get_surveys():
-    surveys = Survey.query.all()
-    return jsonify([survey.serialize() for survey in surveys]), 200
+        print(f"Survey found: {survey}")
+        
+        # Serializando datos
+        survey_data = {
+            "id": survey.id,
+            "creator_id": survey.creator_id,
+            "title": survey.title,
+            "description": survey.description,
+            "start_date": survey.start_date,
+            "end_date": survey.end_date,
+            "is_public": survey.is_public,
+            "status": survey.status,
+            "type": survey.type,
+            "questions": [
+                {
+                    "id": question.id,
+                    "question_text": question.question_text,
+                    "question_type": question.question_type,
+                    "order": question.order,
+                    "required": question.required,
+                    "options": [
+                        {
+                            "id": option.id,
+                            "option_text": option.option_text,
+                            "order": option.order
+                        } for option in question.options
+                    ]
+                } for question in survey.questions
+            ]
+        }
+        print(f"Survey data to return: {survey_data}")
+        return jsonify(survey_data), 200
+
+    except Exception as e:
+        print(f"Error fetching survey: {str(e)}")
+        return jsonify({"error": str(e), "message": "There was an error processing your request."}), 500
+
 
 @api.route('/surveys/<int:id>', methods=['PUT'])
-@requires_auth  # Protección con Auth0
 def update_survey(id):
     survey = Survey.query.get_or_404(id)
     data = request.get_json()
@@ -273,7 +267,6 @@ def update_survey(id):
     })
 
 @api.route('/surveys/<int:id>', methods=['DELETE'])
-@requires_auth  # Protección con Auth0
 def delete_survey(id):
     survey = Survey.query.get_or_404(id)
     db.session.delete(survey)
@@ -282,7 +275,6 @@ def delete_survey(id):
 
 # Estos seran los Endpoints de Question
 @api.route('/questions', methods=['POST'])
-@requires_auth  # Protección con Auth0
 def create_question():
     data = request.get_json()
     if not data:
@@ -302,7 +294,6 @@ def create_question():
     return jsonify({"message": "Question created successfully"}), 201
 
 @api.route('/questions/<int:id>', methods=['GET'])
-@requires_auth  # Protección con Auth0
 def get_question(id):
     question = Question.query.get_or_404(id)
     survey = Survey.query.get_or_404(question.survey_id)
@@ -317,13 +308,11 @@ def get_question(id):
     return jsonify(question_data)
 
 @api.route('/questions', methods=['GET'])
-@requires_auth  # Protección con Auth0
 def get_questions():
     questions = Question.query.all()
     return jsonify([question.serialize() for question in questions]), 200
 
 @api.route('/questions/<int:id>', methods=['PUT'])
-@requires_auth  # Protección con Auth0
 def update_question(id):
     question = Question.query.get_or_404(id)
     survey = Survey.query.get_or_404(question.survey_id)
@@ -342,7 +331,6 @@ def update_question(id):
     })
 
 @api.route('/questions/<int:id>', methods=['DELETE'])
-@requires_auth  # Protección con Auth0
 def delete_question(id):
     question = Question.query.get_or_404(id)
     survey = Survey.query.get_or_404(question.survey_id)
@@ -352,7 +340,6 @@ def delete_question(id):
 
 # Estos seran los Endpoints de Options
 @api.route('/options', methods=['POST'])
-@requires_auth  # Protección con Auth0
 def create_option():
     data = request.get_json()
     if not data:
@@ -371,7 +358,6 @@ def create_option():
     return jsonify({"message": "Option created successfully"}), 201
 
 @api.route('/options/<int:id>', methods=['GET'])
-@requires_auth  # Protección con Auth0
 def get_option(id):
     option = Option.query.get_or_404(id)
     question = Question.query.get_or_404(option.question_id)
@@ -385,13 +371,11 @@ def get_option(id):
     return jsonify(option_data)
 
 @api.route('/options', methods=['GET'])
-@requires_auth  # Protección con Auth0
 def get_options():
     options = Option.query.all()
     return jsonify([option.serialize() for option in options]), 200
 
 @api.route('/options/<int:id>', methods=['PUT'])
-@requires_auth  # Protección con Auth0
 def update_option(id):
     option = Option.query.get_or_404(id)
     question = Question.query.get_or_404(option.question_id)
@@ -407,7 +391,6 @@ def update_option(id):
     })
 
 @api.route('/options/<int:id>', methods=['DELETE'])
-@requires_auth  # Protección con Auth0
 def delete_option(id):
     option = Option.query.get_or_404(id)
     question = Question.query.get_or_404(option.question_id)
@@ -418,8 +401,45 @@ def delete_option(id):
 
 # Agregar las demás rutas según sea necesario
 
+@api.route('/votes', methods=['GET'])
+def get_votes():
+    votes = Vote.query.all()
+    votes_list = [
+        {
+            "id": vote.id,
+            "user_id": vote.user_id,
+            "survey_id": vote.survey_id,
+            "question_id": vote.question_id,
+            "option_id": vote.option_id,
+            "created_at": vote.created_at
+        } for vote in votes
+    ]
+    return jsonify(votes_list), 200
+
+
+@api.route('/votes', methods=['POST'])
+def create_vote():
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No data provided"}), 400
+
+    new_vote = Vote(
+        user_id=data['user_id'],
+        option_id=data['option_id']
+    )
+    db.session.add(new_vote)
+    db.session.commit()
+    return jsonify({"message": "Vote cast successfully"}), 201
+
+@api.route('/votes/<int:user_id>', methods=['GET'])
+def get_user_votes(user_id):
+    votes = Vote.query.filter_by(user_id=user_id).all()
+    votes_data = [vote.serialize() for vote in votes]
+    return jsonify(votes_data), 200
+
 # Configura el blueprint y la aplicación
 app.register_blueprint(api, url_prefix='/api')
 
 if __name__ == '__main__':
     app.run(debug=True)
+pipen
