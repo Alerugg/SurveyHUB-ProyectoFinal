@@ -19,11 +19,12 @@ export const Register = () => {
         const newUser = {
             full_name: fullName,
             email: email,
-            password_hash: password,
+            password: password,
         };
 
         try {
-            const response = await fetch("/api/users", {
+            // Step 1: Register the user
+            const registerResponse = await fetch("https://sturdy-xylophone-r4r7qrjrvj49f5w7p-3001.app.github.dev/api/users", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -31,12 +32,26 @@ export const Register = () => {
                 body: JSON.stringify(newUser),
             });
 
-            if (response.ok) {
-                alert("Registro exitoso.");
-                navigate("/login");
+            if (registerResponse.ok) {
+                // Step 2: Automatically log the user in
+                const loginResponse = await fetch("https://sturdy-xylophone-r4r7qrjrvj49f5w7p-3001.app.github.dev/api/login", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ email: email, password: password }),
+                });
+
+                if (loginResponse.ok) {
+                    alert("Registro e inicio de sesión exitosos. Bienvenid@!");
+                    navigate("/user_logued"); // Redirect to the homepage or another protected route
+                } else {
+                    alert("Error al iniciar sesión automáticamente. Por favor, intente iniciar sesión manualmente.");
+                    navigate("/login");
+                }
             } else {
-                const errorData = await response.json();
-                alert(`Error: ${errorData.message}`);
+                const errorData = await registerResponse.json();
+                alert(`Error en el registro: ${errorData.error}`);
             }
         } catch (error) {
             console.error("Error en el registro:", error);
