@@ -19,7 +19,7 @@ export const Home = () => {
 
   useEffect(() => {
     actions.getSurveys();
-  }, [actions]);
+  }, []);
 
   return (
     <div className="home-container ">

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import "../../styles/createSurvey.css";
 import { useNavigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode"; // Usar la exportación nombrada
+import { jwtDecode } from "jwt-decode";
+
 
 export const CreateSurvey = () => {
     const [step, setStep] = useState(1);
@@ -57,7 +58,7 @@ export const CreateSurvey = () => {
             const token = localStorage.getItem("token");
 
             try {
-                const response = await fetch('https://sturdy-xylophone-r4r7qrjrvj49f5w7p-3001.app.github.dev/api/surveys', {
+                const response = await fetch(process.env.BACKEND_URL + '/api/surveys', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -100,7 +101,7 @@ export const CreateSurvey = () => {
             const token = localStorage.getItem("token");
 
             try {
-                const response = await fetch('https://sturdy-xylophone-r4r7qrjrvj49f5w7p-3001.app.github.dev/api/questions', {
+                const response = await fetch(process.env.BACKEND_URL + '/api/questions', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -141,7 +142,7 @@ export const CreateSurvey = () => {
             };
 
             try {
-                const response = await fetch('https://sturdy-xylophone-r4r7qrjrvj49f5w7p-3001.app.github.dev/api/options', {
+                const response = await fetch(process.env.BACKEND_URL + '/api/options', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

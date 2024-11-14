@@ -1,11 +1,11 @@
 import React, { useEffect, useContext, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
 import "../../styles/surveyResults.css";
 import { Context } from "../store/appContext";
 import ClosedSurveyResults from "../component/closedSurveyView";
 import PendingSurveyView from "../component/pendingSurveyView";
 import ReactECharts from 'echarts-for-react';
+import { jwtDecode } from "jwt-decode"
 
 export const SurveyResults = () => {
     const { id } = useParams();
@@ -61,44 +61,39 @@ export const SurveyResults = () => {
 
     const handleSubmit = async () => {
         try {
-            // Obtener el JWT del localStorage
-            const token = localStorage.getItem("jwt-token");
+            const token = localStorage.getItem("token");
             if (!token) {
-                throw new Error("User is not authenticated");
+                throw new Error("User not logged in");
             }
-
-            // Decodificar el JWT para obtener el user_id
             const decodedToken = jwtDecode(token);
             const userId = decodedToken.user_id;
-
+    
             // Construye los datos de votos usando el estado responses
             const votesData = Object.entries(responses).map(([questionId, optionId]) => ({
                 user_id: userId,
-                option_id: parseInt(optionId)
+                // survey_id: parseInt(id), // `id` es el ID de la encuesta obtenido de los parámetros de la URL
+                // question_id: parseInt(questionId),
+                option_id: parseInt(optionId),
             }));
-
-            // Verifica los votos antes de enviarlos
-            console.log("Votes data:", votesData);
-
+    
             // Envía cada voto al backend usando un bucle
             for (let vote of votesData) {
-                console.log("Sending vote:", vote);
-                const response = await fetch("https://didactic-space-tribble-vx74pxvwv9rcpxrp-3001.app.github.dev/api/votes", {
+                const response = await fetch(process.env.BACKEND_URL + "/api/votes", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                        "Authorization": `Bearer ${token}`
+                        "Authorization": `Bearer ${token}`,
                     },
                     body: JSON.stringify(vote),
                 });
-
+    
                 if (!response.ok) {
                     const errorText = await response.text();
                     console.error("Response error:", errorText);
                     throw new Error("Failed to submit vote for option " + vote.option_id);
                 }
             }
-
+    
             // Si todos los votos se envían exitosamente
             alert("Thank you for your responses!");
             navigate("/user_logued");
@@ -107,6 +102,7 @@ export const SurveyResults = () => {
             alert("Failed to submit your responses. Please try again.");
         }
     };
+    
 
     // Verificar si la encuesta está disponible
     if (!store.survey || store.survey.id !== parseInt(id)) {
@@ -165,9 +161,94 @@ export const SurveyResults = () => {
                 </button>
             </div>
         );
-    }
+    } else if (survey.status === "closed") {
+        // Renderizar análisis estadístico usando un dashboard moderno
+        const barOptions = {
+            xAxis: {
+                type: 'category',
+                data: survey.questions.map((q) => q.question_text),
+            },
+            yAxis: {
+                type: 'value',
+            },
+            series: [
+                {
+                    data: survey.questions.map((q) => q.options.reduce((acc, opt) => acc + (opt.votes ? opt.votes.length : 0), 0)),
+                    type: 'bar',
+                    showBackground: true,
+                    backgroundStyle: {
+                        color: 'rgba(220, 220, 220, 0.8)',
+                    },
+                },
+            ],
+        };
 
-    // Resto del código no cambia para los otros estados de la encuesta...
+        const pieOptions = survey.questions.map((question) => ({
+            title: {
+                text: `Responses for: ${question.question_text}`,
+                left: 'center',
+            },
+            tooltip: {
+                trigger: 'item',
+            },
+            series: [
+                {
+                    name: 'Responses',
+                    type: 'pie',
+                    radius: '50%',
+                    data: question.options.map((opt) => ({
+                        value: opt.votes ? opt.votes.length : 0,
+                        name: opt.option_text,
+                    })) || [],
+                },
+            ],
+        }));
+
+        const lineOptions = {
+            xAxis: {
+                type: 'category',
+                data: survey.questions.map((q) => q.question_text),
+            },
+            yAxis: {
+                type: 'value',
+            },
+            series: [
+                {
+                    data: survey.questions.map((q) => q.options.reduce((acc, opt) => acc + (opt.votes ? opt.votes.length : 0), 0)),
+                    type: 'line',
+                    smooth: true,
+                },
+            ],
+        };
+
+        return (
+            <div className="survey-results-container">
+                <div className="survey-header">
+                    <button className="back-button" onClick={handleBack}>← Back to explore surveys</button>
+                    <h2 className="survey-title">{survey.title}</h2>
+                    <p className="survey-description">{survey.description}</p>
+                </div>
+                <div className="dashboard-container">
+                    <div className="chart-card">
+                        <h3 className="chart-title">Bar Chart Analysis</h3>
+                        <ReactECharts option={barOptions} />
+                    </div>
+                    {pieOptions.map((options, index) => (
+                        <div key={index} className="chart-card">
+                            <h3 className="chart-title">Pie Chart Analysis</h3>
+                            <ReactECharts option={options} />
+                        </div>
+                    ))}
+                    <div className="chart-card">
+                        <h3 className="chart-title">Line Chart Analysis</h3>
+                        <ReactECharts option={lineOptions} />
+                    </div>
+                </div>
+            </div>
+        );
+    } else if (survey.status === "draft") {
+        return <PendingSurveyView survey={survey} />;
+    }
 
     return null;
 };
