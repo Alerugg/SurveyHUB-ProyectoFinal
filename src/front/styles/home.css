@@ -1,7 +1,74 @@
-/*
-    home.css: This website contains selectors only used in home.css
+/* Home.css */
 
-    All pages share the styles on index.css but you should create 
-    one more css for each page that will contain the selected used 
-    on that page only (the ones not reused in other pages).
-*/
+body {
+  background-color: #f5f5f0; /* Blanco hueso */
+  color: rgb(63, 55, 77); /* Morado oscuro */
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+  
+.home-container {
+  padding: 20px;
+  min-height: 100vh;
+}
+  
+.header-section {
+  background-color: rgb(63, 55, 77);
+  color: #f5f5f0; /* Blanco hueso */
+  border-radius: 20px;
+}
+  
+.login-btn, .signup-btn {
+  background-color: #DB6FEB;
+  color: #ffffff;
+  border: none;
+  border-radius: 20px;
+  transition: transform 0.3s ease;
+}
+  
+.login-btn:hover, .signup-btn:hover {
+  transform: scale(1.05);
+}
+  
+.feature-highlights h2 {
+  color: rgb(63, 55, 77); /* Morado oscuro */
+}
+  
+.feature-card {
+  background-color: #ffffff;
+  color: rgb(63, 55, 77); /* Morado oscuro */
+  border-radius: 20px;
+}
+  
+.roadmap-section h2, .hot-surveys-section h2 {
+  color: rgb(63, 55, 77); /* Morado oscuro */
+}
+  
+.roadmap-image {
+  border-radius: 20px;
+  max-height: 400px;
+}
+  
+.hot-survey-card {
+  background-color: #ffffff;
+  color: rgb(63, 55, 77); /* Morado oscuro */
+  border-radius: 20px;
+}
+  
+.hot-survey-img {
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+}
+  
+.participate-btn {
+  background-color: #DB6FEB;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  transition: transform 0.3s ease;
+}
+  
+.participate-btn:hover {
+  transform: scale(1.05);
+}
+  

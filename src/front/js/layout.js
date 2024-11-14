@@ -4,9 +4,20 @@ import ScrollToTop from "./component/scrollToTop";
 import { BackendURL } from "./component/backendURL";
 
 import { Home } from "./pages/home";
+import {HomeUserLogued} from "./pages/home_user_logued"
 import { Demo } from "./pages/demo";
 import { Single } from "./pages/single";
 import injectContext from "./store/appContext";
+import { Login } from "./pages/login";
+import { UserProfile } from "./pages/userProfile";
+import { CreateSurvey } from "./pages/createSurvey";
+import { Register } from "./pages/register";
+import { SurveyResults } from "./pages/surveyResults";
+import { ForgotPassword } from "./pages/recoverPassword";
+import { AvailableSurveys } from "./pages/surveys";
+
+
+
 
 import { Navbar } from "./component/navbar";
 import { Footer } from "./component/footer";
@@ -26,8 +37,16 @@ const Layout = () => {
                     <Navbar />
                     <Routes>
                         <Route element={<Home />} path="/" />
+                        <Route element={<Login />} path="/login" />
+                        <Route element={<HomeUserLogued />} path="/user_logued" />
+                        <Route element={<SurveyResults/>} path="/surveys/:id" />
+                        <Route element={<Register />} path="/register" />
+                        <Route element={< CreateSurvey/>} path="/create_survey" />
+                        <Route element={< AvailableSurveys/>} path="/surveys" />
+                        <Route element={<UserProfile/>} path="/profile" />
+                        <Route element={<ForgotPassword />} path="/password_recovery" />
                         <Route element={<Demo />} path="/demo" />
-                        <Route element={<Single />} path="/single/:theid" />
+                        <Route element={<Single />} path="/single/:theida" />
                         <Route element={<h1>Not found!</h1>} />
                     </Routes>
                     <Footer />
