@@ -44,7 +44,7 @@ export const Register = () => {
 
                 if (loginResponse.ok) {
                     alert("Registro e inicio de sesión exitosos. Bienvenid@!");
-                    navigate("/"); // Redirect to the homepage or another protected route
+                    navigate("/user_logued"); // Redirect to the homepage or another protected route
                 } else {
                     alert("Error al iniciar sesión automáticamente. Por favor, intente iniciar sesión manualmente.");
                     navigate("/login");
