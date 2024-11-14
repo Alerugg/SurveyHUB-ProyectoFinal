@@ -43,7 +43,7 @@ const getState = ({ getStore, getActions, setStore }) => {
                 redirect: "follow",
             };
         
-            // Revisar si la URL del backend está definida correctamente
+            // Revisar si la URL del backend estÃ¡ definida correctamente
             console.log("Backend URL:", process.env.BACKEND_URL);
             
             fetch(process.env.BACKEND_URL + `/api/surveys/${id}`, requestOptions)
