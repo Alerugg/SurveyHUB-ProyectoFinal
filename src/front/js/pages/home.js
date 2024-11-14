@@ -1,82 +1,131 @@
-import React, { useEffect , useContext} from "react";
+import React, { useEffect, useContext } from "react";
 import { Context } from "../store/appContext";
 import "../../styles/home.css";
 import { Link } from "react-router-dom";
 import example from "/workspaces/PROYECTO-FINAL-REPO-FINAL/src/front/img/roadmapexample.png";
 import { GrActions } from "react-icons/gr";
+import Header from "/workspaces/PROYECTO-FINAL-REPO-FINAL/src/front/img/homeimg.png";
+import Stepper1 from "../../img/stepper1.png"
+import Stepper2 from "../../img/stepper2.png"
+import Stepper3 from "../../img/stepper3.png"
+import Footer1 from "../../img/foot1.png"
+import Footer2 from "../../img/foot2.png"
+import Footer3 from "../../img/foot3.png"
+import Footer4 from "../../img/foot4.png"
+
 
 export const Home = () => {
   const { store, actions } = useContext(Context);
 
-
-  useEffect(()=>{
-    actions.getSurveys() 
-  },[])
-
-
-
-
-
-
+  useEffect(() => {
+    actions.getSurveys();
+  }, []);
 
   return (
-    <div className="home-container">
+    <div className="home-container ">
       {/* Header Section */}
-      <div className="container mt-5">
-        <div className="jumbotron text-center p-5 mb-4 header-section">
-          <h1 className="display-4 fw-bold">Welcome to PulseSurvey</h1>
-          <p className="lead">Discover how our surveys can help you gather valuable insights and make better decisions.</p>
-          <div className="mt-4">
-            <Link to="/login" className="btn btn-lg login-btn mx-2">Login</Link>
-            <Link to="/register" className="btn btn-lg signup-btn mx-2">Sign Up</Link>
+      <div className="col-12 col-xs-12 col-md-12 col-lg-12 header-home text-center">
+        <h1 className="home-title">It's time to create your<br />
+          amazing surveys
+        </h1>
+        <p className="lead">
+          Organize a dinner party, get insight from your users for your small business, and much more.
+        </p>
+        <Link to="/register" className="btn btn-lg home-signup-btn">Get started</Link>
+        <div className="col-12 col-sm-6 col-md-4 mb-4 headerimg">
+          <img src={Header} alt="header-img" className="img-fluid header-img"></img>
+        </div>
+      </div>
+      {/* Feature Highlights Section */}
+      <div className=" why-part col-12">
+        <p className="why-evote text-center">Why Evote?</p>
+        <p className="why-text text-center">“Participating in our surveys is easy: simply sign up, choose the surveys that interest you<br />
+          most, share your opinions and start earning rewards for every answer you complete.”</p>
+        <div className="container card-container">
+          <div className="card1" >
+            <div className="card home-cards mb-4">
+              <h1>Easy to use.</h1>
+              <p>
+                The application has a clean and accessible design that makes it easy to navigate, allowing beginners and experts to create surveys without the need for technical training.
+              </p>
+            </div>
+          </div>
+          <div className="card2">
+            <div className="card home-cards mb-4">
+              <h1>Real-time Analytics.</h1>
+              <p>
+                A key advantage is real-time data analysis. Our application provides instant graphs and statistics as survey responses come in, enabling quick understanding of opinions and immediate decision-making.
+              </p>
+            </div>
+          </div>
+          <div className="card3">
+            <div className="card home-cards mb-4">
+              <h1>Customization and Flexibility</h1>
+              <p>
+                Our application offers flexibility and customization to meet your needs. You can create surveys with various question formats, like multiple choice or open-ended, and incorporate your branding to reflect your identity.
+              </p>
+            </div>
           </div>
         </div>
+      </div>
 
-        {/* Feature Highlights Section */}
-        <section className="mt-5 feature-highlights">
-          <h2 className="mb-4">Why Choose PulseSurvey?</h2>
-          <div className="row">
-            {[{ title: "Easy to Use", desc: "Create surveys in minutes with our intuitive interface." },
-              { title: "Quick Results", desc: "Access your results in real-time." },
-              { title: "Collaborate Easily", desc: "Share surveys and analyze responses with your team." }].map((feature, index) => (
-                <div key={index} className="col-md-4 mb-4">
-                  <div className="card shadow-sm border-0 feature-card">
-                    <div className="card-body text-center">
-                      <h5 className="card-title">{feature.title}</h5>
-                      <p className="card-text">{feature.desc}</p>
-                    </div>
-                  </div>
-                </div>
-            ))}
+      {/* Example Roadmap Section */}
+      <div className="work-part ">
+        <h2 className="mb-4 text-center">How we work?</h2>
+        <p className="text-center how-text">“Participating in our surveys is easy: simply sign up, choose the surveys that interest you <br />
+          most, share your opinions and start earning rewards for every answer you complete.”</p>
+        <div className="card-stepper col-12 col-sm-6 col-md-12">
+          <img src={Stepper1} alt="Imagen" class="img-fluid img-stepper1"></img>
+          <div className="stepper-box1">
+            <div className="container circle">1</div>
+            <div className="stepper-line"></div>
           </div>
-        </section>
+          <div class="stepper-text">
+            <h3>Start creating your survey</h3>
+            <p>At this stage, it's important to think about the objective of your survey and the information you wish to collect. You can choose from different types of questions, such as multiple choice,
+              open-ended responses, or scales, allowing you to gather valuable and specific data.
+              Once you're ready, simply follow the on-screen instructions to start adding your questions and customizing your survey before moving on to the next steps.
+            </p>
+            <Link to="/register" className="stepper-link ">Get started</Link>
 
-        {/* Example Roadmap Section */}
-        <section className="mt-5 roadmap-section">
-          <h2 className="mb-4">See How It Works</h2>
-          <div className="text-center">
-            <img src={example} alt="Example Roadmap" className="img-fluid roadmap-image" />
           </div>
-        </section>
-
-        {/* Hot Public Surveys Section */}
-        <section className="mt-5 hot-surveys-section">
-          <h2 className="mb-4">Hot Public Surveys</h2>
-          <div className="row">
-            {store.surveys.map((survey, index) => (
-              <div key={index} className="col-md-3 mb-4">
-                <div className="card shadow-sm border-0 hot-survey-card">
-                  <img src="https://placehold.co/600x400" className="card-img-top hot-survey-img" alt="Hot Survey" />
-                  <div className="card-body">
-                    <h5 className="card-title">Hot Survey {survey.title}</h5>
-                    <p className="card-text">{survey.description}</p>
-                    <Link to={`/survey/${index}`} className="btn btn-sm participate-btn">Participate now</Link>
-                  </div>
-                </div>
-              </div>
-            ))}
+        </div>
+        <div className="card-stepper col-12 col-sm-6 col-md-12">
+          <img src={Stepper3} alt="Imagen" class="img-fluid img-stepper1"></img>
+          <div className="stepper-box1">
+            <div className="container circle">2</div>
+            <div className="stepper-line"></div>
           </div>
-        </section>
+          <div class="stepper-text">
+            <h3>Make public or private</h3>
+            <p>Now that you have created your survey, it is time to decide its visibility. If you choose to make it public, anyone will be able to access it and participate, allowing you to get a variety of opinions. On the other hand, if you decide to keep it private, only the people you directly invite will be able to respond, which is ideal for more specific or exclusive surveys. 
+              Select the option that best suits your needs and start collecting responses.
+            </p>
+            <Link to="/register" className="stepper-link ">Get started</Link>
+          </div>
+        </div>
+        <div className="card-stepper col-12 col-sm-6 col-md-12">
+          <img src={Stepper2} alt="Imagen" class="img-fluid img-stepper1"></img>
+          <div className="stepper-box1">
+            <div className="container circle">3</div>
+          </div>
+          <div class="stepper-text">
+            <h3>Collect all the data</h3>
+            <p>Once your survey is ready and you have decided on its visibility, it's time to start collecting data. Share your survey link with participants and encourage them to respond. As you receive the responses, our application will take care of storing all the data in a secure and organized way.
+              Remember that you can track progress in real time and adjust any aspect of the survey to maximize participation - don't miss the opportunity to gain valuable information!
+            </p>
+            <Link to="/register" className="stepper-link ">Get started</Link>
+          </div>
+        </div>
+      </div>
+      <div className="home-foot">
+        <p className="text-foot text-center">Evote help you to help</p>
+        <div className="foot-img">
+          <img src={Footer1} alt="Imagen" class=" img-homefooter "></img>
+          <img src={Footer2} alt="Imagen" class=" img-homefooter "></img>
+          <img src={Footer3} alt="Imagen" class=" img-homefooter "></img>
+          <img src={Footer4} alt="Imagen" class=" img-homefooter "></img>
+        </div>
       </div>
     </div>
   );
