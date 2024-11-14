@@ -1,13 +1,16 @@
 /* AvailableSurveys.css */
 
+/* Contenedor Principal */
 .available-surveys-container {
-    max-width: 1352px;
+    max-width: 1800px;
     margin: 0 auto;
-    padding: 30px;
+    padding: 40px;
     background-color: #ffffff;
     border-radius: 15px;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
     font-family: 'Poppins', sans-serif;
+    position: relative;
+    padding-right: 50px;
 }
 
 .available-surveys-title {
@@ -15,46 +18,184 @@
     font-size: 2.5em;
     color: rgb(63, 55, 77);
     font-weight: bold;
-    margin-bottom: 40px;
+    margin-bottom: 30px;
 }
 
+/* Filtros */
+.filter-container {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.filter-container label {
+    font-weight: bold;
+    color: #4A4A4A;
+}
+
+.filter-container select {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: box-shadow 0.2s ease;
+}
+
+.filter-container select:hover {
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Lista de Encuestas */
 .surveys-list {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+    justify-items: center;
 }
 
+/* Diseño del Card */
 .survey-card {
-    padding: 20px;
-    border: 1px solid #e0e0e0;
-    border-radius: 15px;
-    background-color: #f9f9f9;
-    transition: box-shadow 0.3s, transform 0.3s;
+    border-radius: 20px;
+    background-color: #ffffff;
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
     cursor: pointer;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 550px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.08);
+    border: 1px solid #ddd;
 }
 
 .survey-card:hover {
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    transform: translateY(-7px);
+}
+
+.survey-card-header {
+    position: relative;
+}
+
+.survey-image {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    margin-top: 0;
+    padding: 0;
+    border-radius: 20px 20px 0 0;
+}
+
+.survey-status {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    padding: 8px 15px;
+    border-radius: 12px;
+    color: #ffffff;
+    font-size: 0.9em;
+    font-weight: bold;
+    text-transform: uppercase;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.15);
+}
+
+.survey-status.public {
+    background-color: #2ecc71;
+}
+
+.survey-status.private {
+    background-color: #6c757d;
+}
+
+.survey-card-body {
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }
 
 .survey-card-title {
-    font-size: 1.8em;
+    font-size: 1.4em;
     color: rgb(63, 55, 77);
-    font-weight: 600;
-    margin-bottom: 15px;
+    font-weight: bold;
+    line-height: 1.2;
 }
 
 .survey-card-description {
-    font-size: 1.1em;
+    font-size: 1em;
     color: #4A4A4A;
     line-height: 1.6;
-    margin-bottom: 15px;
+}
+
+/* Status Badge */
+.survey-status-badge {
+    display: inline-block;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-weight: bold;
+    color: #ffffff;
+    font-size: 0.85em;
+    align-self: flex-start;
+    text-transform: uppercase;
+}
+
+.status-badge.active {
+    background-color: #28a745;
+}
+
+.status-badge.draft {
+    background-color: #ffc107;
+    color: #ffffff;
+}
+
+.status-badge.closed {
+    background-color: #dc3545;
+}
+
+/* Footer del Card */
+.survey-card-footer {
+    background-color: #f8f8f8;
+    padding: 20px;
+    border-top: 1px solid #e0e0e0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+    border-radius: 0 0 20px 20px;
 }
 
 .survey-card-dates {
     font-size: 0.9em;
     color: #6C6C6C;
+}
+
+.survey-goal {
+    font-size: 1em;
+    color: #4A4A4A;
+    font-weight: 500;
+    margin-bottom: 5px;
+}
+
+.survey-goal span {
+    color: #28a745;
+    font-weight: bold;
+}
+
+.survey-creator {
+    display: flex;
+    align-items: center;
+    font-size: 0.9em;
+    color: #6C6C6C;
+}
+
+.creator-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
 }
 
 .loading {
@@ -63,4 +204,4 @@
     color: #DB6FEB;
     font-weight: bold;
     margin-top: 50px;
-} 
+}
