@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import "../../styles/register.css";
 import { useNavigate } from "react-router-dom";
+import { Context } from "../store/appContext";
 
 export const Register = () => {
     const [fullName, setFullName] = useState("");
@@ -8,6 +9,7 @@ export const Register = () => {
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const navigate = useNavigate();
+    const { actions } = useContext(Context);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -24,7 +26,7 @@ export const Register = () => {
 
         try {
             // Step 1: Register the user
-            const registerResponse = await fetch("https://sturdy-xylophone-r4r7qrjrvj49f5w7p-3001.app.github.dev/api/users", {
+            const registerResponse = await fetch(process.env.BACKEND_URL + "/api/users", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -34,7 +36,7 @@ export const Register = () => {
 
             if (registerResponse.ok) {
                 // Step 2: Automatically log the user in
-                const loginResponse = await fetch("https://sturdy-xylophone-r4r7qrjrvj49f5w7p-3001.app.github.dev/api/login", {
+                const loginResponse = await fetch(process.env.BACKEND_URL + "/api/login", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -43,8 +45,13 @@ export const Register = () => {
                 });
 
                 if (loginResponse.ok) {
+                    const loginData = await loginResponse.json();
+                    // Guardar token y actualizar el estado global del usuario
+                    localStorage.setItem("token", loginData.token);
+                    localStorage.setItem("user_id", loginData.user_id);
+                    actions.login(loginData); // Esto actualiza el store con la información del usuario
                     alert("Registro e inicio de sesión exitosos. Bienvenid@!");
-                    navigate("/user_logued"); // Redirect to the homepage or another protected route
+                    navigate("/user_logued"); // Redirige a la página de usuario logueado
                 } else {
                     alert("Error al iniciar sesión automáticamente. Por favor, intente iniciar sesión manualmente.");
                     navigate("/login");
