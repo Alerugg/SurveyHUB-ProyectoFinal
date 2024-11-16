@@ -5,7 +5,8 @@ import { Context } from "../store/appContext";
 import ClosedSurveyResults from "../component/closedSurveyView";
 import PendingSurveyView from "../component/pendingSurveyView";
 import ReactECharts from 'echarts-for-react';
-import { jwtDecode } from "jwt-decode"
+import { jwtDecode } from "jwt-decode";
+
 
 export const SurveyResults = () => {
     const { id } = useParams();
