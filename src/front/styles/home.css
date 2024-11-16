@@ -1,4 +1,5 @@
-div#app.h-100{
+/* General Styles */
+div#app.h-100 {
   background-color: #FFFFFF;
 }
 
@@ -13,16 +14,10 @@ h1.home-title {
 div.home-container {
   background-color: #FFFFFF;
   font-family: "Lato", sans-serif;
-  background-color: #FFFFFF;
   margin: 43px 64px;
 }
-.header-img {
-  height: 380px;
-  position: absolute;
-  top: 12px;
-  right: -16px;
-}
 
+/* Header Section */
 .header-home {
   position: relative;
   display: flex;
@@ -33,6 +28,14 @@ div.home-container {
   align-items: flex-start;
 }
 
+.header-img {
+  height: 380px;
+  position: absolute;
+  top: 12px;
+  right: -16px;
+}
+
+/* Button Styles */
 .home-signup-btn {
   height: 46px;
   width: 247px;
@@ -42,14 +45,16 @@ div.home-container {
   font-size: 18px;
 }
 
-.login-btn:hover, .signup-btn:hover {
+.login-btn:hover,
+.signup-btn:hover {
   transform: scale(1.05);
   color: #FFFFFF;
 }
 
+/* Why Evote Section */
 .why-part {
   margin-top: 103px;
-  color: black
+  color: black;
 }
 
 p.why-evote {
@@ -64,19 +69,14 @@ p.why-text {
   margin-bottom: 56px;
   font-weight: 300;
 }
+
+/* Card Container */
 .card-container {
-  text-align: center;
   display: flex;
   justify-content: center;
-  /* width: 100%; */
-  /* box-sizing: border-box; */
+  gap: 32px;
 }
-.card1{
-  margin-right: 32px;
-}
-.card2{
-  margin-right: 32px;
-}
+
 .card.home-cards {
   max-height: 298px;
   border: none;
@@ -86,6 +86,7 @@ p.why-text {
   padding: 24px;
   box-shadow: 7px 7px 7px 2px rgba(0, 0, 0, 0.2);
   flex: 1;
+  text-align: center;
 }
 
 .card.home-cards h1 {
@@ -99,115 +100,151 @@ p.why-text {
   font-weight: 300;
   color: #827e7e;
 }
-.hot-survey-card {
-  background-color: #ffffff;
-  color: rgb(63, 55, 77); /* Morado oscuro */
-  border-radius: 20px;
-}
 
-.hot-survey-img {
-  border-top-left-radius: 20px;
-  border-top-right-radius: 20px;
-  width: 100%; /* Para que la imagen sea responsiva */
-  object-fit: cover; /* Mantiene la relación de aspecto */
-}
-
-.participate-btn {
-  background-color: #DB6FEB;
-  color: #ffffff;
-  border: none;
-  border-radius: 10px;
-  transition: transform 0.3s ease;
-  width: 100%; /* Para que el botón ocupe todo el ancho disponible */
-}
-
-.participate-btn:hover {
-  transform: scale(1.05);
-}
-
-.work-part{
+/* Stepper Section */
+.work-part {
   color: black;
   margin-top: 56px;
 }
-.how-text{
-  text-align: center;
-  font-weight: 300;
-  font-size: 18px;
-  color: black;
-  margin-bottom: 56px;
 
-}
-
-.circle{
-  width: 45px;         /* Ancho del círculo */
-  height: 45px;        /* Alto del círculo */
-  border-radius: 50%;  /* Hace que el div tenga forma de círculo */
-  background-color: #DB6FEB; 
-  color: black;        /* Color del número */
-  display: flex;       /* Usar flexbox para centrar el contenido */
-  justify-content: center; /* Centrar horizontalmente */
-  align-items: center; /* Centrar verticalmente */
-  font-size: 24px;     /* Tamaño del número */
-}
-
-.card-stepper{
+.card-stepper {
   display: flex;
-  justify-content: flex-start;
+  gap: 32px;
   align-items: flex-start;
 }
-.stepper-box1{
-  margin-left: 186px;
-}
-.img-stepper1{
+
+.img-stepper1 {
   width: 516px;
   height: 585px;
 }
 
-.stepper-line{
-  margin-left: 183px;
-  width: 1px;            /* Ancho de la línea */
-  height: 647px;         /* Altura de la línea */
-  margin: 0 auto;   
-  border: solid #DB6FEB;    /* Centra la línea si está dentro de un contenedor */
+.circle {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background-color: #DB6FEB;
+  color: black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
 }
 
-.stepper-text{
+.stepper-line {
+  width: 1px;
+  height: 647px;
+  border: solid #DB6FEB;
+  margin: 0 auto;
+}
+
+.stepper-text {
   flex: 1;
   margin-left: 30px;
-
+  text-align: left;
 }
-.stepper-text h3{
+
+.stepper-text h3 {
   margin-bottom: 18px;
   font-size: 39px;
   font-weight: bolder;
 }
-.stepper-text p{
+
+.stepper-text p {
   margin-bottom: 24px;
 }
-.stepper-link{
+
+.stepper-link {
   color: #DB6FEB;
-  width: 91px;
-  height: 22px;
   text-decoration: none;
   font-size: 18px;
 }
-.home-foot{
+
+/* Footer Section */
+.home-foot {
   height: 451px;
   margin-top: 72px;
   background-color: #FCEAFF;
   border-radius: 10px;
+  padding: 48px 0;
+  text-align: center;
 }
-p.text-foot{
+
+p.text-foot {
   font-weight: 300;
   font-size: 32px;
-  padding-top: 48px;
-  height: 38px;
   margin-bottom: 76px;
 }
-.foot-img{
+
+.foot-img {
   display: flex;
-  width: 231px;
-  height: 277px;
-  margin-left: 134px;
-  margin-right: 134px;
+  justify-content: center;
+  gap: 32px;
+}
+
+.img-homefooter {
+  width: 150px;
+  height: auto;
+}
+
+/* Media Queries */
+@media (max-width: 992px) {
+  .header-home {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .header-img {
+    position: static;
+    height: auto;
+    width: 100%;
+    max-width: 300px;
+    margin-top: 20px;
+  }
+
+  .card-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .work-part {
+    text-align: center;
+  }
+
+  .card-stepper {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .img-stepper1 {
+    width: 100%;
+    height: auto;
+  }
+
+  .stepper-line {
+    display: none; /* Ocultar línea en dispositivos pequeños */
+  }
+
+  .stepper-text {
+    text-align: center;
+    margin: 0;
+  }
+
+  .home-foot {
+    padding: 32px;
+  }
+
+  .foot-img {
+    flex-wrap: wrap;
+  }
+
+  .img-homefooter {
+    width: 100px;
+  }
+}
+
+@media (max-width: 576px) {
+  .header-img {
+    display: none; /* Ocultar imagen en pantallas de teléfono */
+  }
 }
