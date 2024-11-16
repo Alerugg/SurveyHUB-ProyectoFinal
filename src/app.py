@@ -1,23 +1,21 @@
-"""
-This module takes care of starting the API Server, Loading the DB and Adding the endpoints
-"""
 import os
 from flask import Flask, request, jsonify, url_for, send_from_directory
 from flask_migrate import Migrate
 from flask_swagger import swagger
-from flask_cors import CORS  # Importa CORS
+from flask_cors import CORS
 from api.utils import APIException, generate_sitemap
 from api.models import db, User, Survey, Question, Option, Vote, Invitation
 from api.admin import setup_admin
 from api.commands import setup_commands
 
+# Determine environment (development or production)
 ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
 static_file_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../public/')
 app = Flask(__name__)
-CORS(app)  # Inicializa CORS para permitir solicitudes de cualquier origen
+CORS(app)  # Allow requests from any origin
 app.url_map.strict_slashes = False
 
-# database configuration
+# Database configuration
 db_url = os.getenv("DATABASE_URL")
 if db_url is not None:
     app.config['SQLALCHEMY_DATABASE_URI'] = db_url.replace("postgres://", "postgresql://")
@@ -28,15 +26,14 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 MIGRATE = Migrate(app, db, compare_type=True)
 db.init_app(app)
 
-# add the admin
+# Add the admin interface
 setup_admin(app)
 
-# add the commands
+# Add custom commands
 setup_commands(app)
 
-# Importing api Blueprint after app is created to avoid circular imports
+# Import and register the API blueprint
 from api.routes import api
-# Add all endpoints from the API with an "api" prefix
 app.register_blueprint(api, url_prefix='/api')
 
 # Handle/serialize errors like a JSON object
@@ -44,7 +41,7 @@ app.register_blueprint(api, url_prefix='/api')
 def handle_invalid_usage(error):
     return jsonify(error.to_dict()), error.status_code
 
-# generate sitemap with all your endpoints
+# Generate sitemap with all endpoints
 @app.route('/')
 def sitemap():
     if ENV == "development":
@@ -63,10 +60,10 @@ def serve_file(path):
         if not os.path.isfile(os.path.join(static_file_dir, path)):
             path = 'index.html'
         response = send_from_directory(static_file_dir, path)
-    response.cache_control.max_age = 0  # avoid cache memory
+    response.cache_control.max_age = 0  # Avoid cache memory
     return response
 
-# this only runs if `$ python src/main.py` is executed
+# Run the app if this file is executed directly
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3001))
     app.run(host='0.0.0.0', port=PORT, debug=True)
