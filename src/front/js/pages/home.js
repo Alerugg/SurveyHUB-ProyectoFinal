@@ -24,7 +24,7 @@ export const Home = () => {
   return (
     <div className="home-container ">
       {/* Header Section */}
-      <div className="col-12 col-xs-12 col-md-12 col-lg-12 header-home text-center">
+      <div className=" header-home text-center">
         <h1 className="home-title">It's time to create your<br />
           amazing surveys
         </h1>
@@ -37,7 +37,7 @@ export const Home = () => {
         </div>
       </div>
       {/* Feature Highlights Section */}
-      <div className=" why-part col-12">
+      <div className=" why-part">
         <p className="why-evote text-center">Why Evote?</p>
         <p className="why-text text-center">“Participating in our surveys is easy: simply sign up, choose the surveys that interest you<br />
           most, share your opinions and start earning rewards for every answer you complete.”</p>
