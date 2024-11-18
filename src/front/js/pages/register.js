@@ -1,7 +1,8 @@
 import React, { useState, useContext } from "react";
 import "../../styles/register.css";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Context } from "../store/appContext";
+import RegisterLogo from "../../img/logoRegister.png"
 
 export const Register = () => {
     const [fullName, setFullName] = useState("");
@@ -68,53 +69,62 @@ export const Register = () => {
 
     return (
         <div className="register-container">
-            <div className="container mt-5 d-flex justify-content-center">
-                <div className="card shadow-sm border-0 p-4 register-card">
-                    <h2 className="text-center mb-4">Registrarse</h2>
-                    <form onSubmit={handleSubmit}>
-                        <div className="mb-3">
-                            <label className="form-label">Nombre completo</label>
-                            <input
-                                type="text"
-                                className="form-control register-input"
-                                value={fullName}
-                                onChange={(e) => setFullName(e.target.value)}
-                                required
-                            />
-                        </div>
-                        <div className="mb-3">
-                            <label className="form-label">Correo electrónico</label>
-                            <input
-                                type="email"
-                                className="form-control register-input"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                required
-                            />
-                        </div>
-                        <div className="mb-3">
-                            <label className="form-label">Contraseña</label>
-                            <input
-                                type="password"
-                                className="form-control register-input"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
-                            />
-                        </div>
-                        <div className="mb-3">
-                            <label className="form-label">Confirmar contraseña</label>
-                            <input
-                                type="password"
-                                className="form-control register-input"
-                                value={confirmPassword}
-                                onChange={(e) => setConfirmPassword(e.target.value)}
-                                required
-                            />
-                        </div>
-                        <button type="submit" className="btn btn-lg register-btn w-100">Registrarse</button>
-                    </form>
-                </div>
+            <img src={RegisterLogo} alt="Login" className="login-image-small" />
+            <div className="register-form-container mt-5 d-flex justify-content-center">
+                <h1 className="register-title text-center">
+                    <span className="register-e">E</span>
+                    <span className="register-vote">vote</span>
+                </h1>
+                <form onSubmit={handleSubmit}>
+                    <div className="input-reg">
+                        <label className="form-label"></label>
+                        <input
+                            placeholder="Full name"
+                            type="text"
+                            className="form-control register-input"
+                            value={fullName}
+                            onChange={(e) => setFullName(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <div className="input-reg">
+                        <label className="form-label"></label>
+                        <input
+                            placeholder="Email"
+                            type="email"
+                            className="form-control register-input"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <div className="input-reg">
+                        <label className="form-label"></label>
+                        <input
+                            placeholder="Password"
+                            type="password"
+                            className="form-control register-input"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <div className="input-reg">
+                        <label className="form-label"></label>
+                        <input
+                            placeholder="Confirm password"
+                            type="password"
+                            className="form-control register-input"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <button type="submit" className="btn btn-lg register-btn w-100">Create account</button>
+                    <div className="login-register">
+                        Do you already have an account? <Link to="/login" className="signup-link">Log in</Link>
+                    </div>
+                </form>
             </div>
         </div>
     );
