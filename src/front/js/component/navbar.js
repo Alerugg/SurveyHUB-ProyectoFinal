@@ -41,16 +41,6 @@ export const Navbar = () => {
 
         {/* Collapsible content */}
         <div className="collapse navbar-collapse" id="navbarContent">
-          {/* Search form */}
-          <form className="d-flex ms-auto navbar-search">
-            <input
-              className="form-control me-2 search-input"
-              type="search"
-              placeholder="Search surveys..."
-              aria-label="Search"
-            />
-          </form>
-
           {/* Right elements */}
           <ul className="navbar-nav ms-auto flex-row align-items-center">
             {store.isAuthenticated && store.user && (
@@ -60,11 +50,6 @@ export const Navbar = () => {
                 </span>
               </li>
             )}
-            <li className="nav-item">
-              <Link className="nav-link d-flex align-items-center" to="/profile">
-                <i className="fas fa-user fa-lg me-1"></i>
-              </Link>
-            </li>
 
             {/* Login Button */}
             {!store.isAuthenticated && (
@@ -78,8 +63,8 @@ export const Navbar = () => {
             {/* Authenticated Options */}
             {store.isAuthenticated && (
               <>
-                <li className="nav-item">
-                  <button className="btn btn-logout nav-link" onClick={handleLogout}>
+                <li className="nav-item me-3">
+                  <button className="btn btn-login nav-link" onClick={handleLogout}>
                     Logout
                   </button>
                 </li>
@@ -91,12 +76,7 @@ export const Navbar = () => {
               </>
             )}
             <li className="nav-item me-3">
-              <Link className="nav-link" to="#">
-                <i className="fas fa-bell fa-lg"></i>
-              </Link>
-            </li>
-            <li className="nav-item me-3">
-              <Link className="nav-link" to="#">
+              <Link className="nav-link" to="/profile">
                 <i className="fas fa-cog fa-lg navbar-settings-icon"></i>
               </Link>
             </li>
@@ -106,3 +86,4 @@ export const Navbar = () => {
     </nav>
   );
 };
+

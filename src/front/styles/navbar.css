@@ -19,16 +19,6 @@
   color: #DB6FEB;
 }
 
-.navbar-search {
-  width: 50%;
-}
-
-.search-input {
-  background-color: #1e1f24;
-  color: #ffffff;
-  border-color: #DB6FEB;
-}
-
 .nav-link {
   color: #ffffff;
 }
@@ -73,15 +63,6 @@
 
 /* Responsive Adjustments for the Navbar */
 @media (max-width: 992px) {
-  .navbar-search {
-    width: 100%; /* Ajusta el ancho de búsqueda en pantallas pequeñas */
-    margin-top: 10px;
-  }
-
-  .search-input {
-    font-size: 14px;
-  }
-
   .navbar-custom {
     height: auto;
     padding: 10px 0;
@@ -105,9 +86,5 @@
   .navbar-title-highlight,
   .Vtitle {
     font-size: medium;
-  }
-
-  .navbar-search {
-    display: none; /* Oculta la barra de búsqueda en pantallas muy pequeñas */
   }
 }
