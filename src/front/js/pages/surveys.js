@@ -19,8 +19,8 @@ export const AvailableSurveys = () => {
     };
 
     if (!store.surveys || store.surveys.length === 0) {
-        return <div className="available-surveys-loading">
-            <span>Loading available surveys...</span>
+        return <div className="loading-container">
+            <span className="available-surveys-loading">Loading...</span>
             <div className="spinner"></div>
         </div>;
     }
@@ -101,7 +101,7 @@ export const AvailableSurveys = () => {
                                         Available until: {new Date(survey.end_date).toLocaleDateString()}
                                     </p>
                                     <div className="available-survey-goal">
-                                        Responses goal: <br/><span>{survey.currentResponses}of{survey.totalResponses}</span>
+                                        Responses goal: <br /><span>{survey.currentResponses}of{survey.totalResponses}</span>
                                         <img src="https://avatar.iran.liara.run/public" alt="Creator" className="available-survey-creator-avatar" />
                                     </div>
                                 </div>

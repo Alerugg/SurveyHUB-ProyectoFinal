@@ -2,7 +2,6 @@ import React, { useEffect, useContext, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "../../styles/surveyResults.css";
 import { Context } from "../store/appContext";
-import ClosedSurveyResults from "../component/closedSurveyView";
 import PendingSurveyView from "../component/pendingSurveyView";
 import ReactECharts from 'echarts-for-react';
 

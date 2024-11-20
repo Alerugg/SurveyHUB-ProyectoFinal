@@ -18,7 +18,8 @@ export const HomeUserLogued = () => {
                 {/* Header Section */}
                 <div className="home-user-logued-content mt-5">
                     <div className="home-user-logued-header text-center p-5 mb-4">
-                        <h1 className="home-user-logued-title fw-bold">It's time to create your amazing surveys</h1>
+                        <h1 className="home-user-logued-title fw-bold">Welcome, {store.user ? store.user.email : "Guest"}!</h1>
+                        <h2 className="home-user-logued-subtitle">It's time to create your amazing surveys</h2>
                         <p className="home-user-logued-subtitle">Organize a dinner party, get insight from your users for your small business, and much more.</p>
                         <Link to="/create_survey" className="home-user-logued-create-btn btn-lg mt-3">Create survey</Link>
                     </div>
