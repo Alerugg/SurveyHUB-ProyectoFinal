@@ -17,9 +17,9 @@ import Footer4 from "../../img/foot4.png"
 export const Home = () => {
   const { store, actions } = useContext(Context);
 
-  useEffect(() => {
-    actions.getSurveys();
-  }, []);
+  // useEffect(() => {
+  //   actions.getSurveys();
+  // }, []);
 
   return (
     <div className="home-container ">
