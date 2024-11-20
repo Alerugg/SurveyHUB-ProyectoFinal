@@ -514,6 +514,11 @@ def get_survey_votes(survey_id):
         "survey_id": survey_id,
         "questions": serialized_questions,
     }), 200
+# Configura el blueprint y la aplicación
+app.register_blueprint(api, url_prefix='/api')
+
+if __name__ == '__main__':
+     app.run(debug=True)
 
 
 
