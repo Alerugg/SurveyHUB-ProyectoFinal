@@ -1,12 +1,22 @@
-//import react into the bundle
+// Importa React y createRoot
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 
-//include your index.scss file into the bundle
+// Incluye tu archivo de estilos
 import "../styles/index.css";
 
-//import your own components
+// Importa tus propios componentes
 import Layout from "./layout";
 
-//render your react application
-ReactDOM.render(<Layout />, document.querySelector("#app"));
+// Obtén el elemento raíz
+const rootElement = document.querySelector("#app");
+
+// Crea el root usando createRoot y renderiza la aplicación
+if (rootElement) {
+  const root = createRoot(rootElement);
+  root.render(
+    <React.StrictMode>
+      <Layout />
+    </React.StrictMode>
+  );
+}

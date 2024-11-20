@@ -1,57 +1,90 @@
 /* Navbar.css */
 
 .navbar-custom {
-    height: 80px;
-    background-color: rgb(63, 55, 77);
+  height: 80px;
+  background-color: rgb(63, 55, 77);
+}
+
+.navbar-brand {
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.navbar-icon {
+  font-size: 50px;
+  color: #DB6FEB;
+}
+
+.navbar-title-highlight {
+  color: #DB6FEB;
+}
+
+.nav-link {
+  color: #ffffff;
+}
+
+.navbar-settings-icon {
+  color: #DB6FEB;
+}
+
+.navbar-nav .nav-item .nav-link:hover {
+  color: #e0e0e0;
+}
+
+.Etitle {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: x-large;
+}
+
+.Vtitle {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: large;
+}
+
+/* Login Button Styles */
+.btn-login {
+  background-color: #DB6FEB;
+  color: #ffffff;
+  border-radius: 8px;
+  font-size: 16px;
+  padding: 5px 15px;
+  text-decoration: none;
+}
+
+.btn-login:hover {
+  background-color: #c55bc7;
+  color: #ffffff;
+  text-decoration: none;
+}
+
+/* Responsive Adjustments for the Navbar */
+@media (max-width: 992px) {
+  .navbar-custom {
+    height: auto;
+    padding: 10px 0;
   }
-  
-  .navbar-brand {
-    font-weight: bold;
-    color: #ffffff;
+
+  .navbar-nav {
+    flex-direction: column; /* Cambia la dirección a columna */
+    align-items: center;
   }
-  
+
+  .nav-item {
+    margin: 5px 0;
+  }
+}
+
+@media (max-width: 576px) {
   .navbar-icon {
-    font-size: 50px;
-    color: #DB6FEB;
-  }
-  
-  .navbar-title-highlight {
-    color: #DB6FEB;
-  }
-  
-  .navbar-search {
-    width: 50%;
-  }
-  
-  .search-input {
-    background-color: #1e1f24;
-    color: #ffffff;
-    border-color: #DB6FEB;
-  }
-  
-  .nav-link {
-    color: #ffffff;
-  }
-  
-  .navbar-settings-icon {
-    color: #DB6FEB;
-  }
-  
-  .navbar-nav .nav-item .nav-link:hover {
-    color: #e0e0e0;
+    font-size: 40px; /* Reduce el tamaño del icono en móviles */
   }
 
-  .Etitle{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: x-large;
+  .navbar-title-highlight,
+  .Vtitle {
+    font-size: medium;
   }
-
-  .Vtitle{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: large;
-  }
-  
+}

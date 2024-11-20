@@ -26,56 +26,64 @@ export const Navbar = () => {
           <span className="text-white Vtitle">Vote</span>
         </Link>
 
-        {/* Search form */}
-        <form className="d-flex ms-auto navbar-search">
-          <input
-            className="form-control me-2 search-input"
-            type="search"
-            placeholder="Search surveys..."
-            aria-label="Search"
-          />
-        </form>
+        {/* Toggle button for mobile */}
+        <button
+          className="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarContent"
+          aria-controls="navbarContent"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span className="navbar-toggler-icon"></span>
+        </button>
 
-        {/* Right elements */}
-        <ul className="navbar-nav ms-auto flex-row align-items-center">
-          {store.isAuthenticated && store.user && (
-            <li className="nav-item me-3">
-              <span className="navbar-text">
-                Welcome, {store.user.full_name}
-              </span>
-            </li>
-          )}
-          <li className="nav-item">
-            <Link className="nav-link d-flex align-items-center" to="/profile">
-              <i className="fas fa-user fa-lg me-1"></i>
-            </Link>
-          </li>
-          {store.isAuthenticated && (
-            <>
-              <li className="nav-item">
-                <button className="btn btn-logout nav-link" onClick={handleLogout}>
-                  Logout
-                </button>
-              </li>
+        {/* Collapsible content */}
+        <div className="collapse navbar-collapse" id="navbarContent">
+          {/* Right elements */}
+          <ul className="navbar-nav ms-auto flex-row align-items-center">
+            {store.isAuthenticated && store.user && (
               <li className="nav-item me-3">
-                <Link className="nav-link" to="/my_surveys">
-                  <i className="fas fa-poll fa-lg"></i> My Surveys
+                <span className="navbar-text">
+                  Welcome, {store.user.full_name}
+                </span>
+              </li>
+            )}
+
+            {/* Login Button */}
+            {!store.isAuthenticated && (
+              <li className="nav-item me-3">
+                <Link to="/login" className="btn btn-login">
+                  Login
                 </Link>
               </li>
-            </>
-          )}
-          <li className="nav-item me-3">
-            <Link className="nav-link" to="#">
-              <i className="fas fa-bell fa-lg"></i>
-            </Link>
-          </li>
-          <li className="nav-item me-3">
-            <Link className="nav-link" to="#">
-              <i className="fas fa-cog fa-lg navbar-settings-icon"></i>
-            </Link>
-          </li>
-        </ul>
+            )}
+
+            {/* Authenticated Options */}
+            {store.isAuthenticated && (
+              <>
+                <li className="nav-item me-3">
+                  <button className="btn btn-login nav-link" onClick={handleLogout}>
+                    Logout
+                  </button>
+                </li>
+                <li className="nav-item me-3">
+                  <Link className="nav-link" to="/my_surveys">
+                    <i className="fas fa-poll fa-lg"></i> My Surveys
+                  </Link>
+                </li>
+              </>
+            )}
+            <li className="nav-item me-3">
+              <Link className="nav-link" to="/profile">
+                <i className="fas fa-cog fa-lg navbar-settings-icon"></i>
+              </Link>
+            </li>
+          </ul>
+        </div>
       </div>
     </nav>
   );
 };
+

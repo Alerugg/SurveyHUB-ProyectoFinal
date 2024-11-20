@@ -12,7 +12,7 @@ export const ForgotPassword = () => {
         setMessage(null);
 
         try {
-            const response = await fetch("https://didactic-space-tribble-vx74pxvwv9rcpxrp-3001.app.github.dev/api/forgot-password", {
+            const response = await fetch(process.env.BACKEND_URL + "/api/forgot-password", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
