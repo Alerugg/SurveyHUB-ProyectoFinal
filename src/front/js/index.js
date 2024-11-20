@@ -1,25 +1,12 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client'; // Importar createRoot
-import { Auth0Provider } from '@auth0/auth0-react';
-import { BrowserRouter } from "react-router-dom";
-import Login from './pages/login.js'; // Asegúrate de que la ruta sea correcta
+//import react into the bundle
+import React from "react";
+import ReactDOM from "react-dom";
 
-// Obtener el contenedor principal donde se montará la app
-const rootElement = document.getElementById('app'); // Cambiado root por app
-const root = ReactDOM.createRoot(rootElement);
+//include your index.scss file into the bundle
+import "../styles/index.css";
 
-root.render(
-  <React.StrictMode>
-    <Auth0Provider
-      domain="dev-pc4ip6ajno471us8.eu.auth0.com"
-      clientId="4GEmDYtNKQSRvu8H3yQNbumneMDQXCQV"
-      authorizationParams={{
-        redirect_uri: "http://localhost:3000",
-      }}
-    >
-      <BrowserRouter>
-        <Login />
-      </BrowserRouter>
-    </Auth0Provider>
-  </React.StrictMode>
-);
+//import your own components
+import Layout from "./layout";
+
+//render your react application
+ReactDOM.render(<Layout />, document.querySelector("#app"));
