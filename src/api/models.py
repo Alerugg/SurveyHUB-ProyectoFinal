@@ -37,7 +37,7 @@ class Survey(db.Model):
     start_date = db.Column(db.DateTime)
     end_date = db.Column(db.DateTime)
     is_public = db.Column(db.Boolean, default=True)
-    status = db.Column(db.Enum('draft', 'active', 'closed', name='status'), nullable=False)
+    status = db.Column(db.Enum('draft', 'active', 'closed', name='status'), nullable=False, default='draft')
     type = db.Column(db.Enum('survey', 'poll', name='type'), nullable=False)
 
     questions = db.relationship('Question', backref='survey', lazy=True)
@@ -134,7 +134,7 @@ class Invitation(db.Model):
     survey_id = db.Column(db.Integer, db.ForeignKey('surveys.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     token = db.Column(db.String, unique=True, nullable=False)
-    expires_at = db.Column(db.DateTime, nullable=False)  # Elimina ForeignKey
+    expires_at = db.Column(db.DateTime, nullable=False)
     used = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 

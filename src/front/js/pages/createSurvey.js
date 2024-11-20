@@ -3,7 +3,6 @@ import "../../styles/createSurvey.css";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 
-
 export const CreateSurvey = () => {
     const [step, setStep] = useState(1);
     const [title, setTitle] = useState("");
@@ -168,6 +167,15 @@ export const CreateSurvey = () => {
                 console.error("Error sending data:", error);
                 alert("An error occurred while sending the data.");
             }
+        }
+    };
+
+    const handleFinalSubmit = () => {
+        // Redirigir a la encuesta creada
+        if (surveyId) {
+            navigate(`/surveyS/${surveyId}`);
+        } else {
+            alert("Survey ID not found, unable to redirect.");
         }
     };
 
@@ -428,6 +436,15 @@ export const CreateSurvey = () => {
                             ) : (
                                 <p>No more questions to show.</p>
                             )}
+                        </div>
+                        <div className="text-center mt-4">
+                            <button
+                                type="button"
+                                className="btn btn-success w-100 create-survey-btn"
+                                onClick={handleFinalSubmit}
+                            >
+                                Finish and Go to Survey
+                            </button>
                         </div>
                     </div>
                 )}

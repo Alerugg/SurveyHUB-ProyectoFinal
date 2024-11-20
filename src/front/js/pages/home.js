@@ -24,7 +24,7 @@ export const Home = () => {
   return (
     <div className="home-container ">
       {/* Header Section */}
-      <div className="col-12 col-xs-12 col-md-12 col-lg-12 header-home text-center">
+      <div className=" header-home text-center">
         <h1 className="home-title">It's time to create your<br />
           amazing surveys
         </h1>
@@ -37,7 +37,7 @@ export const Home = () => {
         </div>
       </div>
       {/* Feature Highlights Section */}
-      <div className=" why-part col-12">
+      <div className=" why-part">
         <p className="why-evote text-center">Why Evote?</p>
         <p className="why-text text-center">“Participating in our surveys is easy: simply sign up, choose the surveys that interest you<br />
           most, share your opinions and start earning rewards for every answer you complete.”</p>
@@ -75,12 +75,12 @@ export const Home = () => {
         <p className="text-center how-text">“Participating in our surveys is easy: simply sign up, choose the surveys that interest you <br />
           most, share your opinions and start earning rewards for every answer you complete.”</p>
         <div className="card-stepper col-12 col-sm-6 col-md-12">
-          <img src={Stepper1} alt="Imagen" class="img-fluid img-stepper1"></img>
+          <img src={Stepper1} alt="Imagen" className="img-fluid img-stepper1"></img>
           <div className="stepper-box1">
             <div className="container circle">1</div>
             <div className="stepper-line"></div>
           </div>
-          <div class="stepper-text">
+          <div className="stepper-text">
             <h3>Start creating your survey</h3>
             <p>At this stage, it's important to think about the objective of your survey and the information you wish to collect. You can choose from different types of questions, such as multiple choice,
               open-ended responses, or scales, allowing you to gather valuable and specific data.
@@ -91,12 +91,12 @@ export const Home = () => {
           </div>
         </div>
         <div className="card-stepper col-12 col-sm-6 col-md-12">
-          <img src={Stepper3} alt="Imagen" class="img-fluid img-stepper1"></img>
+          <img src={Stepper3} alt="Imagen" className="img-fluid img-stepper1"></img>
           <div className="stepper-box1">
             <div className="container circle">2</div>
             <div className="stepper-line"></div>
           </div>
-          <div class="stepper-text">
+          <div className="stepper-text">
             <h3>Make public or private</h3>
             <p>Now that you have created your survey, it is time to decide its visibility. If you choose to make it public, anyone will be able to access it and participate, allowing you to get a variety of opinions. On the other hand, if you decide to keep it private, only the people you directly invite will be able to respond, which is ideal for more specific or exclusive surveys. 
               Select the option that best suits your needs and start collecting responses.
@@ -105,11 +105,11 @@ export const Home = () => {
           </div>
         </div>
         <div className="card-stepper col-12 col-sm-6 col-md-12">
-          <img src={Stepper2} alt="Imagen" class="img-fluid img-stepper1"></img>
+          <img src={Stepper2} alt="Imagen" className="img-fluid img-stepper1"></img>
           <div className="stepper-box1">
             <div className="container circle">3</div>
           </div>
-          <div class="stepper-text">
+          <div className="stepper-text">
             <h3>Collect all the data</h3>
             <p>Once your survey is ready and you have decided on its visibility, it's time to start collecting data. Share your survey link with participants and encourage them to respond. As you receive the responses, our application will take care of storing all the data in a secure and organized way.
               Remember that you can track progress in real time and adjust any aspect of the survey to maximize participation - don't miss the opportunity to gain valuable information!
@@ -121,10 +121,10 @@ export const Home = () => {
       <div className="home-foot">
         <p className="text-foot text-center">Evote help you to help</p>
         <div className="foot-img">
-          <img src={Footer1} alt="Imagen" class=" img-homefooter "></img>
-          <img src={Footer2} alt="Imagen" class=" img-homefooter "></img>
-          <img src={Footer3} alt="Imagen" class=" img-homefooter "></img>
-          <img src={Footer4} alt="Imagen" class=" img-homefooter "></img>
+          <img src={Footer1} alt="Imagen" className=" img-homefooter "></img>
+          <img src={Footer2} alt="Imagen" className=" img-homefooter "></img>
+          <img src={Footer3} alt="Imagen" className=" img-homefooter "></img>
+          <img src={Footer4} alt="Imagen" className=" img-homefooter "></img>
         </div>
       </div>
     </div>
