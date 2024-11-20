@@ -2,11 +2,8 @@ import React, { useEffect, useContext, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "../../styles/surveyResults.css";
 import { Context } from "../store/appContext";
-import ClosedSurveyResults from "../component/closedSurveyView";
 import PendingSurveyView from "../component/pendingSurveyView";
 import ReactECharts from 'echarts-for-react';
-import { jwtDecode } from "jwt-decode";
-
 
 export const SurveyResults = () => {
     const { id } = useParams();
@@ -14,6 +11,7 @@ export const SurveyResults = () => {
     const navigate = useNavigate();
     const [isFormValid, setIsFormValid] = useState(false);
     const [responses, setResponses] = useState({});
+    const [hasVoted, setHasVoted] = useState(false);
 
     useEffect(() => {
         // Solo realiza la llamada si no se tiene ya la encuesta correcta en el store
@@ -21,6 +19,14 @@ export const SurveyResults = () => {
             actions.getSurvey(id);
         }
     }, [id]);
+
+    useEffect(() => {
+        // Validar si el usuario ya ha votado en esta encuesta
+        const token = localStorage.getItem("jwt-token");
+        if (token) {
+            checkIfUserHasVoted();
+        }
+    }, [store.survey]);
 
     // Validar el formulario solo si la encuesta se ha cargado correctamente
     useEffect(() => {
@@ -60,23 +66,45 @@ export const SurveyResults = () => {
         validateForm();
     };
 
+    const checkIfUserHasVoted = async () => {
+        try {
+            const token = localStorage.getItem("jwt-token");
+            if (!token) return;
+
+            const response = await fetch(`${process.env.BACKEND_URL}/api/surveys/${id}/has_voted`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                setHasVoted(result.has_voted);
+            } else {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+        } catch (error) {
+            console.error("Error checking if user has voted: ", error);
+        }
+    };
+
     const handleSubmit = async () => {
         try {
-            const token = localStorage.getItem("token");
+            const token = localStorage.getItem("jwt-token");
             if (!token) {
-                throw new Error("User not logged in");
+                alert("Para votar debe hacer login");
+                return;
             }
-            const decodedToken = jwtDecode(token);
-            const userId = decodedToken.user_id;
-    
+            
             // Construye los datos de votos usando el estado responses
             const votesData = Object.entries(responses).map(([questionId, optionId]) => ({
-                user_id: userId,
                 // survey_id: parseInt(id), // `id` es el ID de la encuesta obtenido de los parámetros de la URL
                 // question_id: parseInt(questionId),
                 option_id: parseInt(optionId),
             }));
-    
+
             // Envía cada voto al backend usando un bucle
             for (let vote of votesData) {
                 const response = await fetch(process.env.BACKEND_URL + "/api/votes", {
@@ -87,14 +115,14 @@ export const SurveyResults = () => {
                     },
                     body: JSON.stringify(vote),
                 });
-    
+
                 if (!response.ok) {
                     const errorText = await response.text();
                     console.error("Response error:", errorText);
                     throw new Error("Failed to submit vote for option " + vote.option_id);
                 }
             }
-    
+
             // Si todos los votos se envían exitosamente
             alert("Thank you for your responses!");
             navigate("/user_logued");
@@ -103,7 +131,6 @@ export const SurveyResults = () => {
             alert("Failed to submit your responses. Please try again.");
         }
     };
-    
 
     // Verificar si la encuesta está disponible
     if (!store.survey || store.survey.id !== parseInt(id)) {
@@ -133,6 +160,7 @@ export const SurveyResults = () => {
                                         className="open-ended-response"
                                         placeholder="Type your answer here..."
                                         onChange={(e) => handleInputChange(question.id, e.target.value)}
+                                        disabled={!store.isAuthenticated || hasVoted}
                                     ></textarea>
                                 ) : (
                                     question.options && question.options.map((option) => (
@@ -143,6 +171,7 @@ export const SurveyResults = () => {
                                                 name={`question-${question.id}`}
                                                 value={option.id}
                                                 onChange={() => handleInputChange(question.id, option.id)}
+                                                disabled={!store.isAuthenticated || hasVoted}
                                             />
                                             <label htmlFor={`option-${option.id}`}>{option.option_text}</label>
                                         </div>
@@ -155,11 +184,17 @@ export const SurveyResults = () => {
                 <button
                     className="btn submit-btn"
                     onClick={handleSubmit}
-                    disabled={!isFormValid}
-                    style={{ backgroundColor: isFormValid ? '#DB6FEB' : '#e0e0e0', cursor: isFormValid ? 'pointer' : 'not-allowed' }}
+                    disabled={!isFormValid || !store.isAuthenticated || hasVoted}
+                    style={{ backgroundColor: isFormValid && store.isAuthenticated && !hasVoted ? '#DB6FEB' : '#e0e0e0', cursor: isFormValid && store.isAuthenticated && !hasVoted ? 'pointer' : 'not-allowed' }}
                 >
-                    Submit my responses
+                    {hasVoted ? "Ya has votado en esta encuesta" : "Submit my responses"}
                 </button>
+                {!store.isAuthenticated && (
+                    <div className="alert-message">Para votar debe hacer login.</div>
+                )}
+                {hasVoted && (
+                    <div className="alert-message">Ya has votado en esta encuesta.</div>
+                )}
             </div>
         );
     } else if (survey.status === "closed") {
