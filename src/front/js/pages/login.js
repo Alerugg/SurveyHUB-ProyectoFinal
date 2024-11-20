@@ -1,4 +1,5 @@
-import React, { useState, useContext } from "react";
+// Login Component
+import React, { useState, useContext, useEffect } from "react";
 import "../../styles/login.css";
 import { useNavigate, Link } from "react-router-dom";
 import { Context } from "../store/appContext";
@@ -35,7 +36,7 @@ const performLogin = async (email, password) => {
         console.log("Datos de respuesta del login:", data);
 
         // Almacena el token y el user_id en localStorage
-        localStorage.setItem("token", data.token);
+        localStorage.setItem("jwt-token", data.token);
         localStorage.setItem("user_id", data.user_id);
 
         return data;
@@ -66,6 +67,10 @@ export const Login = () => {
             setError(err.message);                                       // Mostrar el mensaje de error en la interfaz
         }
     };
+
+    useEffect(() => {
+        actions.checkAuth();                                             // Verifica si el usuario sigue autenticado al cargar la página
+    }, []);
 
     return (
         <div className="login-container">

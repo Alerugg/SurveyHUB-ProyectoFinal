@@ -50,6 +50,36 @@
   font-weight: bold;
 }
 
+/* Scroll horizontal para ambas secciones */
+.home-user-logued-scroll {
+  display: flex;
+  overflow-x: auto;
+  flex-wrap: nowrap;
+  padding-bottom: 10px;
+  gap: 20px;
+  scroll-behavior: smooth;
+}
+
+.home-user-logued-scroll::-webkit-scrollbar {
+  height: 8px;
+}
+
+.home-user-logued-scroll::-webkit-scrollbar-thumb {
+  background-color: #5e2e84; /* Color morado de la app */
+  border-radius: 10px;
+}
+
+.home-user-logued-scroll::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.home-user-logued-scroll .col-12,
+.home-user-logued-scroll .col-md-6,
+.home-user-logued-scroll .col-lg-4 {
+  flex: 0 0 auto;
+}
+
 /* Tarjetas grandes para la primera sección */
 .home-user-logued-large-card {
   background-color: #ffffff;
@@ -57,6 +87,7 @@
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   transition: box-shadow 0.3s, transform 0.3s;
+  min-width: 300px;
 }
 
 .home-user-logued-large-card:hover {
@@ -79,6 +110,7 @@
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   transition: box-shadow 0.3s, transform 0.3s;
+  min-width: 200px;
 }
 
 .home-user-logued-small-card:hover {
@@ -149,9 +181,42 @@
   transform: scale(1.05);
 }
 
+/* Botón debajo del scroll de cada sección */
+.home-user-logued-all-surveys-scroll-btn {
+  background-color: #DB6FEB;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 20px;
+  transition: transform 0.3s ease;
+  display: block;
+  margin: 10px auto;
+  text-align: center;
+}
+
+.home-user-logued-all-surveys-scroll-btn:hover {
+  transform: scale(1.05);
+}
+
 .home-user-logued-no-surveys {
   font-size: 1.2em;
   color: #a0a0a0;
   text-align: center;
   margin-top: 20px;
+}
+
+/* Mostrar barra de desplazamiento */
+.home-user-logued-active-section .home-user-logued-scroll::-webkit-scrollbar,
+.home-user-logued-popular-section .home-user-logued-scroll::-webkit-scrollbar {
+  display: block;
+}
+
+.home-user-logued-active-section .home-user-logued-scroll {
+  -ms-overflow-style: auto;
+  scrollbar-width: auto;
+}
+
+.home-user-logued-popular-section .home-user-logued-scroll {
+  -ms-overflow-style: auto;
+  scrollbar-width: auto;
 }
