@@ -176,14 +176,15 @@ def login_user():
 
     if user and check_password_hash(user.password_hash, password):
         token = jwt.encode({
-            'sub': user.id,  # <-- Agregar el campo "sub" que representa el ID del usuario
+            'sub': user.id,
             'user_id': user.id,
             'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)
         }, SECRET_KEY, algorithm='HS256')
 
-        return jsonify({"message": "Login successful", "token": token}), 200
+        return jsonify({"message": "Login successful", "token": token, "user_id": user.id}), 200
     else:
         return jsonify({"error": "Invalid email or password"}), 401
+
 
 ## SURVEYS ENDPOINTS
     

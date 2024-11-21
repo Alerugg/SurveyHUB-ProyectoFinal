@@ -131,6 +131,7 @@ const getState = ({ getStore, getActions, setStore }) => {
                 setStore({ isAuthenticated: true });
                 await getActions().getUserProfile(); // Obtener el perfil completo del usuario después del login
             },
+            
 
             logout: () => {
                 localStorage.removeItem("jwt-token");

@@ -53,6 +53,10 @@ const Layout = () => {
                             path="/user_logued" 
                             element={store.isAuthenticated ? <HomeUserLogued /> : <Navigate to="/login" />} 
                         />
+<Route 
+                            path="/create_survey" 
+                            element={store.isAuthenticated ? <CreateSurvey /> : <Navigate to="/login" />} 
+                        />
                         <Route element={<SurveyResults/>} path="/surveys/:id"/>
                         <Route element={<ForgotPassword/>} path="/password_recovery" />
                         <Route element={<Demo />} path="/demo" />

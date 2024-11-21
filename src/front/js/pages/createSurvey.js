@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import "../../styles/createSurvey.css";
 import { useNavigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
+import { Context } from "../store/appContext";
 
 export const CreateSurvey = () => {
+    const { store, actions } = useContext(Context);
     const [step, setStep] = useState(1);
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
@@ -11,7 +12,6 @@ export const CreateSurvey = () => {
     const [endDate, setEndDate] = useState("");
     const [isPublic, setIsPublic] = useState(true);
     const [status, setStatus] = useState("draft");
-    const [creatorId, setCreatorId] = useState("");
     const [surveyId, setSurveyId] = useState(null); // Estado para almacenar el ID de la encuesta
     const [questionText, setQuestionText] = useState("");
     const [questionType, setQuestionType] = useState("multiple_choice");
@@ -22,14 +22,11 @@ export const CreateSurvey = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (token) {
-            const decodedToken = jwtDecode(token);
-            setCreatorId(decodedToken.user_id);
-        } else {
+        if (!store.isAuthenticated) {
             alert("User not logged in");
+            navigate("/login");
         }
-    }, []);
+    }, [store.isAuthenticated, navigate]);
 
     const nextStep = async () => {
         if (step === 1 && title && description && startDate && endDate) {
@@ -42,9 +39,9 @@ export const CreateSurvey = () => {
 
     // Esta función maneja la creación de la encuesta
     const handleSubmitSurvey = async (isFinalStep = true) => {
-        if (title && description && startDate && endDate && creatorId) {
+        if (title && description && startDate && endDate && store.user?.id) {
             const surveyData = {
-                creator_id: creatorId,
+                creator_id: store.user.id,
                 title,
                 description,
                 start_date: startDate,
@@ -54,7 +51,7 @@ export const CreateSurvey = () => {
                 type: "survey",
             };
 
-            const token = localStorage.getItem("token");
+            const token = localStorage.getItem("jwt-token");
 
             try {
                 const response = await fetch(process.env.BACKEND_URL + '/api/surveys', {
@@ -97,7 +94,7 @@ export const CreateSurvey = () => {
                 question_type: questionType,  // Tipo de pregunta
             };
 
-            const token = localStorage.getItem("token");
+            const token = localStorage.getItem("jwt-token");
 
             try {
                 const response = await fetch(process.env.BACKEND_URL + '/api/questions', {
@@ -133,7 +130,7 @@ export const CreateSurvey = () => {
     // Maneja la adición de opciones para una pregunta específica
     const handleAddOption = async (questionId, optionText) => {
         if (optionText.trim() !== "") {
-            const token = localStorage.getItem("token");
+            const token = localStorage.getItem("jwt-token");
             const optionData = {
                 question_id: questionId,
                 option_text: optionText,

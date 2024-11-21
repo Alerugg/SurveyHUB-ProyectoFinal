@@ -18,15 +18,14 @@ export const SurveyResults = () => {
         if (!store.survey || store.survey.id !== parseInt(id)) {
             actions.getSurvey(id);
         }
-    }, [id]);
+    }, [id, store.survey, actions]);
 
     useEffect(() => {
         // Validar si el usuario ya ha votado en esta encuesta
-        const token = localStorage.getItem("jwt-token");
-        if (token) {
+        if (store.isAuthenticated && store.survey) {
             checkIfUserHasVoted();
         }
-    }, [store.survey]);
+    }, [store.survey, store.isAuthenticated]);
 
     // Validar el formulario solo si la encuesta se ha cargado correctamente
     useEffect(() => {
