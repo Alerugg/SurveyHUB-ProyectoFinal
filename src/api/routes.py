@@ -291,6 +291,8 @@ def get_survey(id):
 
     except Exception as e:
         return jsonify({"error": str(e), "message": "There was an error processing your request."}), 500
+    
+    
 
 @api.route('/surveys/<int:id>', methods=['PUT'])
 @jwt_required()
@@ -619,6 +621,7 @@ def get_survey_votes(survey_id):
         "survey_id": survey_id,
         "questions": serialized_questions,
     }), 200
+    
 
 
 

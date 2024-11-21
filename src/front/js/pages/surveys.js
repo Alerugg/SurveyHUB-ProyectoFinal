@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "../../styles/surveys.css";
 import { Context } from "../store/appContext";
 import { IoMdSearch } from "react-icons/io";
+import moment from "moment";
 
 export const AvailableSurveys = () => {
     const { store, actions } = useContext(Context);
@@ -13,6 +14,31 @@ export const AvailableSurveys = () => {
     useEffect(() => {
         actions.getSurveys();
     }, []);
+
+    useEffect(() => {
+        // Actualizar el estado de las encuestas según las fechas
+        if (store.surveys && store.surveys.length > 0) {
+            store.surveys.forEach((survey) => {
+                const currentDate = moment();
+                const startDate = moment(survey.start_date);
+                const endDate = moment(survey.end_date);
+
+                let newStatus = survey.status;
+
+                if (currentDate.isBefore(startDate)) {
+                    newStatus = "draft";
+                } else if (currentDate.isBetween(startDate, endDate, undefined, "[]")) {
+                    newStatus = "active";
+                } else if (currentDate.isAfter(endDate)) {
+                    newStatus = "closed";
+                }
+
+                if (newStatus !== survey.status) {
+                    actions.updateSurveyStatus(survey.id, newStatus);
+                }
+            });
+        }
+    }, [store.surveys, actions]);
 
     const handleSurveyClick = (id) => {
         navigate(`/surveys/${id}`);
@@ -90,8 +116,9 @@ export const AvailableSurveys = () => {
                                 <div className="card-title-container">
                                     <h3 className="available-survey-card-title">{survey.title}</h3>
                                     <span className={`available-status-badge-title ${survey.status.toLowerCase()}`}>
-                                        {survey.status}
-                                    </span>
+    {survey.status === "draft" ? "Pending" : survey.status}
+</span>
+
                                 </div>
                                 <p className="available-survey-card-description">
                                     {truncateText(survey.description, 90)}
@@ -101,7 +128,7 @@ export const AvailableSurveys = () => {
                                         Available until: {new Date(survey.end_date).toLocaleDateString()}
                                     </p>
                                     <div className="available-survey-goal">
-                                        Responses goal: <br /><span>{survey.currentResponses}of{survey.totalResponses}</span>
+                                        Responses goal: <br /><span>{survey.currentResponses} of {survey.totalResponses}</span>
                                         <img src="https://avatar.iran.liara.run/public" alt="Creator" className="available-survey-creator-avatar" />
                                     </div>
                                 </div>
