@@ -16,6 +16,105 @@ api = Blueprint('api', __name__)
 
 SECRET_KEY = 'your_secret_key_here'  # Debes reemplazar esto por una clave secreta segura
 
+@api.route('/users/<int:user_id>/votes/surveys', methods=['GET'])
+@jwt_required()
+def get_user_voted_surveys(user_id):
+    # Obtener el usuario actual desde el token JWT
+    current_user_id = get_jwt_identity()
+    if current_user_id != user_id:
+        return jsonify({"error": "Unauthorized access"}), 403
+
+    # Obtener todas las encuestas en las que el usuario ha votado
+    votes = Vote.query.filter_by(user_id=user_id).all()
+    survey_ids = {vote.survey_id for vote in votes}
+
+    # Obtener las encuestas a partir de los IDs
+    surveys = Survey.query.filter(Survey.id.in_(survey_ids)).all()
+
+    # Serializar las encuestas para la respuesta
+    surveys_list = [
+        {
+            "id": survey.id,
+            "creator_id": survey.creator_id,
+            "title": survey.title,
+            "description": survey.description,
+            "start_date": survey.start_date,
+            "end_date": survey.end_date,
+            "status": survey.status
+        } for survey in surveys
+    ]
+
+    return jsonify(surveys_list), 200
+
+
+@api.route('/surveys/full', methods=['POST'])
+@jwt_required()
+def create_full_survey():
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No data provided"}), 400
+
+    try:
+        # Crear la encuesta principal
+        new_survey = Survey(
+            creator_id=data['creator_id'],
+            title=data['title'],
+            description=data.get('description'),
+            start_date=data.get('start_date'),
+            end_date=data.get('end_date'),
+            is_public=data.get('is_public', True),
+            status=data.get('status', 'draft'),
+            type=data['type']
+        )
+        db.session.add(new_survey)
+        db.session.flush()  # Obtener el ID de la encuesta antes de confirmar
+
+        survey_response = {
+            "survey_id": new_survey.id,
+            "questions": []
+        }
+
+        # Crear las preguntas y opciones asociadas
+        for question_data in data.get('questions', []):
+            new_question = Question(
+                survey_id=new_survey.id,
+                question_text=question_data['question_text'],
+                question_type=question_data['question_type'],
+                order=question_data.get('order'),
+                required=question_data.get('required', True)
+            )
+            db.session.add(new_question)
+            db.session.flush()  # Obtener el ID de la pregunta antes de confirmar
+
+            question_response = {
+                "question_id": new_question.id,
+                "options": []
+            }
+
+            # Crear las opciones asociadas a la pregunta
+            for option_data in question_data.get('options', []):
+                new_option = Option(
+                    question_id=new_question.id,
+                    option_text=option_data['option_text'],
+                    order=option_data.get('order')
+                )
+                db.session.add(new_option)
+                db.session.flush()  # Obtener el ID de la opción antes de confirmar
+
+                question_response["options"].append({
+                    "option_id": new_option.id,
+                    "option_text": new_option.option_text
+                })
+
+            survey_response["questions"].append(question_response)
+
+        db.session.commit()
+        return jsonify({"message": "Survey, questions, and options created successfully", "survey": survey_response}), 201
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e), "message": "There was an error processing your request."}), 500
+
 ## USERS ENDPOINTS
 
 @api.route('/users', methods=['GET'])
@@ -99,14 +198,15 @@ def login_user():
 
     if user and check_password_hash(user.password_hash, password):
         token = jwt.encode({
-            'sub': user.id,  # <-- Agregar el campo "sub" que representa el ID del usuario
+            'sub': user.id,
             'user_id': user.id,
             'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)
         }, SECRET_KEY, algorithm='HS256')
 
-        return jsonify({"message": "Login successful", "token": token}), 200
+        return jsonify({"message": "Login successful", "token": token, "user_id": user.id}), 200
     else:
         return jsonify({"error": "Invalid email or password"}), 401
+
 
 ## SURVEYS ENDPOINTS
     
@@ -443,12 +543,17 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 @api.route('/me', methods=['GET'])
 @jwt_required()
 def get_current_user():
-    try:
-        user_id = get_jwt_identity()  # Recupera el ID del usuario a partir del token JWT
-        user = User.query.get_or_404(user_id)  # Busca el usuario en la base de datos
-        return jsonify(user.serialize()), 200  # Devuelve la información del usuario serializada
-    except Exception as e:
-        return jsonify({"error": str(e)}), 422
+    user_id = get_jwt_identity()  # Recupera el ID del usuario del token JWT
+
+    # Validar si el usuario existe y devolver error más explícito
+    user = User.query.filter_by(id=user_id).first()
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    return jsonify(user.serialize()), 200  # Devuelve la información del usuario serializada
+
+    
+    
 
 @api.route('/survey/<int:survey_id>/votes', methods=['GET'])
 def get_survey_votes(survey_id):
@@ -514,6 +619,12 @@ def get_survey_votes(survey_id):
         "survey_id": survey_id,
         "questions": serialized_questions,
     }), 200
+
+
+
+
+
+
 # Configura el blueprint y la aplicación
 app.register_blueprint(api, url_prefix='/api')
 
