@@ -5,174 +5,116 @@ import { Context } from "../store/appContext";
 
 export const CreateSurvey = () => {
     const { store, actions } = useContext(Context);
-    const [step, setStep] = useState(1);
-    const [title, setTitle] = useState("");
-    const [description, setDescription] = useState("");
-    const [startDate, setStartDate] = useState("");
-    const [endDate, setEndDate] = useState("");
-    const [isPublic, setIsPublic] = useState(true);
-    const [status, setStatus] = useState("draft");
-    const [surveyId, setSurveyId] = useState(null); // Estado para almacenar el ID de la encuesta
-    const [questionText, setQuestionText] = useState("");
-    const [questionType, setQuestionType] = useState("multiple_choice");
-    const [questions, setQuestions] = useState([]); // Estado para las preguntas
-    const [options, setOptions] = useState({}); // Estado para almacenar las opciones de cada pregunta
-    const [successMessage, setSuccessMessage] = useState(""); // Estado para el mensaje de éxito
-    const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0); // Índice de la pregunta actual
+    const [user, setUser] = useState(store.user);
+    const [surveyData, setSurveyData] = useState({
+        creator_id: user?.id || "",
+        title: "",
+        description: "",
+        start_date: "",
+        end_date: "",
+        is_public: true,
+        status: "draft",
+        type: "survey",
+        questions: []
+    });
+    const [currentQuestion, setCurrentQuestion] = useState({
+        question_text: "",
+        question_type: "multiple_choice",
+        required: true,
+        options: []
+    });
     const navigate = useNavigate();
 
     useEffect(() => {
         if (!store.isAuthenticated) {
             alert("User not logged in");
             navigate("/login");
-        }
-    }, [store.isAuthenticated, navigate]);
-
-    const nextStep = async () => {
-        if (step === 1 && title && description && startDate && endDate) {
-            await handleSubmitSurvey(false); // Enviar datos de la encuesta
-        }
-        setStep((prev) => prev + 1);
-    };
-
-    const previousStep = () => setStep((prev) => prev - 1);
-
-    // Esta función maneja la creación de la encuesta
-    const handleSubmitSurvey = async (isFinalStep = true) => {
-        if (title && description && startDate && endDate && store.user?.id) {
-            const surveyData = {
-                creator_id: store.user.id,
-                title,
-                description,
-                start_date: startDate,
-                end_date: endDate,
-                is_public: isPublic,
-                status,
-                type: "survey",
-            };
-
-            const token = localStorage.getItem("jwt-token");
-
-            try {
-                const response = await fetch(process.env.BACKEND_URL + '/api/surveys', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`,
-                    },
-                    body: JSON.stringify(surveyData),
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    if (data.id) {
-                        setSurveyId(data.id); // Guardar el ID de la encuesta
-                        console.log("Survey ID received:", data.id);
-                    } else {
-                        console.error("Survey ID not found in response");
-                    }
-                } else {
-                    console.error("Error:", data.message || "An unexpected error occurred.");
-                    alert(`Error: ${data.message || "An unexpected error occurred."}`);
-                }
-            } catch (error) {
-                console.error("Error sending data:", error);
-                alert("An error occurred while sending the data.");
-            }
+        } else if (!store.user) {
+            actions.getUserProfile().then(() => {
+                setUser(store.user);
+            });
         } else {
-            alert("Complete all fields before submitting.");
+            setUser(store.user);
+            setSurveyData((prevSurveyData) => ({
+                ...prevSurveyData,
+                creator_id: store.user?.id || ""
+            }));
         }
+    }, [store.isAuthenticated, store.user, navigate, actions]);
+
+    const handleSurveyChange = (e) => {
+        const { name, value } = e.target;
+        setSurveyData({ ...surveyData, [name]: value });
     };
 
-    // Esta función maneja el envío de preguntas
-    const handleAddQuestion = async () => {
-        if (questionText.trim() !== "" && surveyId) {
-            const questionData = {
-                survey_id: surveyId,  // ID de la encuesta capturada
-                question_text: questionText,  // Texto de la pregunta
-                question_type: questionType,  // Tipo de pregunta
-            };
-
-            const token = localStorage.getItem("jwt-token");
-
-            try {
-                const response = await fetch(process.env.BACKEND_URL + '/api/questions', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`,
-                    },
-                    body: JSON.stringify(questionData),
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    console.log("Question added successfully:", data);
-                    // Si la respuesta es correcta, agrega la pregunta al estado
-                    setQuestions((prevQuestions) => [...prevQuestions, { question_text: data.question_text, question_type: data.question_type, question_id: data.id }]); // Aquí añades el objeto completo
-                    setQuestionText(""); // Limpiar el campo de texto
-                    setSuccessMessage("Question created successfully"); // Mostrar mensaje de éxito
-                } else {
-                    console.error("Error:", data.message || "An unexpected error occurred.");
-                    alert(`Error: ${data.message || "An unexpected error occurred."}`);
-                }
-            } catch (error) {
-                console.error("Error sending data:", error);
-                alert("An error occurred while sending the data.");
-            }
+    const handleAddQuestion = () => {
+        if (currentQuestion.question_text.trim() !== "") {
+            setSurveyData({
+                ...surveyData,
+                questions: [...surveyData.questions, { ...currentQuestion, order: surveyData.questions.length + 1 }]
+            });
+            setCurrentQuestion({ question_text: "", question_type: "multiple_choice", required: true, options: [] });
         } else {
-            alert("Please enter a valid question text or ensure the survey ID is set.");
+            alert("Please enter a valid question text.");
         }
     };
 
-    // Maneja la adición de opciones para una pregunta específica
-    const handleAddOption = async (questionId, optionText) => {
+    const handleAddOption = (optionText) => {
         if (optionText.trim() !== "") {
-            const token = localStorage.getItem("jwt-token");
-            const optionData = {
-                question_id: questionId,
-                option_text: optionText,
-                order: (options[questionId] || []).length + 1,
-            };
-
-            try {
-                const response = await fetch(process.env.BACKEND_URL + '/api/options', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`,
-                    },
-                    body: JSON.stringify(optionData),
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    const updatedOptions = { ...options };
-                    if (!updatedOptions[questionId]) {
-                        updatedOptions[questionId] = [];
-                    }
-                    updatedOptions[questionId].push(optionText);
-                    setOptions(updatedOptions);
-                } else {
-                    console.error("Error:", data.message || "An unexpected error occurred.");
-                    alert(`Error: ${data.message || "An unexpected error occurred."}`);
-                }
-            } catch (error) {
-                console.error("Error sending data:", error);
-                alert("An error occurred while sending the data.");
-            }
+            setCurrentQuestion({
+                ...currentQuestion,
+                options: [...currentQuestion.options, { option_text: optionText, order: currentQuestion.options.length + 1 }]
+            });
         }
     };
 
-    const handleFinalSubmit = () => {
-        // Redirigir a la encuesta creada
-        if (surveyId) {
-            navigate(`/surveyS/${surveyId}`);
-        } else {
-            alert("Survey ID not found, unable to redirect.");
+    const handleFinalSubmit = async () => {
+        const myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
+        myHeaders.append("Authorization", `Bearer ${localStorage.getItem("jwt-token")}`);
+
+        const updatedSurveyData = {
+            ...surveyData,
+            creator_id: user?.id,
+            questions: surveyData.questions.map((q, index) => ({
+                ...q,
+                order: index + 1,
+                options: q.options.map((opt, optIndex) => ({
+                    ...opt,
+                    order: optIndex + 1
+                }))
+            }))
+        };
+
+        const raw = JSON.stringify(updatedSurveyData);
+
+        console.log("Submitting survey data:", updatedSurveyData);
+
+        const requestOptions = {
+            method: "POST",
+            headers: myHeaders,
+            body: raw,
+            redirect: "follow"
+        };
+
+        try {
+            const response = await fetch(process.env.BACKEND_URL + "/api/surveys/full", requestOptions);
+            const data = await response.json();
+
+            if (response.ok) {
+                if (data.survey && data.survey.survey_id) {
+                    navigate(`/surveyS/${data.survey.survey_id}`);
+                } else {
+                    console.error("Survey ID is missing in the response.");
+                    alert("Survey was created, but the Survey ID is missing in the response.");
+                }
+            } else {
+                console.error("Error:", data.message || "An unexpected error occurred.");
+                alert(`Error: ${data.message || "An unexpected error occurred."}`);
+            }
+        } catch (error) {
+            console.error("Error sending data:", error);
+            alert("An error occurred while sending the data. Please check the server logs for more details.");
         }
     };
 
@@ -183,268 +125,192 @@ export const CreateSurvey = () => {
                     <h2 className="display-5 fw-bold">Create a New Survey</h2>
                 </div>
 
-                {/* Página 1 */}
-                {step === 1 && (
-                    <div className="card shadow-sm border-0 mb-4 create-survey-card">
-                        <form>
-                            <h4>Basic Information</h4>
-                            <div className="mb-3">
-                                <label className="form-label">Survey Title</label>
-                                <input
-                                    type="text"
-                                    className="form-control create-survey-input"
-                                    value={title}
-                                    onChange={(e) => setTitle(e.target.value)}
-                                    required
-                                />
+                <div className="card shadow-sm border-0 mb-4 create-survey-card">
+                    <form>
+                        <h4>Survey Details</h4>
+                        <div className="mb-3">
+                            <label className="form-label">Survey Title</label>
+                            <input
+                                type="text"
+                                className="form-control create-survey-input"
+                                name="title"
+                                value={surveyData.title}
+                                onChange={handleSurveyChange}
+                                required
+                            />
+                        </div>
+                        <div className="mb-3">
+                            <label className="form-label">Description</label>
+                            <textarea
+                                className="form-control create-survey-input"
+                                name="description"
+                                value={surveyData.description}
+                                onChange={handleSurveyChange}
+                                required
+                            ></textarea>
+                        </div>
+                        <div className="mb-3">
+                            <label className="form-label">Start Date</label>
+                            <input
+                                type="date"
+                                className="form-control create-survey-input"
+                                name="start_date"
+                                value={surveyData.start_date}
+                                onChange={handleSurveyChange}
+                                required
+                            />
+                        </div>
+                        <div className="mb-3">
+                            <label className="form-label">End Date</label>
+                            <input
+                                type="date"
+                                className="form-control create-survey-input"
+                                name="end_date"
+                                value={surveyData.end_date}
+                                onChange={handleSurveyChange}
+                                required
+                            />
+                        </div>
+                        <div className="mb-3">
+                            <label className="form-label">Survey Status</label>
+                            <select
+                                className="form-select create-survey-input"
+                                name="status"
+                                value={surveyData.status}
+                                onChange={handleSurveyChange}
+                                required
+                            >
+                                <option value="draft">Draft</option>
+                                <option value="active">Active</option>
+                                <option value="closed">Closed</option>
+                            </select>
+                        </div>
+                        <div className="mb-3">
+                            <label className="form-label">Public Survey?</label>
+                            <div>
+                                <label className="form-check-label">
+                                    <input
+                                        type="radio"
+                                        name="is_public"
+                                        checked={surveyData.is_public === true}
+                                        onChange={() => setSurveyData({ ...surveyData, is_public: true })}
+                                    />
+                                    Yes
+                                </label>
+                                <label className="form-check-label ms-4">
+                                    <input
+                                        type="radio"
+                                        name="is_public"
+                                        checked={surveyData.is_public === false}
+                                        onChange={() => setSurveyData({ ...surveyData, is_public: false })}
+                                    />
+                                    No
+                                </label>
                             </div>
-                            <div className="mb-3">
-                                <label className="form-label">Description</label>
-                                <textarea
-                                    className="form-control create-survey-input"
-                                    value={description}
-                                    onChange={(e) => setDescription(e.target.value)}
-                                    required
-                                ></textarea>
-                            </div>
-                            <div className="mb-3">
-                                <label className="form-label">Start Date</label>
-                                <input
-                                    type="date"
-                                    className="form-control create-survey-input"
-                                    value={startDate}
-                                    onChange={(e) => setStartDate(e.target.value)}
-                                    required
-                                />
-                            </div>
-                            <div className="mb-3">
-                                <label className="form-label">End Date</label>
-                                <input
-                                    type="date"
-                                    className="form-control create-survey-input"
-                                    value={endDate}
-                                    onChange={(e) => setEndDate(e.target.value)}
-                                    required
-                                />
-                            </div>
-                            <div className="mb-3">
-                                <label className="form-label">Survey Status</label>
-                                <select
-                                    className="form-select create-survey-input"
-                                    value={status}
-                                    onChange={(e) => setStatus(e.target.value)}
-                                    required
-                                >
-                                    <option value="draft">Draft</option>
-                                    <option value="active">Active</option>
-                                    <option value="closed">Closed</option>
-                                </select>
-                            </div>
-                            <div className="mb-3">
-                                <label className="form-label">Public Survey?</label>
-                                <div>
-                                    <label className="form-check-label">
-                                        <input
-                                            type="radio"
-                                            name="public"
-                                            checked={isPublic === true}
-                                            onChange={() => setIsPublic(true)}
-                                        />
-                                        Yes
-                                    </label>
-                                    <label className="form-check-label ms-4">
-                                        <input
-                                            type="radio"
-                                            name="public"
-                                            checked={isPublic === false}
-                                            onChange={() => setIsPublic(false)}
-                                        />
-                                        No
-                                    </label>
-                                </div>
-                            </div>
+                        </div>
 
-                            <div className="text-center">
-                                <button
-                                    type="button"
-                                    className="btn btn-primary w-100 create-survey-btn"
-                                    onClick={nextStep}
-                                >
-                                    Next
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                )}
-
-                {/* Página 2 */}
-                {step === 2 && (
-                    <div className="card shadow-sm border-0 mb-4 create-survey-card">
-                        <form>
-                            <h4>Create Questions</h4>
-                            <div className="mb-3">
-                                <label className="form-label">Question Text</label>
-                                <input
-                                    type="text"
-                                    className="form-control create-survey-input"
-                                    value={questionText}
-                                    onChange={(e) => setQuestionText(e.target.value)}
-                                    required
-                                />
-                            </div>
-                            <div className="mb-3">
-                                <label className="form-label">Question Type</label>
-                                <select
-                                    className="form-select create-survey-input"
-                                    value={questionType}
-                                    onChange={(e) => setQuestionType(e.target.value)}
-                                    required
-                                >
-                                    <option value="multiple_choice">Multiple Choice</option>
-                                    <option value="open_ended">Open-ended</option>
-                                </select>
-                            </div>
-                            <div className="text-center">
-                                <button
-                                    type="button"
-                                    className="btn btn-primary w-100 create-survey-btn"
-                                    onClick={handleAddQuestion}
-                                >
-                                    Create Question
-                                </button>
-                            </div>
-
-                            <div className="text-center mt-4">
-                                <button
-                                    type="button"
-                                    className="btn btn-secondary w-100 create-survey-btn"
-                                    onClick={previousStep}
-                                >
-                                    Back
-                                </button>
-                                <button
-                                    type="button"
-                                    className="btn btn-primary w-100 create-survey-btn mt-3"
-                                    onClick={nextStep}
-                                >
-                                    Next
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                )}
-
-                {/* Página 3 */}
-                {step === 3 && (
-                    <div className="card shadow-sm border-0 mb-4 create-survey-card">
-                        <div className="text-center">
-                            <h4>Review Questions and Add Options</h4>
-                            {questions.length > 0 ? (
-                                <ul>
-                                    {questions.map((q, index) => (
-                                        <li key={index}>
-                                            <strong>Question {index + 1}: </strong>{q.question_text}
-                                            {q.question_type === "multiple_choice" && (
-                                                <div className="mt-2">
-                                                    <input
-                                                        type="text"
-                                                        className="form-control"
-                                                        placeholder="Add an option"
-                                                        onKeyDown={(e) => {
-                                                            if (e.key === "Enter" && e.target.value.trim() !== "") {
-                                                                handleAddOption(q.question_id, e.target.value);  // Send question ID
-                                                                e.target.value = "";
-                                                            }
-                                                        }}
-                                                    />
-                                                    <ul className="mt-2">
-                                                        {(options[q.question_id] || []).map((option, optionIndex) => (
-                                                            <li key={optionIndex}>{option}</li>
-                                                        ))}
-                                                    </ul>
-                                                </div>
-                                            )}
-                                        </li>
-                                    ))}
-                                </ul>
-                            ) : (
-                                <p>No questions added yet.</p>
-                            )}
+                        <h4 className="mt-5">Add Questions</h4>
+                        <div className="mb-3">
+                            <label className="form-label">Question Text</label>
+                            <input
+                                type="text"
+                                className="form-control create-survey-input"
+                                value={currentQuestion.question_text}
+                                onChange={(e) => setCurrentQuestion({ ...currentQuestion, question_text: e.target.value })}
+                                required
+                            />
+                        </div>
+                        <div className="mb-3">
+                            <label className="form-label">Question Type</label>
+                            <select
+                                className="form-select create-survey-input"
+                                value={currentQuestion.question_type}
+                                onChange={(e) => setCurrentQuestion({ ...currentQuestion, question_type: e.target.value })}
+                                required
+                            >
+                                <option value="multiple_choice">Multiple Choice</option>
+                                <option value="open_ended">Open-ended</option>
+                                <option value="yes_no">Yes/No</option>
+                            </select>
+                        </div>
+                        <div className="mb-3">
+                            <label className="form-label">Add Options (for Multiple Choice)</label>
+                            <input
+                                type="text"
+                                className="form-control create-survey-input"
+                                placeholder="Enter an option and press Enter"
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter" && e.target.value.trim() !== "") {
+                                        handleAddOption(e.target.value);
+                                        e.target.value = "";
+                                    }
+                                }}
+                                disabled={currentQuestion.question_type !== "multiple_choice"}
+                            />
+                            <ul className="mt-2">
+                                {currentQuestion.options.map((option, index) => (
+                                    <li key={index}>{option.option_text}</li>
+                                ))}
+                            </ul>
                         </div>
                         <div className="text-center">
                             <button
                                 type="button"
                                 className="btn btn-primary w-100 create-survey-btn"
-                                onClick={nextStep}
+                                onClick={handleAddQuestion}
                             >
-                                Next
-                            </button>
-                            <button
-                                type="button"
-                                className="btn btn-success w-100 create-survey-btn mt-3"
-                                onClick={handleSubmitSurvey}
-                            >
-                                Submit Survey
+                                Add Question
                             </button>
                         </div>
-                    </div>
-                )}
 
-                {/* Página 4 */}
-                {step === 4 && (
-                    <div className="card shadow-sm border-0 mb-4 create-survey-card">
-                        <div className="text-center">
-                            <h4>Review and Add Options to Each Question</h4>
-                            {questions.length > 0 && currentQuestionIndex < questions.length ? (
-                                <div>
-                                    <div className="mb-3">
-                                        <strong>Question: </strong>
-                                        {questions[currentQuestionIndex].question_text}
-                                    </div>
-                                    <div>
-                                        <input
-                                            type="text"
-                                            className="form-control"
-                                            placeholder="Add an option"
-                                            onKeyDown={(e) => {
-                                                if (e.key === "Enter" && e.target.value.trim() !== "") {
-                                                    handleAddOption(questions[currentQuestionIndex].question_id, e.target.value);  // Send question ID
-                                                    e.target.value = "";
-                                                }
-                                            }}
-                                        />
-                                        <ul className="mt-2">
-                                            {(options[questions[currentQuestionIndex].question_id] || []).map((option, optionIndex) => (
-                                                <li key={optionIndex}>{option}</li>
-                                            ))}
-                                        </ul>
-                                    </div>
-
-                                    <div className="text-center mt-3">
-                                        <button
-                                            type="button"
-                                            className="btn btn-primary w-100 create-survey-btn"
-                                            onClick={() => setCurrentQuestionIndex(currentQuestionIndex + 1)}
-                                        >
-                                            Next Question
-                                        </button>
-                                    </div>
-                                </div>
-                            ) : (
-                                <p>No more questions to show.</p>
-                            )}
+                        <h4 className="mt-5">Review and Submit</h4>
+                        <div className="mb-3">
+                            <strong>Title: </strong>{surveyData.title}
                         </div>
+                        <div className="mb-3">
+                            <strong>Description: </strong>{surveyData.description}
+                        </div>
+                        <div className="mb-3">
+                            <strong>Start Date: </strong>{surveyData.start_date}
+                        </div>
+                        <div className="mb-3">
+                            <strong>End Date: </strong>{surveyData.end_date}
+                        </div>
+                        <div className="mb-3">
+                            <strong>Status: </strong>{surveyData.status}
+                        </div>
+                        <div className="mb-3">
+                            <strong>Public: </strong>{surveyData.is_public ? "Yes" : "No"}
+                        </div>
+                        <div className="mb-3">
+                            <h5>Questions:</h5>
+                            <ul>
+                                {surveyData.questions.map((q, index) => (
+                                    <li key={index}>
+                                        <strong>Question {index + 1}: </strong>{q.question_text}
+                                        {q.question_type === "multiple_choice" && (
+                                            <ul>
+                                                {q.options.map((option, optionIndex) => (
+                                                    <li key={optionIndex}>{option.option_text}</li>
+                                                ))}
+                                            </ul>
+                                        )}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+
                         <div className="text-center mt-4">
                             <button
                                 type="button"
                                 className="btn btn-success w-100 create-survey-btn"
                                 onClick={handleFinalSubmit}
                             >
-                                Finish and Go to Survey
+                                Submit Survey
                             </button>
                         </div>
-                    </div>
-                )}
+                    </form>
+                </div>
             </div>
         </div>
     );

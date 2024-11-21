@@ -47,51 +47,73 @@ def get_user_voted_surveys(user_id):
     return jsonify(surveys_list), 200
 
 
-@app.route('/api/surveys/create_full', methods=['POST'])
+@api.route('/surveys/full', methods=['POST'])
 @jwt_required()
 def create_full_survey():
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No data provided"}), 400
+
     try:
-        data = request.get_json()
-        if not data:
-            return jsonify({'error': 'Invalid input'}), 400
-
-        current_user_id = get_jwt_identity()
-
-        # Crear la encuesta
+        # Crear la encuesta principal
         new_survey = Survey(
+            creator_id=data['creator_id'],
             title=data['title'],
-            description=data['description'],
-            start_date=data['start_date'],
-            end_date=data['end_date'],
-            creator_id=current_user_id,
-            status=data.get('status', 'draft')
+            description=data.get('description'),
+            start_date=data.get('start_date'),
+            end_date=data.get('end_date'),
+            is_public=data.get('is_public', True),
+            status=data.get('status', 'draft'),
+            type=data['type']
         )
         db.session.add(new_survey)
-        db.session.flush()  # Para obtener el ID de la encuesta antes de confirmar la transacción
+        db.session.flush()  # Obtener el ID de la encuesta antes de confirmar
 
-        # Crear preguntas y opciones
+        survey_response = {
+            "survey_id": new_survey.id,
+            "questions": []
+        }
+
+        # Crear las preguntas y opciones asociadas
         for question_data in data.get('questions', []):
             new_question = Question(
                 survey_id=new_survey.id,
-                question_text=question_data['text'],
-                question_type=question_data.get('type', 'multiple_choice')
+                question_text=question_data['question_text'],
+                question_type=question_data['question_type'],
+                order=question_data.get('order'),
+                required=question_data.get('required', True)
             )
             db.session.add(new_question)
-            db.session.flush()
+            db.session.flush()  # Obtener el ID de la pregunta antes de confirmar
 
+            question_response = {
+                "question_id": new_question.id,
+                "options": []
+            }
+
+            # Crear las opciones asociadas a la pregunta
             for option_data in question_data.get('options', []):
                 new_option = Option(
                     question_id=new_question.id,
-                    option_text=option_data['text']
+                    option_text=option_data['option_text'],
+                    order=option_data.get('order')
                 )
                 db.session.add(new_option)
+                db.session.flush()  # Obtener el ID de la opción antes de confirmar
+
+                question_response["options"].append({
+                    "option_id": new_option.id,
+                    "option_text": new_option.option_text
+                })
+
+            survey_response["questions"].append(question_response)
 
         db.session.commit()
-        return jsonify({'message': 'Survey created successfully', 'survey_id': new_survey.id}), 201
+        return jsonify({"message": "Survey, questions, and options created successfully", "survey": survey_response}), 201
 
     except Exception as e:
         db.session.rollback()
-        return jsonify({'error': str(e)}), 500
+        return jsonify({"error": str(e), "message": "There was an error processing your request."}), 500
 
 ## USERS ENDPOINTS
 
@@ -603,11 +625,11 @@ def get_survey_votes(survey_id):
 
 
 
-# # Configura el blueprint y la aplicación
-# app.register_blueprint(api, url_prefix='/api')
+# Configura el blueprint y la aplicación
+app.register_blueprint(api, url_prefix='/api')
 
-# if __name__ == '__main__':
-#      app.run(debug=True)
+if __name__ == '__main__':
+     app.run(debug=True)
 
 
 
