@@ -15,6 +15,23 @@ class APIException(Exception):
         rv = dict(self.payload or ())
         rv['message'] = self.message
         return rv
+    
+from datetime import datetime
+from api.models import Survey, db
+
+def update_all_surveys_status():
+    """Actualiza el estado de todas las encuestas según las fechas de inicio y fin."""
+    current_time = datetime.utcnow()
+    surveys = Survey.query.all()
+    for survey in surveys:
+        if survey.start_date <= current_time <= survey.end_date:
+            survey.status = 'active'
+        elif current_time > survey.end_date:
+            survey.status = 'closed'
+        else:
+            survey.status = 'draft'
+    db.session.commit()
+
 
 
 def has_no_empty_params(rule):

@@ -1,0 +1,205 @@
+/* UserDashboard.css */
+.dashboard-container {
+    padding: 40px;
+    font-family: Arial, sans-serif;
+    color: #333;
+    max-width: 1400px;
+    margin: auto;
+    background-color: #f5f5f5;
+    border-radius: 16px;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+}
+
+.jumbotron {
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    position: relative;
+    width: 100%;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    align-items: center;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+}
+
+.user-avatar {
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    margin-right: 20px;
+    border: 4px solid #f0f0f0;
+}
+
+.user-details h1 {
+    margin: 0;
+    font-size: 36px;
+    color: #333;
+}
+
+.user-details .user-role {
+    font-size: 18px;
+    color: #777;
+}
+
+.edit-profile {
+    color: #d17bff;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 16px;
+    display: block;
+    margin-top: 8px;
+}
+
+.edit-profile:hover {
+    text-decoration: underline;
+}
+
+.user-stats {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+    width: 100%;
+}
+
+.stat-item {
+    background-color: #3b0a64;
+    color: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    min-width: 120px;
+    flex: 1;
+}
+
+.stat-item h2 {
+    margin: 5px 0;
+    font-size: 24px;
+}
+
+.stat-item .stat-title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: normal;
+    color: #e0e0e0;
+}
+
+.stat-item .stat-change {
+    font-size: 14px;
+    margin-left: 10px;
+}
+
+.stat-change.positive {
+    color: #27ae60;
+}
+
+.stat-change.negative {
+    color: #e74c3c;
+}
+
+.annual-interactions {
+    text-align: right;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+.annual-interactions h2 {
+    font-size: 32px;
+    color: #4a148c;
+}
+
+.annual-interactions p {
+    font-size: 16px;
+    color: #777;
+}
+
+.progress-ring {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 10px solid #e0e0e0;
+    border-top-color: #d17bff;
+    margin: auto;
+    margin-bottom: 10px;
+}
+
+.active-surveys, .past-surveys, .recent-voting {
+    margin-bottom: 40px;
+}
+
+.survey-list, .voting-list {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.survey-card, .voting-card {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: calc(25% - 20px);
+    min-width: 260px;
+}
+
+.survey-card img, .voting-card img {
+    width: 100%;
+    border-radius: 12px;
+    margin-bottom: 15px;
+}
+
+.survey-card h3, .voting-card h3 {
+    margin: 0 0 10px;
+    font-size: 20px;
+    color: #333;
+}
+
+.survey-card p, .voting-card p {
+    color: #777;
+    font-size: 16px;
+    margin: 0;
+}
+
+.explore-link {
+    color: #007bff;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.explore-link:hover {
+    text-decoration: underline;
+}
+
+.powered-by {
+    display: block;
+    margin-top: 10px;
+    font-size: 14px;
+    color: #555;
+}
+
+.explore-results {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: bold;
+    margin-top: 10px;
+    display: block;
+}
+
+.explore-results:hover {
+    text-decoration: underline;
+}

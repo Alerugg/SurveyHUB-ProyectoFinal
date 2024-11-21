@@ -16,6 +16,37 @@ api = Blueprint('api', __name__)
 
 SECRET_KEY = 'your_secret_key_here'  # Debes reemplazar esto por una clave secreta segura
 
+@api.route('/users/<int:user_id>/votes/surveys', methods=['GET'])
+@jwt_required()
+def get_user_voted_surveys(user_id):
+    # Obtener el usuario actual desde el token JWT
+    current_user_id = get_jwt_identity()
+    if current_user_id != user_id:
+        return jsonify({"error": "Unauthorized access"}), 403
+
+    # Obtener todas las encuestas en las que el usuario ha votado
+    votes = Vote.query.filter_by(user_id=user_id).all()
+    survey_ids = {vote.survey_id for vote in votes}
+
+    # Obtener las encuestas a partir de los IDs
+    surveys = Survey.query.filter(Survey.id.in_(survey_ids)).all()
+
+    # Serializar las encuestas para la respuesta
+    surveys_list = [
+        {
+            "id": survey.id,
+            "creator_id": survey.creator_id,
+            "title": survey.title,
+            "description": survey.description,
+            "start_date": survey.start_date,
+            "end_date": survey.end_date,
+            "status": survey.status
+        } for survey in surveys
+    ]
+
+    return jsonify(surveys_list), 200
+
+
 @app.route('/api/surveys/create_full', methods=['POST'])
 @jwt_required()
 def create_full_survey():

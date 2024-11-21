@@ -15,6 +15,7 @@ import { Register } from "./pages/register";
 import { SurveyResults } from "./pages/surveyResults";
 import { ForgotPassword } from "./pages/recoverPassword";
 import { AvailableSurveys } from "./pages/surveys";
+import UserDashboard from "./pages/dashBoard";
 
 import { Navbar } from "./component/navbar";
 import { Footer } from "./component/footer";
@@ -45,8 +46,12 @@ const Layout = () => {
                             element={store.isAuthenticated ? <UserProfile /> : <Navigate to="/login" />} 
                         />
                         <Route 
-                            path="/create_survey" 
-                            element={store.isAuthenticated ? <CreateSurvey /> : <Navigate to="/login" />} 
+                            path="/dashboard" 
+                            element={store.isAuthenticated ? <UserDashboard /> : <Navigate to="/login" />} 
+                        />
+                                                <Route 
+                            path="/user_logued" 
+                            element={store.isAuthenticated ? <HomeUserLogued /> : <Navigate to="/login" />} 
                         />
                         <Route element={<SurveyResults/>} path="/surveys/:id"/>
                         <Route element={<ForgotPassword/>} path="/password_recovery" />

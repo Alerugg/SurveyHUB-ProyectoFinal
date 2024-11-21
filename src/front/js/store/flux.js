@@ -4,7 +4,8 @@ const getState = ({ getStore, getActions, setStore }) => {
             surveys: [],
             survey: null,
             user: null,
-            isAuthenticated: !!localStorage.getItem("jwt-token")
+            isAuthenticated: !!localStorage.getItem("jwt-token"),
+            userVotedSurveys: null
         },
         actions: {
             // Función para obtener el perfil del usuario actual
@@ -56,6 +57,29 @@ const getState = ({ getStore, getActions, setStore }) => {
                 }
             },
 
+            getUserVotedSurveys: async (userId) => {
+                try {
+                    const response = await fetch(`${process.env.BACKEND_URL}/api/users/${userId}/votes/surveys`, {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${localStorage.getItem("jwt-token")}`
+                        }
+                    });
+            
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+            
+                    const result = await response.json();
+                    setStore({ userVotedSurveys: result });
+                } catch (error) {
+                    console.error("Error fetching user voted surveys: ", error);
+                }
+            },
+            
+            
+
             getUserSurveys: async () => {
                 try {
                     const response = await fetch(`${process.env.BACKEND_URL}/api/me`, {
@@ -80,6 +104,7 @@ const getState = ({ getStore, getActions, setStore }) => {
                     console.error("Error fetching user surveys: ", error);
                 }
             },
+
             getSurvey: async (id) => {
                 try {
                     const response = await fetch(`${process.env.BACKEND_URL}/api/surveys/${id}`, {

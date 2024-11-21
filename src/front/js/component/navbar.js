@@ -69,7 +69,7 @@ export const Navbar = () => {
                   </button>
                 </li>
                 <li className="nav-item me-3">
-                  <Link className="nav-link" to="/my_surveys">
+                  <Link className="nav-link" to="/dashboard">
                     <i className="fas fa-poll fa-lg"></i> My Surveys
                   </Link>
                 </li>
