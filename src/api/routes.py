@@ -1,29 +1,123 @@
-#ENDPOINTS
-
 from flask import Flask, Blueprint, request, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from api.models import db, User, Survey, Question, Option, Vote
 import jwt
 import datetime
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from flask_cors import CORS  # Importa CORS
+from flask_cors import CORS
 
 # Inicializa la aplicación de Flask
 app = Flask(__name__)
 
 # Habilita CORS para todo el dominio de tu frontend (ajusta la URL si es necesario)
-CORS(app, resources={r"/*": {"origins": "*"}})  # Permite solicitudes de cualquier origen
-
-# Aquí va el resto de la configuración y rutas
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 api = Blueprint('api', __name__)
 
 SECRET_KEY = 'your_secret_key_here'  # Debes reemplazar esto por una clave secreta segura
 
+@api.route('/users/<int:user_id>/votes/surveys', methods=['GET'])
+@jwt_required()
+def get_user_voted_surveys(user_id):
+    # Obtener el usuario actual desde el token JWT
+    current_user_id = get_jwt_identity()
+    if current_user_id != user_id:
+        return jsonify({"error": "Unauthorized access"}), 403
+
+    # Obtener todas las encuestas en las que el usuario ha votado
+    votes = Vote.query.filter_by(user_id=user_id).all()
+    survey_ids = {vote.survey_id for vote in votes}
+
+    # Obtener las encuestas a partir de los IDs
+    surveys = Survey.query.filter(Survey.id.in_(survey_ids)).all()
+
+    # Serializar las encuestas para la respuesta
+    surveys_list = [
+        {
+            "id": survey.id,
+            "creator_id": survey.creator_id,
+            "title": survey.title,
+            "description": survey.description,
+            "start_date": survey.start_date,
+            "end_date": survey.end_date,
+            "status": survey.status
+        } for survey in surveys
+    ]
+
+    return jsonify(surveys_list), 200
+
+
+@api.route('/surveys/full', methods=['POST'])
+@jwt_required()
+def create_full_survey():
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No data provided"}), 400
+
+    try:
+        # Crear la encuesta principal
+        new_survey = Survey(
+            creator_id=data['creator_id'],
+            title=data['title'],
+            description=data.get('description'),
+            start_date=data.get('start_date'),
+            end_date=data.get('end_date'),
+            is_public=data.get('is_public', True),
+            status=data.get('status', 'draft'),
+            type=data['type']
+        )
+        db.session.add(new_survey)
+        db.session.flush()  # Obtener el ID de la encuesta antes de confirmar
+
+        survey_response = {
+            "survey_id": new_survey.id,
+            "questions": []
+        }
+
+        # Crear las preguntas y opciones asociadas
+        for question_data in data.get('questions', []):
+            new_question = Question(
+                survey_id=new_survey.id,
+                question_text=question_data['question_text'],
+                question_type=question_data['question_type'],
+                order=question_data.get('order'),
+                required=question_data.get('required', True)
+            )
+            db.session.add(new_question)
+            db.session.flush()  # Obtener el ID de la pregunta antes de confirmar
+
+            question_response = {
+                "question_id": new_question.id,
+                "options": []
+            }
+
+            # Crear las opciones asociadas a la pregunta
+            for option_data in question_data.get('options', []):
+                new_option = Option(
+                    question_id=new_question.id,
+                    option_text=option_data['option_text'],
+                    order=option_data.get('order')
+                )
+                db.session.add(new_option)
+                db.session.flush()  # Obtener el ID de la opción antes de confirmar
+
+                question_response["options"].append({
+                    "option_id": new_option.id,
+                    "option_text": new_option.option_text
+                })
+
+            survey_response["questions"].append(question_response)
+
+        db.session.commit()
+        return jsonify({"message": "Survey, questions, and options created successfully", "survey": survey_response}), 201
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e), "message": "There was an error processing your request."}), 500
+
 ## USERS ENDPOINTS
 
 @api.route('/users', methods=['GET'])
-
 def get_users():
     users = User.query.all()
     users_list = [
@@ -38,44 +132,38 @@ def get_users():
     return jsonify(users_list), 200
 
 @api.route('/users/<int:id>', methods=['GET'])
+@jwt_required()
 def get_user(id):
-    user = User.query.options(db.joinedload(User.surveys_created)).get_or_404(id)  # Ensure surveys are loaded
+    user = User.query.options(db.joinedload(User.surveys_created)).get_or_404(id)
     user_data = {
         "id": user.id,
         "email": user.email,
         "full_name": user.full_name,
         "created_at": user.created_at,
         "is_active": user.is_active,
-        "surveys": [survey.serialize() for survey in user.surveys_created]  # Include related surveys
+        "surveys": [survey.serialize() for survey in user.surveys_created]
     }
     return jsonify(user_data)
 
-# User Endpoints
 @api.route('/users', methods=['POST'])
 def create_user():
-    if request.method == 'POST':
-        data = request.get_json()
-        if not data:
-            return jsonify({"error": "No data provided"}), 400
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No data provided"}), 400
 
-        # Verificar si el email ya está registrado
-        existing_user = User.query.filter_by(email=data['email']).first()
-        if existing_user:
-            return jsonify({"error": "Email already registered"}), 409
+    existing_user = User.query.filter_by(email=data['email']).first()
+    if existing_user:
+        return jsonify({"error": "Email already registered"}), 409
 
-        # Hashear la contraseña usando SHA256
-        password_hash = generate_password_hash(data['password'], method='pbkdf2:sha256')
+    password_hash = generate_password_hash(data['password'], method='pbkdf2:sha256')
+    new_user = User(email=data['email'], password_hash=password_hash, full_name=data['full_name'])
+    db.session.add(new_user)
+    db.session.commit()
 
-        # Crear el nuevo usuario
-        new_user = User(email=data['email'], password_hash=password_hash, full_name=data['full_name'])
-        db.session.add(new_user)
-        db.session.commit()
-
-        return jsonify({"message": "User created successfully"}), 201
-    
-
+    return jsonify({"message": "User created successfully"}), 201
 
 @api.route('/users/<int:id>', methods=['PUT'])
+@jwt_required()
 def update_user(id):
     user = User.query.get_or_404(id)
     data = request.get_json()
@@ -91,7 +179,6 @@ def update_user(id):
         "created_at": user.created_at,
         "is_active": user.is_active
     })
-
 
 ## LOGIN ENDPOINT
 
@@ -111,11 +198,12 @@ def login_user():
 
     if user and check_password_hash(user.password_hash, password):
         token = jwt.encode({
+            'sub': user.id,
             'user_id': user.id,
             'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)
         }, SECRET_KEY, algorithm='HS256')
 
-        return jsonify({"message": "Login successful", "token": token}), 200
+        return jsonify({"message": "Login successful", "token": token, "user_id": user.id}), 200
     else:
         return jsonify({"error": "Invalid email or password"}), 401
 
@@ -141,13 +229,13 @@ def get_surveys():
     return jsonify(surveys_list), 200
 
 @api.route('/surveys', methods=['POST'])
+@jwt_required()
 def create_survey():
     try:
         data = request.get_json()
         if not data:
             return jsonify({"error": "No data provided"}), 400
 
-        # Crear una nueva encuesta
         new_survey = Survey(
             creator_id=data['creator_id'],
             title=data['title'],
@@ -160,29 +248,18 @@ def create_survey():
         )
 
         db.session.add(new_survey)
-        db.session.commit()  # Aquí se hace el commit y se asigna el ID automáticamente
+        db.session.commit()
 
-        # Capturamos el ID de la nueva encuesta
-        survey_id = new_survey.id
-
-        # Devuelves el ID en la respuesta
-        return jsonify({
-            "message": "Survey created successfully",
-            "id": survey_id  # Aquí retornamos el ID de la encuesta creada
-        }), 201
+        return jsonify({"message": "Survey created successfully", "id": new_survey.id}), 201
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500  # Devolver el error en caso de fallo
+        return jsonify({"error": str(e)}), 500
 
 @api.route('/surveys/<int:id>', methods=['GET'])
 def get_survey(id):
     try:
-        print(f"Fetching survey with id: {id}")
         survey = Survey.query.options(db.joinedload(Survey.questions).joinedload(Question.options)).get_or_404(id)
 
-        print(f"Survey found: {survey}")
-        
-        # Serializando datos
         survey_data = {
             "id": survey.id,
             "creator_id": survey.creator_id,
@@ -210,15 +287,13 @@ def get_survey(id):
                 } for question in survey.questions
             ]
         }
-        print(f"Survey data to return: {survey_data}")
         return jsonify(survey_data), 200
 
     except Exception as e:
-        print(f"Error fetching survey: {str(e)}")
         return jsonify({"error": str(e), "message": "There was an error processing your request."}), 500
 
-
 @api.route('/surveys/<int:id>', methods=['PUT'])
+@jwt_required()
 def update_survey(id):
     survey = Survey.query.get_or_404(id)
     data = request.get_json()
@@ -239,18 +314,37 @@ def update_survey(id):
         "type": survey.type
     })
 
+@api.route('/surveys/<int:id>/status', methods=['PUT'])
+@jwt_required()
+def update_survey_status(id):
+    survey = Survey.query.get_or_404(id)
+    data = request.get_json()
+    
+    # Validar que el nuevo estado es válido
+    new_status = data.get('status')
+    if new_status not in ['draft', 'active', 'closed']:
+        return jsonify({"error": "Invalid status value"}), 400
+
+    # Actualizar el estado
+    survey.status = new_status
+    db.session.commit()
+
+    return jsonify(survey.serialize()), 200
+
+
+
 @api.route('/surveys/<int:id>', methods=['DELETE'])
+@jwt_required()
 def delete_survey(id):
     survey = Survey.query.get_or_404(id)
     db.session.delete(survey)
     db.session.commit()
     return jsonify({'message': 'Survey deleted'}), 200
 
-
-
 ## QUESTIONS ENDPOINTS
 
 @api.route('/questions', methods=['POST'])
+@jwt_required()
 def create_question():
     try:
         data = request.get_json()
@@ -266,22 +360,16 @@ def create_question():
             required=data.get('required', True)
         )
         db.session.add(new_question)
-        db.session.commit()  # Aquí se hace el commit para guardar la pregunta en la base de datos
+        db.session.commit()
 
-        # Capturar el ID de la nueva pregunta
-        question_id = new_question.id
-        question_text = new_question.question_text
-
-        # Devolver el ID y el texto de la pregunta en la respuesta
         return jsonify({
             "message": "Question created successfully",
-            "id": question_id,
-            "question_text": question_text
+            "id": new_question.id,
+            "question_text": new_question.question_text
         }), 201
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500  # Devolver el error en caso de fallo
-
+        return jsonify({"error": str(e)}), 500
 
 @api.route('/questions/<int:id>', methods=['GET'])
 def get_question(id):
@@ -303,6 +391,7 @@ def get_questions():
     return jsonify([question.serialize() for question in questions]), 200
 
 @api.route('/questions/<int:id>', methods=['PUT'])
+@jwt_required()
 def update_question(id):
     question = Question.query.get_or_404(id)
     survey = Survey.query.get_or_404(question.survey_id)
@@ -321,6 +410,7 @@ def update_question(id):
     })
 
 @api.route('/questions/<int:id>', methods=['DELETE'])
+@jwt_required()
 def delete_question(id):
     question = Question.query.get_or_404(id)
     survey = Survey.query.get_or_404(question.survey_id)
@@ -328,13 +418,10 @@ def delete_question(id):
     db.session.commit()
     return jsonify({'message': 'Question deleted'}), 200
 
-
-
-
 ## OPTIONS ENDPOINTS
 
-
 @api.route('/options', methods=['POST'])
+@jwt_required()
 def create_option():
     data = request.get_json()
     if not data:
@@ -371,6 +458,7 @@ def get_options():
     return jsonify([option.serialize() for option in options]), 200
 
 @api.route('/options/<int:id>', methods=['PUT'])
+@jwt_required()
 def update_option(id):
     option = Option.query.get_or_404(id)
     question = Question.query.get_or_404(option.question_id)
@@ -386,6 +474,7 @@ def update_option(id):
     })
 
 @api.route('/options/<int:id>', methods=['DELETE'])
+@jwt_required()
 def delete_option(id):
     option = Option.query.get_or_404(id)
     question = Question.query.get_or_404(option.question_id)
@@ -396,23 +485,24 @@ def delete_option(id):
 
 ## VOTES ENDPOINTS
 
+## VOTES ENDPOINTS
+
 @api.route('/votes', methods=['GET'])
+@jwt_required()
 def get_votes():
-    # Utiliza serialización en la consulta para evitar bucles innecesarios y mejorar el rendimiento
     votes = Vote.query.all()
     votes_list = [vote.serialize() for vote in votes]
     return jsonify(votes_list), 200
 
-
 @api.route('/votes', methods=['POST'])
+@jwt_required()
 def create_vote():
     try:
         data = request.get_json()
         if not data:
             return jsonify({"error": "No data provided"}), 400
 
-        # Validar que el usuario y la opción existen antes de crear el voto
-        user = User.query.get(data['user_id'])
+        user = User.query.get(get_jwt_identity())
         option = Option.query.get(data['option_id'])
 
         if not user or not option:
@@ -440,17 +530,567 @@ def create_vote():
         db.session.rollback()
         return jsonify({"error": str(e), "message": "There was an error processing your request."}), 500
 
-
 @api.route('/votes/<int:user_id>', methods=['GET'])
+@jwt_required()
 def get_user_votes(user_id):
-    # Se aplica serialización en la consulta para mejorar el rendimiento y la claridad del código
     user = User.query.get_or_404(user_id)
     votes = user.votes
     votes_data = [vote.serialize() for vote in votes]
     return jsonify(votes_data), 200
 
+from flask_jwt_extended import jwt_required, get_jwt_identity
+
+@api.route('/me', methods=['GET'])
+@jwt_required()
+def get_current_user():
+    user_id = get_jwt_identity()  # Recupera el ID del usuario del token JWT
+
+    # Validar si el usuario existe y devolver error más explícito
+    user = User.query.filter_by(id=user_id).first()
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    return jsonify(user.serialize()), 200  # Devuelve la información del usuario serializada
+
+    
+    
+
+@api.route('/survey/<int:survey_id>/votes', methods=['GET'])
+def get_survey_votes(survey_id):
+    # Obtener todas las preguntas para la encuesta especificada
+    questions = Question.query.filter_by(survey_id=survey_id).all()
+
+    # Si no hay preguntas, devolver un mensaje adecuado
+    if not questions:
+        return jsonify({"message": "No questions found for this survey."}), 404
+
+    # Crear un diccionario para contar los votos por cada opción
+    option_votes = {}
+    total_voters = set()  # Para contar los usuarios únicos que votaron
+
+    # Iterar sobre las preguntas para obtener los votos
+    for question in questions:
+        # Inicializamos el diccionario de votos para la pregunta
+        option_votes[question.id] = {}
+
+        # Obtener las opciones de la pregunta
+        for option in question.options:
+            # Inicializamos el contador de votos para cada opción
+            option_votes[question.id][option.id] = {"option_text": option.option_text, "votes_count": 0}
+
+        # Obtener los votos para cada pregunta
+        for vote in question.votes:
+            total_voters.add(vote.user_id)  # Agregamos el user_id para contar los usuarios únicos
+            # Incrementamos el contador de votos para la opción correspondiente
+            option_votes[question.id][vote.option_id]["votes_count"] += 1
+
+    # Contar el número total de personas que votaron (usuarios únicos)
+    total_voters_count = len(total_voters)
+
+    # Procesar la respuesta más votada para cada pregunta
+    most_voted_option = {}
+    for question_id, options in option_votes.items():
+        # Encontrar la opción con más votos
+        most_voted_option[question_id] = max(options.values(), key=lambda x: x["votes_count"])
+
+    # Crear una lista con los datos de las preguntas y sus opciones
+    serialized_questions = []
+    for question in questions:
+        question_data = {
+            "question_id": question.id,
+            "question_text": question.question_text,  # El texto de la pregunta
+            "total_voters": total_voters_count,
+            "options": [],
+            "most_voted_option": most_voted_option.get(question.id)
+        }
+        
+        # Agregar los datos de las opciones
+        for option_id, option_info in option_votes.get(question.id, {}).items():
+            question_data["options"].append({
+                "option_text": option_info["option_text"],
+                "votes_count": option_info["votes_count"]
+            })
+
+        # Agregar los datos de la pregunta al resultado
+        serialized_questions.append(question_data)
+
+    # Devolver la respuesta en formato JSON
+    return jsonify({
+        "survey_id": survey_id,
+        "questions": serialized_questions,
+    }), 200
+
+
+
+
+
+
 # Configura el blueprint y la aplicación
 app.register_blueprint(api, url_prefix='/api')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+     app.run(debug=True)
+
+
+
+
+
+
+
+
+# #ENDPOINTS
+
+# from flask import Flask, Blueprint, request, jsonify
+# from werkzeug.security import generate_password_hash, check_password_hash
+# from api.models import db, User, Survey, Question, Option, Vote
+# import jwt
+# import datetime
+# from flask_jwt_extended import jwt_required, get_jwt_identity
+# from flask_cors import CORS  # Importa CORS
+
+# # Inicializa la aplicación de Flask
+# app = Flask(__name__)
+
+# # Habilita CORS para todo el dominio de tu frontend (ajusta la URL si es necesario)
+# CORS(app, resources={r"/*": {"origins": "*"}})  # Permite solicitudes de cualquier origen
+
+# # Aquí va el resto de la configuración y rutas
+
+# api = Blueprint('api', __name__)
+
+# SECRET_KEY = 'your_secret_key_here'  # Debes reemplazar esto por una clave secreta segura
+
+# ## USERS ENDPOINTS
+
+# @api.route('/users', methods=['GET'])
+
+# def get_users():
+#     users = User.query.all()
+#     users_list = [
+#         {
+#             "id": user.id,
+#             "email": user.email,
+#             "full_name": user.full_name,
+#             "created_at": user.created_at,
+#             "is_active": user.is_active
+#         } for user in users
+#     ]
+#     return jsonify(users_list), 200
+
+# @api.route('/users/<int:id>', methods=['GET'])
+# def get_user(id):
+#     user = User.query.options(db.joinedload(User.surveys_created)).get_or_404(id)  # Ensure surveys are loaded
+#     user_data = {
+#         "id": user.id,
+#         "email": user.email,
+#         "full_name": user.full_name,
+#         "created_at": user.created_at,
+#         "is_active": user.is_active,
+#         "surveys": [survey.serialize() for survey in user.surveys_created]  # Include related surveys
+#     }
+#     return jsonify(user_data)
+
+# # User Endpoints
+# @api.route('/users', methods=['POST'])
+# def create_user():
+#     if request.method == 'POST':
+#         data = request.get_json()
+#         if not data:
+#             return jsonify({"error": "No data provided"}), 400
+
+#         # Verificar si el email ya está registrado
+#         existing_user = User.query.filter_by(email=data['email']).first()
+#         if existing_user:
+#             return jsonify({"error": "Email already registered"}), 409
+
+#         # Hashear la contraseña usando SHA256
+#         password_hash = generate_password_hash(data['password'], method='pbkdf2:sha256')
+
+#         # Crear el nuevo usuario
+#         new_user = User(email=data['email'], password_hash=password_hash, full_name=data['full_name'])
+#         db.session.add(new_user)
+#         db.session.commit()
+
+#         return jsonify({"message": "User created successfully"}), 201
+    
+
+
+# @api.route('/users/<int:id>', methods=['PUT'])
+# def update_user(id):
+#     user = User.query.get_or_404(id)
+#     data = request.get_json()
+#     user.email = data.get('email', user.email)
+#     user.full_name = data.get('full_name', user.full_name)
+#     user.is_active = data.get('is_active', user.is_active)
+#     user.password_hash = generate_password_hash(data.get('password', user.password_hash), method='pbkdf2:sha256')
+#     db.session.commit()
+#     return jsonify({
+#         "id": user.id,
+#         "email": user.email,
+#         "full_name": user.full_name,
+#         "created_at": user.created_at,
+#         "is_active": user.is_active
+#     })
+
+
+# ## LOGIN ENDPOINT
+
+# @api.route('/login', methods=['POST'])
+# def login_user():
+#     data = request.get_json()
+#     if not data:
+#         return jsonify({"error": "No data provided"}), 400
+
+#     email = data.get('email')
+#     password = data.get('password')
+
+#     if not email or not password:
+#         return jsonify({"error": "Email and password are required"}), 400
+
+#     user = User.query.filter_by(email=email).first()
+
+#     if user and check_password_hash(user.password_hash, password):
+#         token = jwt.encode({
+#             'user_id': user.id,
+#             'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)
+#         }, SECRET_KEY, algorithm='HS256')
+
+#         return jsonify({"message": "Login successful", "token": token}), 200
+#     else:
+#         return jsonify({"error": "Invalid email or password"}), 401
+
+
+# ## SURVEYS ENDPOINTS
+    
+# @api.route('/surveys', methods=['GET'])
+# def get_surveys():
+#     surveys = Survey.query.all()
+#     surveys_list = [
+#         {
+#             "id": survey.id,
+#             "creator_id": survey.creator_id,
+#             "title": survey.title,
+#             "description": survey.description,
+#             "start_date": survey.start_date,
+#             "end_date": survey.end_date,
+#             "is_public": survey.is_public,
+#             "status": survey.status,
+#             "type": survey.type
+#         } for survey in surveys
+#     ]
+#     return jsonify(surveys_list), 200
+
+# @api.route('/surveys', methods=['POST'])
+# def create_survey():
+#     try:
+#         data = request.get_json()
+#         if not data:
+#             return jsonify({"error": "No data provided"}), 400
+
+#         # Crear una nueva encuesta
+#         new_survey = Survey(
+#             creator_id=data['creator_id'],
+#             title=data['title'],
+#             description=data.get('description'),
+#             start_date=data.get('start_date'),
+#             end_date=data.get('end_date'),
+#             is_public=data.get('is_public', True),
+#             status=data.get('status', 'draft'),
+#             type=data['type']
+#         )
+
+#         db.session.add(new_survey)
+#         db.session.commit()  # Aquí se hace el commit y se asigna el ID automáticamente
+
+#         # Capturamos el ID de la nueva encuesta
+#         survey_id = new_survey.id
+
+#         # Devuelves el ID en la respuesta
+#         return jsonify({
+#             "message": "Survey created successfully",
+#             "id": survey_id  # Aquí retornamos el ID de la encuesta creada
+#         }), 201
+
+#     except Exception as e:
+#         return jsonify({"error": str(e)}), 500  # Devolver el error en caso de fallo
+
+# @api.route('/surveys/<int:id>', methods=['GET'])
+# def get_survey(id):
+#     try:
+#         print(f"Fetching survey with id: {id}")
+#         survey = Survey.query.options(db.joinedload(Survey.questions).joinedload(Question.options)).get_or_404(id)
+
+#         print(f"Survey found: {survey}")
+        
+#         # Serializando datos
+#         survey_data = {
+#             "id": survey.id,
+#             "creator_id": survey.creator_id,
+#             "title": survey.title,
+#             "description": survey.description,
+#             "start_date": survey.start_date,
+#             "end_date": survey.end_date,
+#             "is_public": survey.is_public,
+#             "status": survey.status,
+#             "type": survey.type,
+#             "questions": [
+#                 {
+#                     "id": question.id,
+#                     "question_text": question.question_text,
+#                     "question_type": question.question_type,
+#                     "order": question.order,
+#                     "required": question.required,
+#                     "options": [
+#                         {
+#                             "id": option.id,
+#                             "option_text": option.option_text,
+#                             "order": option.order
+#                         } for option in question.options
+#                     ]
+#                 } for question in survey.questions
+#             ]
+#         }
+#         print(f"Survey data to return: {survey_data}")
+#         return jsonify(survey_data), 200
+
+#     except Exception as e:
+#         print(f"Error fetching survey: {str(e)}")
+#         return jsonify({"error": str(e), "message": "There was an error processing your request."}), 500
+
+
+# @api.route('/surveys/<int:id>', methods=['PUT'])
+# def update_survey(id):
+#     survey = Survey.query.get_or_404(id)
+#     data = request.get_json()
+#     survey.title = data.get('title', survey.title)
+#     survey.description = data.get('description', survey.description)
+#     survey.is_public = data.get('is_public', survey.is_public)
+#     survey.status = data.get('status', survey.status)
+#     db.session.commit()
+#     return jsonify({
+#         "id": survey.id,
+#         "creator_id": survey.creator_id,
+#         "title": survey.title,
+#         "description": survey.description,
+#         "start_date": survey.start_date,
+#         "end_date": survey.end_date,
+#         "is_public": survey.is_public,
+#         "status": survey.status,
+#         "type": survey.type
+#     })
+
+# @api.route('/surveys/<int:id>', methods=['DELETE'])
+# def delete_survey(id):
+#     survey = Survey.query.get_or_404(id)
+#     db.session.delete(survey)
+#     db.session.commit()
+#     return jsonify({'message': 'Survey deleted'}), 200
+
+
+
+# ## QUESTIONS ENDPOINTS
+
+# @api.route('/questions', methods=['POST'])
+# def create_question():
+#     try:
+#         data = request.get_json()
+#         if not data:
+#             return jsonify({"error": "No data provided"}), 400
+
+#         survey = Survey.query.get_or_404(data['survey_id'])
+#         new_question = Question(
+#             survey_id=data['survey_id'],
+#             question_text=data['question_text'],
+#             question_type=data['question_type'],
+#             order=data.get('order'),
+#             required=data.get('required', True)
+#         )
+#         db.session.add(new_question)
+#         db.session.commit()  # Aquí se hace el commit para guardar la pregunta en la base de datos
+
+#         # Capturar el ID de la nueva pregunta
+#         question_id = new_question.id
+#         question_text = new_question.question_text
+
+#         # Devolver el ID y el texto de la pregunta en la respuesta
+#         return jsonify({
+#             "message": "Question created successfully",
+#             "id": question_id,
+#             "question_text": question_text
+#         }), 201
+
+#     except Exception as e:
+#         return jsonify({"error": str(e)}), 500  # Devolver el error en caso de fallo
+
+
+# @api.route('/questions/<int:id>', methods=['GET'])
+# def get_question(id):
+#     question = Question.query.get_or_404(id)
+#     survey = Survey.query.get_or_404(question.survey_id)
+#     question_data = {
+#         "id": question.id,
+#         "survey_id": question.survey_id,
+#         "question_text": question.question_text,
+#         "question_type": question.question_type,
+#         "order": question.order,
+#         "required": question.required
+#     }
+#     return jsonify(question_data)
+
+# @api.route('/questions', methods=['GET'])
+# def get_questions():
+#     questions = Question.query.all()
+#     return jsonify([question.serialize() for question in questions]), 200
+
+# @api.route('/questions/<int:id>', methods=['PUT'])
+# def update_question(id):
+#     question = Question.query.get_or_404(id)
+#     survey = Survey.query.get_or_404(question.survey_id)
+#     data = request.get_json()
+#     question.question_text = data.get('question_text', question.question_text)
+#     question.question_type = data.get('question_type', question.question_type)
+#     question.required = data.get('required', question.required)
+#     db.session.commit()
+#     return jsonify({
+#         "id": question.id,
+#         "survey_id": question.survey_id,
+#         "question_text": question.question_text,
+#         "question_type": question.question_type,
+#         "order": question.order,
+#         "required": question.required
+#     })
+
+# @api.route('/questions/<int:id>', methods=['DELETE'])
+# def delete_question(id):
+#     question = Question.query.get_or_404(id)
+#     survey = Survey.query.get_or_404(question.survey_id)
+#     db.session.delete(question)
+#     db.session.commit()
+#     return jsonify({'message': 'Question deleted'}), 200
+
+
+
+
+# ## OPTIONS ENDPOINTS
+
+
+# @api.route('/options', methods=['POST'])
+# def create_option():
+#     data = request.get_json()
+#     if not data:
+#         return jsonify({"error": "No data provided"}), 400
+
+#     question = Question.query.get_or_404(data['question_id'])
+#     survey = Survey.query.get_or_404(question.survey_id)
+#     new_option = Option(
+#         question_id=data['question_id'],
+#         option_text=data['option_text'],
+#         order=data.get('order')
+#     )
+#     db.session.add(new_option)
+#     db.session.commit()
+
+#     return jsonify({"message": "Option created successfully"}), 201
+
+# @api.route('/options/<int:id>', methods=['GET'])
+# def get_option(id):
+#     option = Option.query.get_or_404(id)
+#     question = Question.query.get_or_404(option.question_id)
+#     survey = Survey.query.get_or_404(question.survey_id)
+#     option_data = {
+#         "id": option.id,
+#         "question_id": option.question_id,
+#         "option_text": option.option_text,
+#         "order": option.order
+#     }
+#     return jsonify(option_data)
+
+# @api.route('/options', methods=['GET'])
+# def get_options():
+#     options = Option.query.all()
+#     return jsonify([option.serialize() for option in options]), 200
+
+# @api.route('/options/<int:id>', methods=['PUT'])
+# def update_option(id):
+#     option = Option.query.get_or_404(id)
+#     question = Question.query.get_or_404(option.question_id)
+#     survey = Survey.query.get_or_404(question.survey_id)
+#     data = request.get_json()
+#     option.option_text = data.get('option_text', option.option_text)
+#     db.session.commit()
+#     return jsonify({
+#         "id": option.id,
+#         "question_id": option.question_id,
+#         "option_text": option.option_text,
+#         "order": option.order
+#     })
+
+# @api.route('/options/<int:id>', methods=['DELETE'])
+# def delete_option(id):
+#     option = Option.query.get_or_404(id)
+#     question = Question.query.get_or_404(option.question_id)
+#     survey = Survey.query.get_or_404(question.survey_id)
+#     db.session.delete(option)
+#     db.session.commit()
+#     return jsonify({'message': 'Option deleted'}), 200
+
+# ## VOTES ENDPOINTS
+
+# @api.route('/votes', methods=['GET'])
+# def get_votes():
+#     # Utiliza serialización en la consulta para evitar bucles innecesarios y mejorar el rendimiento
+#     votes = Vote.query.all()
+#     votes_list = [vote.serialize() for vote in votes]
+#     return jsonify(votes_list), 200
+
+
+# @api.route('/votes', methods=['POST'])
+# def create_vote():
+#     try:
+#         data = request.get_json()
+#         if not data:
+#             return jsonify({"error": "No data provided"}), 400
+
+#         # Validar que el usuario y la opción existen antes de crear el voto
+#         user = User.query.get(data['user_id'])
+#         option = Option.query.get(data['option_id'])
+
+#         if not user or not option:
+#             return jsonify({"error": "User or Option not found"}), 404
+
+#         new_vote = Vote(
+#             user_id=user.id,
+#             survey_id=option.question.survey_id,
+#             question_id=option.question_id,
+#             option_id=option.id,
+#         )
+
+#         db.session.add(new_vote)
+#         db.session.commit()
+
+#         return jsonify({
+#             "message": "Vote cast successfully",
+#             "vote_id": new_vote.id,
+#             "user_id": new_vote.user_id,
+#             "question_id": new_vote.question_id,
+#             "option_id": new_vote.option_id
+#         }), 201
+
+#     except Exception as e:
+#         db.session.rollback()
+#         return jsonify({"error": str(e), "message": "There was an error processing your request."}), 500
+
+
+# @api.route('/votes/<int:user_id>', methods=['GET'])
+# def get_user_votes(user_id):
+#     # Se aplica serialización en la consulta para mejorar el rendimiento y la claridad del código
+#     user = User.query.get_or_404(user_id)
+#     votes = user.votes
+#     votes_data = [vote.serialize() for vote in votes]
+#     return jsonify(votes_data), 200
+
+# # Configura el blueprint y la aplicación
+# app.register_blueprint(api, url_prefix='/api')
+
+# if __name__ == '__main__':
+#     app.run(debug=True)

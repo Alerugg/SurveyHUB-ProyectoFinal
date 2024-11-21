@@ -4,11 +4,36 @@ const getState = ({ getStore, getActions, setStore }) => {
             surveys: [],
             survey: null,
             user: null,
-            isAuthenticated: !!localStorage.getItem("jwt-token")
+            isAuthenticated: !!localStorage.getItem("jwt-token"),
+            userVotedSurveys: null
         },
         actions: {
-            exampleFunction: () => {
-                getActions().changeColor(0, "green");
+            // Función para obtener el perfil del usuario actual
+            getUserProfile: async () => {
+                const token = localStorage.getItem("jwt-token");
+                if (!token) return;
+
+                try {
+                    const response = await fetch(`${process.env.BACKEND_URL}/api/me`, {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${token}`
+                        }
+                    });
+
+                    if (!response.ok) {
+                        const errorResponse = await response.json();
+                        console.error("Detalles del error: ", errorResponse);
+                        throw new Error(`HTTP error! status: ${response.status}, message: ${errorResponse.message}`);
+                    }
+
+                    const result = await response.json();
+                    setStore({ user: result, isAuthenticated: true });
+                } catch (error) {
+                    console.error("Error fetching user profile: ", error);
+                    setStore({ isAuthenticated: false, user: null });
+                }
             },
 
             getSurveys: async () => {
@@ -26,44 +51,38 @@ const getState = ({ getStore, getActions, setStore }) => {
                     }
 
                     const result = await response.json();
-                    console.log("Result from getSurveys: ", result);
                     setStore({ surveys: result });
                 } catch (error) {
                     console.error("Error fetching surveys: ", error);
                 }
             },
 
-            getSurvey: async (id) => {
+            getUserVotedSurveys: async (userId) => {
                 try {
-                    const response = await fetch(`${process.env.BACKEND_URL}/api/surveys/${id}`, {
+                    const response = await fetch(`${process.env.BACKEND_URL}/api/users/${userId}/votes/surveys`, {
                         method: "GET",
                         headers: {
                             "Content-Type": "application/json",
                             "Authorization": `Bearer ${localStorage.getItem("jwt-token")}`
                         }
                     });
-
+            
                     if (!response.ok) {
                         throw new Error(`HTTP error! status: ${response.status}`);
                     }
-
+            
                     const result = await response.json();
-                    console.log("Fetch result (JSON):", result);
-                    setStore({ survey: result });
+                    setStore({ userVotedSurveys: result });
                 } catch (error) {
-                    console.error("Error fetching survey:", error);
+                    console.error("Error fetching user voted surveys: ", error);
                 }
             },
+            
+            
 
             getUserSurveys: async () => {
-                const store = getStore();
-                if (!store.user || !store.user.id) {
-                    console.error("User not found in store.");
-                    return;
-                }
-
                 try {
-                    const response = await fetch(`${process.env.BACKEND_URL}/api/users/${store.user.id}`, {
+                    const response = await fetch(`${process.env.BACKEND_URL}/api/me`, {
                         method: "GET",
                         headers: {
                             "Content-Type": "application/json",
@@ -77,9 +96,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 
                     const result = await response.json();
                     if (result.surveys) {
-                        const surveyIds = result.surveys.map(survey => survey.id);
-                        const surveys = await Promise.all(surveyIds.map(id => getActions().getSurveyById(id)));
-                        setStore({ surveys });
+                        setStore({ surveys: result.surveys });
                     } else {
                         console.error("No surveys found for user.");
                     }
@@ -88,7 +105,7 @@ const getState = ({ getStore, getActions, setStore }) => {
                 }
             },
 
-            getSurveyById: async (id) => {
+            getSurvey: async (id) => {
                 try {
                     const response = await fetch(`${process.env.BACKEND_URL}/api/surveys/${id}`, {
                         method: "GET",
@@ -97,43 +114,73 @@ const getState = ({ getStore, getActions, setStore }) => {
                             "Authorization": `Bearer ${localStorage.getItem("jwt-token")}`
                         }
                     });
-
+            
                     if (!response.ok) {
                         throw new Error(`HTTP error! status: ${response.status}`);
                     }
-
-                    return await response.json();
+            
+                    const survey = await response.json();
+                    setStore({ survey });
                 } catch (error) {
                     console.error("Error fetching survey by ID:", error);
-                    return null;
                 }
             },
-
-            login: (data) => {
+            
+            login: async (data) => {
                 localStorage.setItem("jwt-token", data.token);
                 setStore({ isAuthenticated: true });
-
-                try {
-                    const decodedToken = jwt_decode(data.token);
-                    setStore({ user: { id: decodedToken.user_id } });
-                } catch (error) {
-                    console.error("Error decoding token: ", error);
-                }
+                await getActions().getUserProfile(); // Obtener el perfil completo del usuario después del login
             },
+            
 
             logout: () => {
                 localStorage.removeItem("jwt-token");
                 setStore({ isAuthenticated: false, user: null, surveys: [], survey: null });
             },
 
-            changeColor: (index, color) => {
-                const store = getStore();
-                const demo = store.demo.map((elm, i) => {
-                    if (i === index) elm.background = color;
-                    return elm;
-                });
-                setStore({ demo: demo });
-            }
+            // Función para verificar si el usuario está autenticado al cargar la aplicación
+            checkAuth: async () => {
+                const token = localStorage.getItem("jwt-token");
+                if (token) {
+                    await getActions().getUserProfile();
+                }
+            },
+
+            updateSurveyStatus: async (surveyId, newStatus) => {
+                try {
+                    const token = localStorage.getItem("jwt-token");
+                    if (!token) {
+                        throw new Error("User not logged in");
+                    }
+            
+                    const response = await fetch(`${process.env.BACKEND_URL}/api/surveys/${surveyId}/status`, {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ status: newStatus })
+                    });
+            
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        console.error("Response error:", errorText);
+                        throw new Error("Failed to update survey status");
+                    }
+            
+                    // Actualiza el estado en el store con la nueva información de la encuesta
+                    const updatedSurvey = await response.json();
+                    setStore({
+                        ...getStore(),
+                        surveys: getStore().surveys.map(survey => 
+                            survey.id === updatedSurvey.id ? { ...survey, status: newStatus } : survey
+                        ),
+                        survey: { ...getStore().survey, status: newStatus }
+                    });
+                } catch (error) {
+                    console.error("Error updating survey status:", error);
+                }
+            },
         }
     };
 };

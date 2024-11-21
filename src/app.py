@@ -5,7 +5,8 @@ import os
 from flask import Flask, request, jsonify, url_for, send_from_directory
 from flask_migrate import Migrate
 from flask_swagger import swagger
-from flask_cors import CORS  # Importa CORS
+from flask_cors import CORS
+from flask_jwt_extended import JWTManager  # Importar JWTManager
 from api.utils import APIException, generate_sitemap
 from api.models import db, User, Survey, Question, Option, Vote, Invitation
 from api.admin import setup_admin
@@ -25,6 +26,12 @@ else:
     app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:////tmp/test.db"
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# JWT Configuration
+app.config["JWT_SECRET_KEY"] = "your_secret_key_here"  # Cambia esto por una clave secreta segura
+app.config["JWT_TOKEN_LOCATION"] = ["headers"]  # Indica dónde estará ubicado el token (generalmente en los encabezados)
+jwt = JWTManager(app)
+
 MIGRATE = Migrate(app, db, compare_type=True)
 db.init_app(app)
 

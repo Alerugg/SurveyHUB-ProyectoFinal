@@ -1,11 +1,9 @@
 import React, { useEffect, useContext, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
 import "../../styles/surveyResults.css";
 import { Context } from "../store/appContext";
-import ClosedSurveyResults from "../component/closedSurveyView";
 import PendingSurveyView from "../component/pendingSurveyView";
-import ReactECharts from 'echarts-for-react';
+import { ClosedSurveyView } from "../component/closedSurveyView";  // Importa el componente ClosedSurveyView
 
 export const SurveyResults = () => {
     const { id } = useParams();
@@ -13,13 +11,21 @@ export const SurveyResults = () => {
     const navigate = useNavigate();
     const [isFormValid, setIsFormValid] = useState(false);
     const [responses, setResponses] = useState({});
+    const [hasVoted, setHasVoted] = useState(false);
 
     useEffect(() => {
         // Solo realiza la llamada si no se tiene ya la encuesta correcta en el store
         if (!store.survey || store.survey.id !== parseInt(id)) {
             actions.getSurvey(id);
         }
-    }, [id]);
+    }, [id, store.survey, actions]);
+
+    useEffect(() => {
+        // Validar si el usuario ya ha votado en esta encuesta
+        if (store.isAuthenticated && store.survey) {
+            checkIfUserHasVoted();
+        }
+    }, [store.survey, store.isAuthenticated]);
 
     // Validar el formulario solo si la encuesta se ha cargado correctamente
     useEffect(() => {
@@ -59,35 +65,50 @@ export const SurveyResults = () => {
         validateForm();
     };
 
+    const checkIfUserHasVoted = async () => {
+        try {
+            const token = localStorage.getItem("jwt-token");
+            if (!token) return;
+
+            const response = await fetch(`${process.env.BACKEND_URL}/api/surveys/${id}/has_voted`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                setHasVoted(result.has_voted);
+            } else {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+        } catch (error) {
+            console.error("Error checking if user has voted: ", error);
+        }
+    };
+
     const handleSubmit = async () => {
         try {
-            // Obtener el JWT del localStorage
             const token = localStorage.getItem("jwt-token");
             if (!token) {
-                throw new Error("User is not authenticated");
+                alert("Para votar debe hacer login");
+                return;
             }
-
-            // Decodificar el JWT para obtener el user_id
-            const decodedToken = jwtDecode(token);
-            const userId = decodedToken.user_id;
-
+            
             // Construye los datos de votos usando el estado responses
             const votesData = Object.entries(responses).map(([questionId, optionId]) => ({
-                user_id: userId,
-                option_id: parseInt(optionId)
+                option_id: parseInt(optionId),
             }));
-
-            // Verifica los votos antes de enviarlos
-            console.log("Votes data:", votesData);
 
             // Envía cada voto al backend usando un bucle
             for (let vote of votesData) {
-                console.log("Sending vote:", vote);
-                const response = await fetch("https://didactic-space-tribble-vx74pxvwv9rcpxrp-3001.app.github.dev/api/votes", {
+                const response = await fetch(process.env.BACKEND_URL + "/api/votes", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                        "Authorization": `Bearer ${token}`
+                        "Authorization": `Bearer ${token}`,
                     },
                     body: JSON.stringify(vote),
                 });
@@ -136,6 +157,7 @@ export const SurveyResults = () => {
                                         className="open-ended-response"
                                         placeholder="Type your answer here..."
                                         onChange={(e) => handleInputChange(question.id, e.target.value)}
+                                        disabled={!store.isAuthenticated || hasVoted}
                                     ></textarea>
                                 ) : (
                                     question.options && question.options.map((option) => (
@@ -146,6 +168,7 @@ export const SurveyResults = () => {
                                                 name={`question-${question.id}`}
                                                 value={option.id}
                                                 onChange={() => handleInputChange(question.id, option.id)}
+                                                disabled={!store.isAuthenticated || hasVoted}
                                             />
                                             <label htmlFor={`option-${option.id}`}>{option.option_text}</label>
                                         </div>
@@ -158,16 +181,25 @@ export const SurveyResults = () => {
                 <button
                     className="btn submit-btn"
                     onClick={handleSubmit}
-                    disabled={!isFormValid}
-                    style={{ backgroundColor: isFormValid ? '#DB6FEB' : '#e0e0e0', cursor: isFormValid ? 'pointer' : 'not-allowed' }}
+                    disabled={!isFormValid || !store.isAuthenticated || hasVoted}
+                    style={{ backgroundColor: isFormValid && store.isAuthenticated && !hasVoted ? '#DB6FEB' : '#e0e0e0', cursor: isFormValid && store.isAuthenticated && !hasVoted ? 'pointer' : 'not-allowed' }}
                 >
-                    Submit my responses
+                    {hasVoted ? "Ya has votado en esta encuesta" : "Submit my responses"}
                 </button>
+                {!store.isAuthenticated && (
+                    <div className="alert-message">Para votar debe hacer login.</div>
+                )}
+                {hasVoted && (
+                    <div className="alert-message">Ya has votado en esta encuesta.</div>
+                )}
             </div>
         );
+    } else if (survey.status === "closed") {
+        // Renderiza el componente ClosedSurveyView con la encuesta cerrada
+        return <ClosedSurveyView survey={survey} />;
+    } else if (survey.status === "draft") {
+        return <PendingSurveyView survey={survey} />;
     }
-
-    // Resto del código no cambia para los otros estados de la encuesta...
 
     return null;
 };

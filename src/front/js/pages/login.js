@@ -1,14 +1,16 @@
-import React, { useState, useContext } from "react";
+// Login Component
+import React, { useState, useContext, useEffect } from "react";
 import "../../styles/login.css";
 import { useNavigate, Link } from "react-router-dom";
 import { Context } from "../store/appContext";
 import loginImage from "/workspaces/PROYECTO-FINAL-REPO-FINAL/src/front/img/login.png";
 
+// Función de login que almacena el token y user_id en localStorage
 const performLogin = async (email, password) => {
     try {
         console.log("Enviando email:", email, "y password:", password);
 
-        const resp = await fetch(process.env.BACKEND_URL+"/api/login", {
+        const resp = await fetch(process.env.BACKEND_URL + "/api/login", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -32,6 +34,10 @@ const performLogin = async (email, password) => {
 
         const data = await resp.json();
         console.log("Datos de respuesta del login:", data);
+
+        // Almacena el token y el user_id en localStorage
+        localStorage.setItem("jwt-token", data.token);
+        localStorage.setItem("user_id", data.user_id);
 
         return data;
 
@@ -61,6 +67,10 @@ export const Login = () => {
             setError(err.message);                                       // Mostrar el mensaje de error en la interfaz
         }
     };
+
+    useEffect(() => {
+        actions.checkAuth();                                             // Verifica si el usuario sigue autenticado al cargar la página
+    }, []);
 
     return (
         <div className="login-container">

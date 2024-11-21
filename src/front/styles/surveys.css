@@ -1,37 +1,114 @@
+
 .available-surveys-container {
-  max-width: 1352px;
-  margin: 0 auto;
-  padding: 30px;
+  margin: 0px 80px 20px 80px;
   background-color: #ffffff;
   border-radius: 15px;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Lato', sans-serif;
 }
 
 .available-surveys-title {
-  text-align: center;
-  font-size: 2.5em;
-  color: rgb(63, 55, 77);
+  margin: 36px;
+  font-size: 48px;
+  margin-bottom: 16px;
+  text-align: start;
+  color: black;
   font-weight: bold;
-  margin-bottom: 40px;
+}
+
+input.search-drop{
+  border: 2px solid #888;
+  border-radius: 14px;
+  height: 42px;
+  width: 23%;
+  background-color: #FFFFFF;
+  padding: 10px 10px 10px 35px; /* espacio a la izquierda para el icono */
+}
+.search-container {
+  position: relative;
+  margin-top: 36px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 36px;
+  width: 100%;
+  justify-content: center;
+}
+.search-icon {
+  left: 39.5%;
+  position: absolute;
+  color: #888;
+  pointer-events: none;
+}
+div.dropdown{
+  position: static;
+  display: flex;
+  flex-direction: row;
+  justify-content: end;
+}
+
+.dropdown-toggle.filter-drop {
+  border: 2px solid #888;
+  border-radius: 10px;
+  background-color: #ffffff;
+  font-size: 16px;
+  font-weight: 100;
+  width: 130px;
+  margin-bottom: 30px;
 }
 
 .available-surveys-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  display: flex;
   gap: 20px;
+  flex-wrap: wrap;
+  flex-direction: row;
+  align-items: center;
+  align-content: center;
+  justify-content: space-between;
 }
 
 .available-survey-card {
-  border-radius: 15px;
-  background-color: #f9f9f9;
+  background-color: #ffffff;
   transition: box-shadow 0.3s, transform 0.3s;
   cursor: pointer;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  height: 100%;
-  padding: 20px;
+  width: 410px;
+  border: 1px solid #dddada;
+  border-radius: 16px;
+}
+
+.card-title-container {
+  display: flex; 
+  justify-content: space-between; 
+  align-items: flex-start; 
+}
+
+
+
+.available-survey-card-body {
+  border-radius: 4px;
+  display: flex;
+  flex-grow: 1;
+  overflow: hidden;
+  padding: 12px 8px;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.available-survey-card-title {
+  font-size: 16px;
+  color: black;
+  font-weight: 900;
+  margin-bottom: 10px;
+  margin-right: 20px;
+}
+
+.available-survey-card-description {
+  text-align: start;
+  font-size: 14px;
+  color: #4A4A4A;
+  margin-bottom: 6px;
+  font-weight: 300;
 }
 
 .available-survey-card:hover {
@@ -47,111 +124,131 @@
   width: 100%;
   height: 140px;
   object-fit: cover;
-  border-radius: 10px;
 }
 
-.available-survey-status {
+.available-survey-status-header {
+  display: flex;
+  height: 20px;
+  width: 40px;
   position: absolute;
   top: 15px;
   right: 15px;
-  padding: 5px 10px;
   border-radius: 8px;
   color: #ffffff;
-  font-size: 0.8em;
-  font-weight: bold;
-}
+  font-size: 10px;
+  justify-content: center;
+  align-items: center;
+  }
 
-.available-survey-status.public {
-  background-color: #28a745;
-}
-
-.available-survey-status.private {
-  background-color: #6c757d;
-}
-
-.available-survey-card-body {
-  padding: 20px;
-  flex: 1;
-}
-
-.available-survey-card-title {
-  font-size: 1.6em;
-  color: rgb(63, 55, 77);
-  font-weight: 600;
+.available-status-badge-title {
+  padding: 4px 8px;
   margin-bottom: 10px;
+  align-items: end;
+  right: 22px;
+  display: flex;
+  flex-direction: row-reverse;
 }
 
-.available-survey-card-description {
-  font-size: 1em;
-  color: #4A4A4A;
-  line-height: 1.5;
-  margin-bottom: 10px;
+.available-survey-status-header.public {
+  background-color: #DAD23B;
+  border-radius: 2px;
 }
 
-.available-survey-status-badge {
-  margin-bottom: 10px;
+.available-survey-status-header.private {
+  background-color: #875FD1;
+  border-radius: 2px;
 }
 
-.available-status-badge {
-  display: inline-block;
-  padding: 5px 10px;
+.available-status-badge-title {
+  display: flex;
+  text-align: center;
   border-radius: 12px;
-  font-weight: bold;
   color: #ffffff;
-  font-size: 0.8em;
+  font-size: 10px;
+  width: 38px;
+  height: 22px;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
 }
 
-.available-status-badge.active {
-  background-color: #28a745;
+.available-status-badge-title.active {
+  color: #0BC035;
+  border: 2px solid #0BC035;
+  border-radius: 2px;
 }
 
-.available-status-badge.draft {
-  background-color: #ffc107;
+.available-status-badge-title.draft {
+  color: #ffc107;
+  border: 2px solid #ffc107;
+  border-radius: 2px;
 }
 
-.available-status-badge.closed {
-  background-color: #dc3545;
+.available-status-badge-title.closed {
+  color: #dc3545;
+  border: 2px solid #dc3545;
+  border-radius: 2px;
 }
 
 .available-survey-card-footer {
-  margin-top: auto;
+  margin-top: 10px;
 }
 
 .available-survey-card-dates {
-  font-size: 0.9em;
-  color: #6C6C6C;
+  font-weight: 400;
+  font-size: 14px;
+  color: black;
   margin-bottom: 10px;
 }
 
 .available-survey-goal {
   font-size: 1em;
-  color: rgb(63, 55, 77);
-  font-weight: 600;
+  color: #ABA3A3;
+  font-weight: 400;
   margin-bottom: 10px;
 }
 
 .available-survey-goal span {
-  color: #28a745;
-}
-
-.available-survey-creator {
-  display: flex;
-  align-items: center;
-  font-size: 0.9em;
-  color: #6C6C6C;
+  color: #ABA3A3;
+  
 }
 
 .available-survey-creator-avatar {
+  margin-left: 86%;
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  margin-right: 10px;
+}
+
+.loading-container {
+  background-color: #2E2B3B;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; 
+  align-items: center; 
+  height: 100vh; 
 }
 
 .available-surveys-loading {
   text-align: center;
-  font-size: 1.5em;
-  color: #DB6FEB;
+  font-size: 70px;
+  color: white;
   font-weight: bold;
-  margin-top: 50px;
+  padding: 30px;
 }
+
+.spinner {
+  border: 4px solid rgba(241, 136, 218, 0.837);
+  border-radius: 50%;
+  border-top: 4px solid #bb1cd4;
+  width: 70px;
+  height: 70px; 
+  animation: spin 1s linear infinite; /* Animación de rotación */
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+
