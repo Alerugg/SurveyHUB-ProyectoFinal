@@ -16,6 +16,52 @@ api = Blueprint('api', __name__)
 
 SECRET_KEY = 'your_secret_key_here'  # Debes reemplazar esto por una clave secreta segura
 
+@app.route('/api/surveys/create_full', methods=['POST'])
+@jwt_required()
+def create_full_survey():
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'Invalid input'}), 400
+
+        current_user_id = get_jwt_identity()
+
+        # Crear la encuesta
+        new_survey = Survey(
+            title=data['title'],
+            description=data['description'],
+            start_date=data['start_date'],
+            end_date=data['end_date'],
+            creator_id=current_user_id,
+            status=data.get('status', 'draft')
+        )
+        db.session.add(new_survey)
+        db.session.flush()  # Para obtener el ID de la encuesta antes de confirmar la transacción
+
+        # Crear preguntas y opciones
+        for question_data in data.get('questions', []):
+            new_question = Question(
+                survey_id=new_survey.id,
+                question_text=question_data['text'],
+                question_type=question_data.get('type', 'multiple_choice')
+            )
+            db.session.add(new_question)
+            db.session.flush()
+
+            for option_data in question_data.get('options', []):
+                new_option = Option(
+                    question_id=new_question.id,
+                    option_text=option_data['text']
+                )
+                db.session.add(new_option)
+
+        db.session.commit()
+        return jsonify({'message': 'Survey created successfully', 'survey_id': new_survey.id}), 201
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
 ## USERS ENDPOINTS
 
 @api.route('/users', methods=['GET'])
@@ -443,12 +489,17 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 @api.route('/me', methods=['GET'])
 @jwt_required()
 def get_current_user():
-    try:
-        user_id = get_jwt_identity()  # Recupera el ID del usuario a partir del token JWT
-        user = User.query.get_or_404(user_id)  # Busca el usuario en la base de datos
-        return jsonify(user.serialize()), 200  # Devuelve la información del usuario serializada
-    except Exception as e:
-        return jsonify({"error": str(e)}), 422
+    user_id = get_jwt_identity()  # Recupera el ID del usuario del token JWT
+
+    # Validar si el usuario existe y devolver error más explícito
+    user = User.query.filter_by(id=user_id).first()
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    return jsonify(user.serialize()), 200  # Devuelve la información del usuario serializada
+
+    
+    
 
 @api.route('/survey/<int:survey_id>/votes', methods=['GET'])
 def get_survey_votes(survey_id):
@@ -514,11 +565,17 @@ def get_survey_votes(survey_id):
         "survey_id": survey_id,
         "questions": serialized_questions,
     }), 200
-# Configura el blueprint y la aplicación
-app.register_blueprint(api, url_prefix='/api')
 
-if __name__ == '__main__':
-     app.run(debug=True)
+
+
+
+
+
+# # Configura el blueprint y la aplicación
+# app.register_blueprint(api, url_prefix='/api')
+
+# if __name__ == '__main__':
+#      app.run(debug=True)
 
 
 
