@@ -1,10 +1,7 @@
-import React, { useEffect, useContext } from "react";
-import { Context } from "../store/appContext";
+import React from "react";
 import "../../styles/home.css";
 import { Link } from "react-router-dom";
-import example from "/workspaces/PROYECTO-FINAL-REPO-FINAL/src/front/img/roadmapexample.png";
-import { GrActions } from "react-icons/gr";
-import Header from "/workspaces/PROYECTO-FINAL-REPO-FINAL/src/front/img/homeimg.png";
+import Header from "../../img/homeimg.png";
 import Stepper1 from "../../img/stepper1.png"
 import Stepper2 from "../../img/stepper2.png"
 import Stepper3 from "../../img/stepper3.png"
@@ -15,11 +12,8 @@ import Footer4 from "../../img/foot4.png"
 
 
 export const Home = () => {
-  const { store, actions } = useContext(Context);
 
-  // useEffect(() => {
-  //   actions.getSurveys();
-  // }, []);
+
 
   return (
     <div className="home-container ">
