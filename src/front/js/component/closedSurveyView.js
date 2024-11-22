@@ -4,7 +4,7 @@ import "../../styles/surveyResults.css";
 import { Context } from "../store/appContext";
 import ReactECharts from 'echarts-for-react';
 
-export const ClosedSurveyView = () => {  // Cambié aquí el nombre del componente a "ClosedSurveyView"
+export const ClosedSurveyView = () => {
     const { id } = useParams();
     const { store, actions } = useContext(Context);
     const navigate = useNavigate();
@@ -15,9 +15,14 @@ export const ClosedSurveyView = () => {  // Cambié aquí el nombre del componen
     const [highestVotedQuestion, setHighestVotedQuestion] = useState(null); // Pregunta con más votos
 
     useEffect(() => {
-        fetchSurveyDetails();
-        fetchSurveyResults();
-    }, [id]);
+        if (store.isAuthenticated) {
+            fetchSurveyDetails();
+            fetchSurveyResults();
+        } else {
+            alert("Para acceder a los resultados debe iniciar sesión.");
+            navigate("/login");
+        }
+    }, [id, store.isAuthenticated]);
 
     const fetchSurveyDetails = async () => {
         try {
@@ -38,7 +43,7 @@ export const ClosedSurveyView = () => {  // Cambié aquí el nombre del componen
 
     const fetchSurveyResults = async () => {
         try {
-            const token = localStorage.getItem("token");
+            const token = localStorage.getItem("jwt-token");
             if (!token) {
                 throw new Error("User not logged in");
             }

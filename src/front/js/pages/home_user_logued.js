@@ -42,7 +42,7 @@ export const HomeUserLogued = () => {
                                                     <p className="home-user-logued-card-text mb-2"><strong>Responses goal:</strong> {survey.responses_count}/{survey.responses_goal}</p>
                                                     <p className="home-user-logued-card-text mb-2"><strong>End Date:</strong> {new Date(survey.end_date).toLocaleDateString()}</p>
                                                     <div className="d-flex justify-content-end mt-4">
-                                                        <Link to={`/survey/${survey.id}`} className="home-user-logued-view-details-btn btn-lg">View details</Link>
+                                                        <Link to={`/surveys/${survey.id}`} className="home-user-logued-view-details-btn btn-lg">View details</Link>
                                                     </div>
                                                 </div>
                                             </div>

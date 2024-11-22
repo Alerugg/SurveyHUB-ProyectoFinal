@@ -4,6 +4,7 @@ import "../../styles/surveyResults.css";
 import { Context } from "../store/appContext";
 import PendingSurveyView from "../component/pendingSurveyView";
 import { ClosedSurveyView } from "../component/closedSurveyView";  // Importa el componente ClosedSurveyView
+import moment from "moment";
 
 export const SurveyResults = () => {
     const { id } = useParams();
@@ -14,19 +15,48 @@ export const SurveyResults = () => {
     const [hasVoted, setHasVoted] = useState(false);
 
     useEffect(() => {
-        // Solo realiza la llamada si no se tiene ya la encuesta correcta en el store
+        // Obtener la encuesta si aún no se ha cargado
         if (!store.survey || store.survey.id !== parseInt(id)) {
             actions.getSurvey(id);
         }
-    }, [id]);
+    }, [id, store.survey, actions]);
 
     useEffect(() => {
-        // Validar si el usuario ya ha votado en esta encuesta
-        const token = localStorage.getItem("jwt-token");
-        if (token) {
-            checkIfUserHasVoted();
+        // Obtener el perfil del usuario y verificar si ha votado en la encuesta
+        if (store.isAuthenticated) {
+            actions.getUserProfile().then(() => {
+                if (store.user) {
+                    actions.getUserVotedSurveys(store.user.id).then(() => {
+                        const hasVotedInSurvey = store.userVotedSurveys.some(survey => survey.id === parseInt(id));
+                        setHasVoted(hasVotedInSurvey);
+                    });
+                }
+            });
         }
-    }, [store.survey]);
+    }, [store.isAuthenticated, actions, id]);
+
+    useEffect(() => {
+        // Actualizar el estado de la encuesta según las fechas al abrir la encuesta
+        if (store.survey) {
+            const currentDate = moment();
+            const startDate = moment(store.survey.start_date);
+            const endDate = moment(store.survey.end_date);
+
+            let newStatus = store.survey.status;
+
+            if (currentDate.isBefore(startDate)) {
+                newStatus = "draft";
+            } else if (currentDate.isBetween(startDate, endDate, undefined, "[]")) {
+                newStatus = "active";
+            } else if (currentDate.isAfter(endDate)) {
+                newStatus = "closed";
+            }
+
+            if (newStatus !== store.survey.status) {
+                actions.updateSurveyStatus(id, newStatus);
+            }
+        }
+    }, [store.survey, actions, id]);
 
     // Validar el formulario solo si la encuesta se ha cargado correctamente
     useEffect(() => {
@@ -64,30 +94,6 @@ export const SurveyResults = () => {
             [questionId]: value,
         }));
         validateForm();
-    };
-
-    const checkIfUserHasVoted = async () => {
-        try {
-            const token = localStorage.getItem("jwt-token");
-            if (!token) return;
-
-            const response = await fetch(`${process.env.BACKEND_URL}/api/surveys/${id}/has_voted`, {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                }
-            });
-
-            if (response.ok) {
-                const result = await response.json();
-                setHasVoted(result.has_voted);
-            } else {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-        } catch (error) {
-            console.error("Error checking if user has voted: ", error);
-        }
     };
 
     const handleSubmit = async () => {
