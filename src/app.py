@@ -13,7 +13,7 @@ from api.admin import setup_admin
 from api.commands import setup_commands
 
 ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
-static_file_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../src/front/build/')
+static_file_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../public/')
 app = Flask(__name__)
 CORS(app)  # Inicializa CORS para permitir solicitudes de cualquier origen
 app.url_map.strict_slashes = False
