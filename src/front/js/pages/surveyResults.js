@@ -1,3 +1,4 @@
+// SurveyResults Component
 import React, { useEffect, useContext, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "../../styles/surveyResults.css";
@@ -13,6 +14,7 @@ export const SurveyResults = () => {
     const [isFormValid, setIsFormValid] = useState(false);
     const [responses, setResponses] = useState({});
     const [hasVoted, setHasVoted] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
         // Obtener la encuesta si aún no se ha cargado
@@ -97,6 +99,7 @@ export const SurveyResults = () => {
     };
 
     const handleSubmit = async () => {
+        setIsSubmitting(true);
         try {
             const token = localStorage.getItem("jwt-token");
             if (!token) {
@@ -133,6 +136,8 @@ export const SurveyResults = () => {
         } catch (error) {
             console.error("Error submitting responses:", error);
             alert("Failed to submit your responses. Please try again.");
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -188,10 +193,10 @@ export const SurveyResults = () => {
                 <button
                     className="btn submit-btn"
                     onClick={handleSubmit}
-                    disabled={!isFormValid || !store.isAuthenticated || hasVoted}
-                    style={{ backgroundColor: isFormValid && store.isAuthenticated && !hasVoted ? '#DB6FEB' : '#e0e0e0', cursor: isFormValid && store.isAuthenticated && !hasVoted ? 'pointer' : 'not-allowed' }}
+                    disabled={!isFormValid || !store.isAuthenticated || hasVoted || isSubmitting}
+                    style={{ backgroundColor: isFormValid && store.isAuthenticated && !hasVoted && !isSubmitting ? '#DB6FEB' : '#e0e0e0', cursor: isFormValid && store.isAuthenticated && !hasVoted && !isSubmitting ? 'pointer' : 'not-allowed' }}
                 >
-                    {hasVoted ? "Ya has votado en esta encuesta" : "Submit my responses"}
+                    {isSubmitting ? "Submitting..." : hasVoted ? "Ya has votado en esta encuesta" : "Submit my responses"}
                 </button>
                 {!store.isAuthenticated && (
                     <div className="alert-message">Para votar debe hacer login.</div>

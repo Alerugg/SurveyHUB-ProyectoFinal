@@ -1,20 +1,58 @@
-// UserDashboard.js
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import "../../styles/dashboard.css";
 import { Context } from '../store/appContext';
 import { Link, useNavigate } from 'react-router-dom';
+import moment from "moment";
 
 const UserDashboard = () => {
     const { store, actions } = useContext(Context);
     const navigate = useNavigate();
+    const hasFetchedSurveys = useRef(false); // Nueva referencia para verificar si ya se obtuvieron las encuestas
 
     useEffect(() => {
-        actions.getSurveys();      
-        actions.getUserProfile();  // Asegurarse de cargar el perfil del usuario
-        if (store.user) {
-            actions.getUserVotedSurveys(store.user.id);  // Cargar las encuestas votadas por el usuario
+        // Solo obtener encuestas si no se han obtenido previamente
+        if (!hasFetchedSurveys.current) {
+            actions.getSurveys();      
+            actions.getUserProfile();  // Asegurarse de cargar el perfil del usuario
+            if (store.user) {
+                actions.getUserVotedSurveys(store.user.id);  // Cargar las encuestas votadas por el usuario
+            }
+            hasFetchedSurveys.current = true; // Marcar que las encuestas ya se han obtenido
         }
-    }, [store.user]);
+    }, [actions, store.user]);
+
+    useEffect(() => {
+        // Actualizar el estado de las encuestas según las fechas
+        if (store.surveys && store.surveys.length > 0) {
+            const surveysToUpdate = [];
+            store.surveys.forEach((survey) => {
+                const currentDate = moment();
+                const startDate = moment(survey.start_date);
+                const endDate = moment(survey.end_date);
+
+                let newStatus = survey.status;
+
+                if (currentDate.isBefore(startDate)) {
+                    newStatus = "draft";
+                } else if (currentDate.isBetween(startDate, endDate, undefined, "[]")) {
+                    newStatus = "active";
+                } else if (currentDate.isAfter(endDate)) {
+                    newStatus = "closed";
+                }
+
+                if (newStatus !== survey.status) {
+                    surveysToUpdate.push({ id: survey.id, newStatus });
+                }
+            });
+
+            // Actualizar solo las encuestas que han cambiado de estado
+            if (surveysToUpdate.length > 0) {
+                surveysToUpdate.forEach(({ id, newStatus }) => {
+                    actions.updateSurveyStatus(id, newStatus);
+                });
+            }
+        }
+    }, [store.surveys, actions]);
 
     return (
         <div className="dashboard-container">
@@ -25,7 +63,7 @@ const UserDashboard = () => {
                         <div className="user-details">
                             <h1>Welcome {store.user ? store.user.full_name : "Guest"}</h1>
                             <p className="user-role">Survey expert</p>
-                            <a href="/edit-profile" className="edit-profile">Edit profile</a>
+                            <a href="/profile" className="edit-profile">Edit profile</a>
                         </div>
                     </div>
                     <div className="annual-interactions">
@@ -61,6 +99,9 @@ const UserDashboard = () => {
                             <img src="https://via.placeholder.com/300" alt="Survey" />
                             <h3>{survey.title}</h3>
                             <p>{survey.description}</p>
+                            <div className="d-flex justify-content-end mt-4">
+                                <Link to={`/surveys/${survey.id}`} className="view-details-btn btn-lg">View details</Link>
+                            </div>
                         </div>
                     ))}
                 </div>
@@ -73,6 +114,9 @@ const UserDashboard = () => {
                             <img src="https://via.placeholder.com/300" alt="Survey" />
                             <h3>{survey.title}</h3>
                             <p>{survey.description}</p>
+                            <div className="d-flex justify-content-end mt-4">
+                                <Link to={`/surveys/${survey.id}`} className="view-details-btn btn-lg">View details</Link>
+                            </div>
                         </div>
                     ))}
                 </div>
@@ -96,4 +140,3 @@ const UserDashboard = () => {
 };
 
 export default UserDashboard;
-

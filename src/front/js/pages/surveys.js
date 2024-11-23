@@ -8,12 +8,16 @@ import moment from "moment";
 export const AvailableSurveys = () => {
     const { store, actions } = useContext(Context);
     const [searchTerm, setSearchTerm] = useState(""); // Estado para el término de búsqueda
-    const [filterStatus, setFilterStatus] = useState("all"); // Estado para el filtro de estado
+    const [filterStatus, setFilterStatus] = useState("active"); // Estado para el filtro de estado
+    const [showOnlyUserSurveys, setShowOnlyUserSurveys] = useState(false); // Estado para filtrar encuestas del usuario logueado
     const navigate = useNavigate();
 
     useEffect(() => {
         actions.getSurveys();
-    }, []);
+        if (store.user) {
+            actions.getUserSurveys(store.user.id); // Obtener encuestas del usuario logueado
+        }
+    }, [store.user]);
 
     useEffect(() => {
         // Actualizar el estado de las encuestas según las fechas
@@ -61,8 +65,13 @@ export const AvailableSurveys = () => {
         filteredSurveys = filteredSurveys.filter(survey => survey.status.toLowerCase() === filterStatus.toLowerCase());
     }
 
-    // Ordenar las encuestas por fecha de finalizacion en orden ascendente
-    filteredSurveys.sort((a, b) => new Date(a.end_date) - new Date(b.end_date));
+    // Filtrar las encuestas creadas por el usuario logueado si está activado
+    if (showOnlyUserSurveys && store.user) {
+        filteredSurveys = filteredSurveys.filter(survey => survey.creator_id === store.user.id);
+    }
+
+    // Ordenar las encuestas activas por fecha de inicio en orden ascendente
+    filteredSurveys.sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
 
     //Funcion que trunca el texto a 70 caracteres
     const truncateText = (text, maxLength) => {
@@ -101,6 +110,16 @@ export const AvailableSurveys = () => {
                         <li><button className="dropdown-item" type="button" onClick={() => setFilterStatus("draft")}>Pending</button></li>
                     </ul>
                 </div>
+                <div className="user-survey-toggle">
+                    <label>
+                        <input
+                            type="checkbox"
+                            checked={showOnlyUserSurveys}
+                            onChange={(e) => setShowOnlyUserSurveys(e.target.checked)}
+                        />
+                        Show only my surveys
+                    </label>
+                </div>
             </div>
             <div className="available-surveys-list">
                 {filteredSurveys.map((survey) => (
@@ -116,9 +135,8 @@ export const AvailableSurveys = () => {
                                 <div className="card-title-container">
                                     <h3 className="available-survey-card-title">{survey.title}</h3>
                                     <span className={`available-status-badge-title ${survey.status.toLowerCase()}`}>
-    {survey.status === "draft" ? "Pending" : survey.status}
-</span>
-
+                                        {survey.status === "draft" ? "Pending" : survey.status}
+                                    </span>
                                 </div>
                                 <p className="available-survey-card-description">
                                     {truncateText(survey.description, 90)}
@@ -127,10 +145,11 @@ export const AvailableSurveys = () => {
                                     <p className="available-survey-card-dates">
                                         Available until: {new Date(survey.end_date).toLocaleDateString()}
                                     </p>
-                                    <div className="available-survey-goal">
-                                        Responses goal: <br /><span>{survey.currentResponses} of {survey.totalResponses}</span>
-                                        <img src="https://avatar.iran.liara.run/public" alt="Creator" className="available-survey-creator-avatar" />
-                                    </div>
+                                    {survey.status === "draft" && (
+                                        <div className="available-survey-countdown">
+                                            <span className="countdown-timer">⏳ Time left: {moment(survey.start_date).fromNow()}</span>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>

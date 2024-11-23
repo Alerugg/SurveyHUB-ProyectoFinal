@@ -1,3 +1,4 @@
+// Register Component
 import React, { useState, useContext } from "react";
 import "../../styles/register.css";
 import { useNavigate, Link } from "react-router-dom";
@@ -9,13 +10,19 @@ export const Register = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [error, setError] = useState(null);
     const navigate = useNavigate();
     const { actions } = useContext(Context);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError(null);
+        setIsSubmitting(true);
+
         if (password !== confirmPassword) {
-            alert("Las contraseñas no coinciden.");
+            setError("Las contraseñas no coinciden.");
+            setIsSubmitting(false);
             return;
         }
 
@@ -48,22 +55,25 @@ export const Register = () => {
                 if (loginResponse.ok) {
                     const loginData = await loginResponse.json();
                     // Guardar token y actualizar el estado global del usuario
-                    localStorage.setItem("token", loginData.token);
+                    localStorage.setItem("jwt-token", loginData.token);
                     localStorage.setItem("user_id", loginData.user_id);
                     actions.login(loginData); // Esto actualiza el store con la información del usuario
                     alert("Registro e inicio de sesión exitosos. Bienvenid@!");
                     navigate("/user_logued"); // Redirige a la página de usuario logueado
                 } else {
-                    alert("Error al iniciar sesión automáticamente. Por favor, intente iniciar sesión manualmente.");
+                    const errorData = await loginResponse.json();
+                    setError(`Error al iniciar sesión automáticamente: ${errorData.error}`);
                     navigate("/login");
                 }
             } else {
                 const errorData = await registerResponse.json();
-                alert(`Error en el registro: ${errorData.error}`);
+                setError(`Error en el registro: ${errorData.error}`);
             }
         } catch (error) {
             console.error("Error en el registro:", error);
-            alert("Hubo un problema con el registro. Inténtelo de nuevo más tarde.");
+            setError("Hubo un problema con el registro. Inténtelo de nuevo más tarde.");
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -120,7 +130,10 @@ export const Register = () => {
                             required
                         />
                     </div>
-                    <button type="submit" className="btn btn-lg register-btn w-100">Create account</button>
+                    {error && <div className="error-message">{error}</div>}
+                    <button type="submit" className="btn btn-lg register-btn w-100" disabled={isSubmitting}>
+                        {isSubmitting ? "Creating account..." : "Create account"}
+                    </button>
                     <div className="login-register">
                         Do you already have an account? <Link to="/login" className="signup-link">Log in</Link>
                     </div>

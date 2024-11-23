@@ -1,3 +1,4 @@
+// CreateSurvey Component
 import React, { useState, useEffect, useContext } from "react";
 import "../../styles/createSurvey.css";
 import { useNavigate } from "react-router-dom";
@@ -23,6 +24,7 @@ export const CreateSurvey = () => {
         required: true,
         options: []
     });
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -69,6 +71,7 @@ export const CreateSurvey = () => {
     };
 
     const handleFinalSubmit = async () => {
+        setIsSubmitting(true);
         const myHeaders = new Headers();
         myHeaders.append("Content-Type", "application/json");
         myHeaders.append("Authorization", `Bearer ${localStorage.getItem("jwt-token")}`);
@@ -115,6 +118,8 @@ export const CreateSurvey = () => {
         } catch (error) {
             console.error("Error sending data:", error);
             alert("An error occurred while sending the data. Please check the server logs for more details.");
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -305,8 +310,9 @@ export const CreateSurvey = () => {
                                 type="button"
                                 className="btn btn-success w-100 create-survey-btn"
                                 onClick={handleFinalSubmit}
+                                disabled={isSubmitting}
                             >
-                                Submit Survey
+                                {isSubmitting ? "Submitting..." : "Submit Survey"}
                             </button>
                         </div>
                     </form>

@@ -1,5 +1,6 @@
 from flask import jsonify, url_for
-
+from datetime import datetime
+from api.models import Survey, db
 
 class APIException(Exception):
     status_code = 400
@@ -15,9 +16,6 @@ class APIException(Exception):
         rv = dict(self.payload or ())
         rv['message'] = self.message
         return rv
-    
-from datetime import datetime
-from api.models import Survey, db
 
 def update_all_surveys_status():
     """Actualiza el estado de todas las encuestas según las fechas de inicio y fin."""
@@ -32,13 +30,10 @@ def update_all_surveys_status():
             survey.status = 'draft'
     db.session.commit()
 
-
-
 def has_no_empty_params(rule):
     defaults = rule.defaults if rule.defaults is not None else ()
     arguments = rule.arguments if rule.arguments is not None else ()
     return len(defaults) >= len(arguments)
-
 
 def generate_sitemap(app):
     unique_endpoints = set()
@@ -65,9 +60,9 @@ def generate_sitemap(app):
                     }
             </pre>
 
-            <p><strong>CREATE SURVEY:</strong></p>
+            <p><strong>CREATE FULL SURVEY:</strong></p>
             <p><strong>method: POST</strong></p>
-            <p><strong>path request:</strong> /surveys</p>
+            <p><strong>path request:</strong> /surveys/full</p>
             <pre style="background-color: #f5f5f5; padding: 10px; border-radius: 5px; overflow: auto; color: black;">
                     {
                         "creator_id": 1,
@@ -77,31 +72,25 @@ def generate_sitemap(app):
                         "end_date": "2024-01-31",
                         "is_public": true,
                         "status": "draft",
-                        "type": "survey"
-                    }
-            </pre>
-
-            <p><strong>CREATE QUESTION:</strong></p>
-            <p><strong>method: POST</strong></p>
-            <p><strong>path request:</strong> /questions</p>
-            <pre style="background-color: #f5f5f5; padding: 10px; border-radius: 5px; overflow: auto; color: black;">
-                    {
-                        "survey_id": 1,
-                        "question_text": "How satisfied are you with our service?",
-                        "question_type": "multiple_choice",
-                        "order": 1,
-                        "required": true
-                    }
-            </pre>
-
-            <p><strong>CREATE OPTION:</strong></p>
-            <p><strong>method: POST</strong></p>
-            <p><strong>path request:</strong> /options</p>
-            <pre style="background-color: #f5f5f5; padding: 10px; border-radius: 5px; overflow: auto; color: black;">
-                    {
-                        "question_id": 1,
-                        "option_text": "Very Satisfied",
-                        "order": 1
+                        "type": "survey",
+                        "questions": [
+                            {
+                                "question_text": "How satisfied are you with our service?",
+                                "question_type": "multiple_choice",
+                                "order": 1,
+                                "required": true,
+                                "options": [
+                                    {
+                                        "option_text": "Very Satisfied",
+                                        "order": 1
+                                    },
+                                    {
+                                        "option_text": "Satisfied",
+                                        "order": 2
+                                    }
+                                ]
+                            }
+                        ]
                     }
             </pre>
         </div>
@@ -118,20 +107,6 @@ def generate_sitemap(app):
             <p><strong>path request:</strong> /surveys/&lt;int:id&gt;</p>
             <pre style="background-color: #f5f5f5; padding: 10px; border-radius: 5px; overflow: auto; color: black;">
                 /surveys/&lt;int:id&gt;
-            </pre>
-
-            <p><strong>DELETE QUESTION:</strong></p>
-            <p><strong>method: DELETE</strong></p>
-            <p><strong>path request:</strong> /questions/&lt;int:id&gt;</p>
-            <pre style="background-color: #f5f5f5; padding: 10px; border-radius: 5px; overflow: auto; color: black;">
-                /questions/&lt;int:id&gt;
-            </pre>
-
-            <p><strong>DELETE OPTION:</strong></p>
-            <p><strong>method: DELETE</strong></p>
-            <p><strong>path request:</strong> /options/&lt;int:id&gt;</p>
-            <pre style="background-color: #f5f5f5; padding: 10px; border-radius: 5px; overflow: auto; color: black;">
-                /options/&lt;int:id&gt;
             </pre>
         </div>
     """
