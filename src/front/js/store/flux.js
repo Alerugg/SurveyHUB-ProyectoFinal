@@ -58,25 +58,35 @@ const getState = ({ getStore, getActions, setStore }) => {
             },
 
             getUserVotedSurveys: async (userId) => {
+                const token = localStorage.getItem("jwt-token");
+                if (!token) {
+                    console.error("Token not found");
+                    return [];
+                }
                 try {
                     const response = await fetch(`${process.env.BACKEND_URL}/api/users/${userId}/votes/surveys`, {
                         method: "GET",
                         headers: {
                             "Content-Type": "application/json",
-                            "Authorization": `Bearer ${localStorage.getItem("jwt-token")}`
-                        }
+                            Authorization: `Bearer ${token}`,
+                        },
                     });
-
+            
                     if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
+                        console.error("Error fetching user voted surveys:", response.statusText);
+                        return [];
                     }
-
-                    const result = await response.json();
-                    setStore({ userVotedSurveys: result });
+            
+                    const data = await response.json();
+                    setStore({ userVotedSurveys: data });
+                    return data; // Devuelve los datos directamente para usar en el componente
                 } catch (error) {
-                    console.error("Error fetching user voted surveys: ", error);
+                    console.error("Error fetching user voted surveys:", error);
+                    return [];
                 }
             },
+            
+            
 
 
 
@@ -114,18 +124,29 @@ const getState = ({ getStore, getActions, setStore }) => {
                             "Authorization": `Bearer ${localStorage.getItem("jwt-token")}`
                         }
                     });
-
+            
+                    // Agrega un log para ver la respuesta recibida antes de procesarla
+                    console.log("Response received:", response);
+            
                     if (!response.ok) {
+                        console.error(`HTTP error! status: ${response.status}`);
                         throw new Error(`HTTP error! status: ${response.status}`);
                     }
-
+            
+                    // Verifica que la respuesta sea JSON antes de convertirla
+                    const contentType = response.headers.get("content-type");
+                    if (!contentType || !contentType.includes("application/json")) {
+                        throw new Error("Unexpected response format: expected JSON.");
+                    }
+            
                     const survey = await response.json();
                     setStore({ survey });
                 } catch (error) {
                     console.error("Error fetching survey by ID:", error);
+                    alert(`Error fetching survey details: ${error.message}`);
                 }
             },
-
+            
             login: async (data) => {
                 localStorage.setItem("jwt-token", data.token);
                 setStore({ isAuthenticated: true });

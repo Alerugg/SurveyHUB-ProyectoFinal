@@ -1,10 +1,9 @@
-// SurveyResults Component
 import React, { useEffect, useContext, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "../../styles/surveyResults.css";
 import { Context } from "../store/appContext";
 import PendingSurveyView from "../component/pendingSurveyView";
-import { ClosedSurveyView } from "../component/closedSurveyView";  // Importa el componente ClosedSurveyView
+import { ClosedSurveyView } from "../component/closedSurveyView";
 import moment from "moment";
 
 export const SurveyResults = () => {
@@ -14,31 +13,34 @@ export const SurveyResults = () => {
     const [isFormValid, setIsFormValid] = useState(false);
     const [responses, setResponses] = useState({});
     const [hasVoted, setHasVoted] = useState(false);
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [showModal, setShowModal] = useState(false); // Estado para controlar el modal
 
+    // Fetch survey data and check if the user has voted
     useEffect(() => {
-        // Obtener la encuesta si aún no se ha cargado
-        if (!store.survey || store.survey.id !== parseInt(id)) {
-            actions.getSurvey(id);
-        }
-    }, [id, store.survey, actions]);
+        const fetchSurveyData = async () => {
+            if (!store.survey || store.survey.id !== parseInt(id)) {
+                await actions.getSurvey(id);
+            }
 
-    useEffect(() => {
-        // Obtener el perfil del usuario y verificar si ha votado en la encuesta
-        if (store.isAuthenticated) {
-            actions.getUserProfile().then(() => {
-                if (store.user) {
-                    actions.getUserVotedSurveys(store.user.id).then(() => {
-                        const hasVotedInSurvey = store.userVotedSurveys.some(survey => survey.id === parseInt(id));
-                        setHasVoted(hasVotedInSurvey);
-                    });
+            if (store.isAuthenticated && store.user) {
+                const votedSurveys = await actions.getUserVotedSurveys(store.user.id);
+                if (votedSurveys) {
+                    const voted = votedSurveys.some((survey) => survey.id === parseInt(id));
+                    setHasVoted(voted);
+
+                    // Mostrar modal si ya votó
+                    if (voted) {
+                        setShowModal(true);
+                    }
                 }
-            });
-        }
-    }, [store.isAuthenticated, actions, id]);
+            }
+        };
 
+        fetchSurveyData();
+    }, [id, store.survey?.id, store.isAuthenticated, store.user?.id, actions]);
+
+    // Update survey status based on the current date
     useEffect(() => {
-        // Actualizar el estado de la encuesta según las fechas al abrir la encuesta
         if (store.survey) {
             const currentDate = moment();
             const startDate = moment(store.survey.start_date);
@@ -60,12 +62,12 @@ export const SurveyResults = () => {
         }
     }, [store.survey, actions, id]);
 
-    // Validar el formulario solo si la encuesta se ha cargado correctamente
+    // Validate form before submission
     useEffect(() => {
-        if (store.survey && store.survey.id) {
+        if (store.survey && store.survey.questions) {
             validateForm();
         }
-    }, [store.survey]);
+    }, [store.survey, responses]);
 
     const validateForm = () => {
         if (!store.survey || !store.survey.questions) {
@@ -75,11 +77,9 @@ export const SurveyResults = () => {
 
         const allQuestionsAnswered = store.survey.questions.every((question) => {
             if (question.question_type === "open_ended") {
-                const textarea = document.getElementById(`question-${question.id}`);
-                return textarea && textarea.value.trim() !== "";
+                return responses[question.id] && responses[question.id].trim() !== "";
             } else {
-                const options = document.getElementsByName(`question-${question.id}`);
-                return Array.from(options).some((option) => option.checked);
+                return responses[question.id] !== undefined;
             }
         });
 
@@ -95,30 +95,31 @@ export const SurveyResults = () => {
             ...prevResponses,
             [questionId]: value,
         }));
-        validateForm();
     };
 
     const handleSubmit = async () => {
-        setIsSubmitting(true);
+        if (!isFormValid) {
+            alert("Please ensure all questions are answered before submitting.");
+            return;
+        }
+
         try {
             const token = localStorage.getItem("jwt-token");
             if (!token) {
                 alert("Para votar debe hacer login");
                 return;
             }
-            
-            // Construye los datos de votos usando el estado responses
+
             const votesData = Object.entries(responses).map(([questionId, optionId]) => ({
                 option_id: parseInt(optionId),
             }));
 
-            // Envía cada voto al backend usando un bucle
             for (let vote of votesData) {
-                const response = await fetch(process.env.BACKEND_URL + "/api/votes", {
+                const response = await fetch(`${process.env.BACKEND_URL}/api/votes`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                        "Authorization": `Bearer ${token}`,
+                        Authorization: `Bearer ${token}`,
                     },
                     body: JSON.stringify(vote),
                 });
@@ -126,29 +127,29 @@ export const SurveyResults = () => {
                 if (!response.ok) {
                     const errorText = await response.text();
                     console.error("Response error:", errorText);
-                    throw new Error("Failed to submit vote for option " + vote.option_id);
+                    throw new Error(`Failed to submit vote for option ${vote.option_id}`);
                 }
             }
 
-            // Si todos los votos se envían exitosamente
             alert("Thank you for your responses!");
             navigate("/user_logued");
         } catch (error) {
             console.error("Error submitting responses:", error);
             alert("Failed to submit your responses. Please try again.");
-        } finally {
-            setIsSubmitting(false);
         }
     };
 
-    // Verificar si la encuesta está disponible
-    if (!store.survey || store.survey.id !== parseInt(id)) {
+    const closeModal = () => {
+        setShowModal(false);
+    };
+
+    // Render conditional UI
+    if (!store.survey || !store.survey.questions) {
         return <div className="loading">Loading survey details...</div>;
     }
 
     const survey = store.survey;
 
-    // Renderizado condicional basado en el estado de la encuesta
     if (survey.status === "active") {
         return (
             <div className="survey-results-container">
@@ -159,30 +160,28 @@ export const SurveyResults = () => {
                     <p className="survey-description">{survey.description}</p>
                 </div>
                 <div className="survey-questions">
-                    {survey.questions && survey.questions.map((question, index) => (
+                    {survey.questions.map((question, index) => (
                         <div key={question.id} className="question-container question-board">
                             <h4 className="question-text">{index + 1}. {question.question_text}</h4>
                             <div className="options-container">
                                 {question.question_type === "open_ended" ? (
                                     <textarea
-                                        id={`question-${question.id}`}
                                         className="open-ended-response"
                                         placeholder="Type your answer here..."
                                         onChange={(e) => handleInputChange(question.id, e.target.value)}
                                         disabled={!store.isAuthenticated || hasVoted}
                                     ></textarea>
                                 ) : (
-                                    question.options && question.options.map((option) => (
+                                    question.options.map((option) => (
                                         <div key={option.id} className="option">
                                             <input
                                                 type={question.question_type === "multiple_choice" ? "checkbox" : "radio"}
-                                                id={`option-${option.id}`}
                                                 name={`question-${question.id}`}
                                                 value={option.id}
                                                 onChange={() => handleInputChange(question.id, option.id)}
                                                 disabled={!store.isAuthenticated || hasVoted}
                                             />
-                                            <label htmlFor={`option-${option.id}`}>{option.option_text}</label>
+                                            <label>{option.option_text}</label>
                                         </div>
                                     ))
                                 )}
@@ -191,23 +190,23 @@ export const SurveyResults = () => {
                     ))}
                 </div>
                 <button
-                    className="btn submit-btn"
+                    className={`btn submit-btn ${isFormValid && store.isAuthenticated && !hasVoted ? 'enabled' : ''}`}
                     onClick={handleSubmit}
-                    disabled={!isFormValid || !store.isAuthenticated || hasVoted || isSubmitting}
-                    style={{ backgroundColor: isFormValid && store.isAuthenticated && !hasVoted && !isSubmitting ? '#DB6FEB' : '#e0e0e0', cursor: isFormValid && store.isAuthenticated && !hasVoted && !isSubmitting ? 'pointer' : 'not-allowed' }}
-                >
-                    {isSubmitting ? "Submitting..." : hasVoted ? "Ya has votado en esta encuesta" : "Submit my responses"}
+                    disabled={!isFormValid || !store.isAuthenticated || hasVoted}>
+                    {hasVoted ? "Ya has votado en esta encuesta" : "Submit my responses"}
                 </button>
-                {!store.isAuthenticated && (
-                    <div className="alert-message">Para votar debe hacer login.</div>
-                )}
-                {hasVoted && (
-                    <div className="alert-message">Ya has votado en esta encuesta.</div>
+
+                {showModal && (
+                    <div className="modal">
+                        <div className="modal-content">
+                            <h2>¡Ya has votado en esta encuesta!</h2>
+                            <button onClick={closeModal}>Cerrar</button>
+                        </div>
+                    </div>
                 )}
             </div>
         );
     } else if (survey.status === "closed") {
-        // Renderiza el componente ClosedSurveyView con la encuesta cerrada
         return <ClosedSurveyView survey={survey} />;
     } else if (survey.status === "draft") {
         return <PendingSurveyView survey={survey} />;
