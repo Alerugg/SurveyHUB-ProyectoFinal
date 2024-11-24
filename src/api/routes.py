@@ -5,6 +5,8 @@ import jwt
 import datetime
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_cors import CORS
+import openai
+import os
 
 # Inicializa la aplicación de Flask
 app = Flask(__name__)
@@ -45,6 +47,7 @@ def get_user_voted_surveys(user_id):
     ]
 
     return jsonify(surveys_list), 200
+    
 
 
 
@@ -669,7 +672,58 @@ def get_current_user():
 
     return jsonify(user.serialize()), 200  # Devuelve la información del usuario serializada
 
+openai.api_key = os.getenv("OPENAI_API_KEY")
+
+@api.route('/api/suggest', methods=['POST'])
+def suggest_questions():
+    try:
+        # Obtener el título de la encuesta del cliente
+        data = request.json
+        survey_title = data.get("title")
+
+        if not survey_title:
+            return jsonify({"error": "Title is required"}), 400
+
+        # Generar una sugerencia usando la API de OpenAI
+        prompt = f"Dado el título de la encuesta '{survey_title}', sugiere una descripción, 3 preguntas y opciones para cada pregunta."
+
+        response = openai.Completion.create(
+            engine="text-davinci-003",
+            prompt=prompt,
+            max_tokens=300,
+            n=1,
+            stop=None,
+            temperature=0.7
+        )
+
+        suggestion = response.choices[0].text.strip()
+
+        return jsonify({"suggestion": suggestion}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
     
+
+@api.route('/users/<int:id>/update-password', methods=['PUT'])
+@jwt_required()
+def update_user_password(id):
+    user = User.query.get_or_404(id)
+    data = request.get_json()
+
+    # Verificar que la nueva contraseña esté en los datos recibidos
+    if 'new_password' not in data:
+        return jsonify({"error": "No new password provided"}), 400
+
+    new_password = data['new_password']
+
+    # Actualizar la contraseña del usuario
+    user.password_hash = generate_password_hash(new_password, method='pbkdf2:sha256')
+    db.session.commit()
+
+    return jsonify({
+        "message": "Password updated successfully"
+    }), 200
+
     
 
 @api.route('/surveys/<int:survey_id>/votes', methods=['GET'])
@@ -738,7 +792,7 @@ def get_survey_votes(survey_id):
     }), 200
 
 
-
+    
 
 
 

@@ -1,8 +1,11 @@
+// UserDashboard.js
 import React, { useContext, useEffect, useRef } from 'react';
 import "../../styles/dashboard.css";
 import { Context } from '../store/appContext';
 import { Link, useNavigate } from 'react-router-dom';
 import moment from "moment";
+import { IoMdEye } from "react-icons/io";
+import { FaCirclePlus } from "react-icons/fa6";
 
 const UserDashboard = () => {
     const { store, actions } = useContext(Context);
@@ -58,6 +61,29 @@ const UserDashboard = () => {
         }
     }, [store.surveys, actions]);
 
+    const handleSurveyClick = (id) => {
+        navigate(`/surveys/${id}`);
+    };
+
+    const getLimitedSurveys = (surveys, limit) => {
+        return surveys.slice(0, limit);
+    };
+
+    const truncateText = (text, maxLength) => {
+        if (text.length > maxLength) {
+            return text.slice(0, maxLength) + "...";
+        }
+        return text;
+    };
+
+    const activeSurveys = store.surveys
+        .filter(survey => survey.status === 'active' && store.user && survey.creator_id === store.user.id);
+
+    const pastSurveys = store.surveys
+        .filter(survey => survey.status === 'closed' && store.user && survey.creator_id === store.user.id);
+
+    const recentVotedSurveys = store.userVotedSurveys || [];
+
     if (!store.user || !store.surveys || store.surveys.length === 0) {
         return <div className="loading">Loading your dashboard...</div>;
     }
@@ -69,9 +95,10 @@ const UserDashboard = () => {
                     <div className="user-info">
                         <img className="user-avatar" src="https://via.placeholder.com/150" alt="User Avatar" />
                         <div className="user-details">
-                            <h1>Welcome {store.user ? store.user.full_name : "Guest"}</h1>
+                            <h1>Welcome {store.user?.full_name || "Guest"}</h1>
                             <p className="user-role">Survey expert</p>
-                            <a href="/profile" className="edit-profile">Edit profile</a>
+                            <Link to="/profile" className="edit-profile">Edit Profile</Link>
+                            <Link to="/create_survey" className="btn btn-create-profile">Create Survey</Link>
                         </div>
                     </div>
                     <div className="annual-interactions">
@@ -82,63 +109,128 @@ const UserDashboard = () => {
                 </div>
                 <div className="user-stats">
                     <div className="stat-item">
-                        <p className="stat-title">Survey views</p>
+                        <p className="stat-title"><IoMdEye /> Survey views</p>
                         <h2 className="stat-value">50.8K <span className="stat-change positive">28.4% &#x2191;</span></h2>
                     </div>
                     <div className="stat-item">
-                        <p className="stat-title">Monthly users</p>
-                        <h2 className="stat-value">23.6K <span className="stat-change negative">12.6% &#x2193;</span></h2>
-                    </div>
-                    <div className="stat-item">
-                        <p className="stat-title">Surveys uploaded</p>
-                        <h2 className="stat-value">756 <span className="stat-change positive">3.1% &#x2191;</span></h2>
-                    </div>
-                    <div className="stat-item">
-                        <p className="stat-title">Subscriptions</p>
-                        <h2 className="stat-value">2.3K <span className="stat-change positive">11.3% &#x2191;</span></h2>
+                        <p className="stat-title"><FaCirclePlus /> Surveys uploaded</p>
+                        <h2 className="stat-value">75.6K <span className="stat-change positive">3.1% &#x2191;</span></h2>
                     </div>
                 </div>
             </div>
+
+            {/* Sección de encuestas activas */}
             <div className="active-surveys">
-                <h2>Your active surveys</h2>
+                <div className="dash-surv-header">
+                    <h2>Your active surveys</h2>
+                    {activeSurveys.length > 3 && (
+                        <button
+                            className="dash-link"
+                            onClick={() => navigate('/surveys')}
+                        >
+                            Explore more
+                        </button>
+                    )}
+                </div>
+
                 <div className="survey-list">
-                    {store.surveys && store.user && store.surveys.filter(survey => survey.creator_id === store.user.id).map((survey, index) => (
-                        <div key={index} className="survey-card">
-                            <img src="https://via.placeholder.com/300" alt="Survey" />
-                            <h3>{survey.title}</h3>
-                            <p>{survey.description}</p>
-                            <div className="d-flex justify-content-end mt-4">
-                                <Link to={`/surveys/${survey.id}`} className="view-details-btn btn-lg">View details</Link>
+                    {getLimitedSurveys(activeSurveys, 3).map((survey, index) => (
+                        <div key={index} className="survey-card" onClick={() => handleSurveyClick(survey.id)}>
+                            <img src={`https://loremflickr.com/600/400?random=${survey.id}`} alt="Survey" className='survey-dash-image' />
+                            <div className={`available-survey-status-header ${survey.is_public ? 'public' : 'private'}`}>
+                                {survey.is_public ? 'Public' : 'Private'}
+                            </div>
+                            <div className="card-dash-body">
+                                <h3>{truncateText(survey.title, 50)}</h3>
+                                <p className='dash-body-text'>{truncateText(survey.description, 110)}</p>
+                                <div className="available-dash-card-footer">
+                                    <p className="available-dash-card-dates">
+                                        Available until: {new Date(survey.end_date).toLocaleDateString()}
+                                    </p>
+                                    <div className="available-survey-goal">
+                                        Responses goal: <br /><span>{survey.currentResponses} of {survey.totalResponses}</span>
+                                        <img src="https://avatar.iran.liara.run/public" alt="Creator" className="available-survey-creator-avatar" />
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     ))}
                 </div>
             </div>
+
+            {/* Sección de encuestas pasadas */}
             <div className="past-surveys">
-                <h2>Explore your past surveys <span className="explore-link" onClick={() => navigate(`/surveys/created/${store.user?.id}`)}>Explore more</span></h2>
+                <div className="dash-surv-header">
+                    <h2>Explore your past surveys</h2>
+                    {pastSurveys.length > 3 && (
+                        <button
+                            className="dash-link"
+                            onClick={() => navigate('/surveys')}
+                        >
+                            Explore more
+                        </button>
+                    )}
+                </div>
+
                 <div className="survey-list">
-                    {store.surveys && store.user && store.surveys.filter(survey => survey.status === 'closed' && survey.creator_id === store.user.id).map((survey, index) => (
-                        <div key={index} className="survey-card">
-                            <img src="https://via.placeholder.com/300" alt="Survey" />
-                            <h3>{survey.title}</h3>
-                            <p>{survey.description}</p>
-                            <div className="d-flex justify-content-end mt-4">
-                                <Link to={`/surveys/${survey.id}`} className="view-details-btn btn-lg">View details</Link>
+                    {getLimitedSurveys(pastSurveys, 3).map((survey, index) => (
+                        <div key={index} className="survey-card" onClick={() => handleSurveyClick(survey.id)}>
+                            <img src={`https://loremflickr.com/600/400?random=${survey.id}`} alt="Survey" className='survey-dash-image' />
+                            <div className={`available-survey-status-header ${survey.is_public ? 'public' : 'private'}`}>
+                                {survey.is_public ? 'Public' : 'Private'}
+                            </div>
+                            <div className="card-dash-body">
+                                <h3>{truncateText(survey.title, 50)}</h3>
+                                <p className='dash-body-text'>{truncateText(survey.description, 110)}</p>
+                                <div className="available-dash-card-footer">
+                                    <p className="available-dash-card-dates">
+                                        Closed on: {new Date(survey.end_date).toLocaleDateString()}
+                                    </p>
+                                    <div className="available-survey-goal">
+                                        Responses goal: <br /><span>{survey.currentResponses} of {survey.totalResponses}</span>
+                                        <img src="https://avatar.iran.liara.run/public" alt="Creator" className="available-survey-creator-avatar" />
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     ))}
                 </div>
             </div>
+
+            {/* Sección de encuestas votadas recientemente */}
             <div className="recent-voting">
-                <h2>What have you been voting on recently? <span className="explore-link">Explore more</span></h2>
-                <div className="voting-list">
-                    {store.user && store.userVotedSurveys && store.userVotedSurveys.map((survey, index) => (
-                        <div key={index} className="voting-card">
-                            <img src="https://via.placeholder.com/300" alt="Campaign" />
-                            <h3>{survey.title}</h3>
-                            <p>{survey.description}</p>
-                            <span className="powered-by">Powered by {survey.creator_name || 'Anonymous'}</span>
-                            <Link to={`/surveys/${survey.id}`} className="explore-results">Explore results</Link>
+                <div className="dash-surv-header">
+                    <h2>What have you been voting on recently?</h2>
+                    {recentVotedSurveys.length > 3 && (
+                        <button
+                            className="dash-link"
+                            onClick={() => navigate('/surveys')}
+                        >
+                            Explore more
+                        </button>
+                    )}
+                </div>
+
+                <div className="survey-list">
+                    {getLimitedSurveys(recentVotedSurveys, 3).map((survey, index) => (
+                        <div key={index} className="survey-card" onClick={() => handleSurveyClick(survey.id)}>
+                            <img src={`https://loremflickr.com/600/400?random=${survey.id}`} alt="Survey" className='survey-dash-image' />
+                            <div className={`available-survey-status-header ${survey.is_public ? 'public' : 'private'}`}>
+                                {survey.is_public ? 'Public' : 'Private'}
+                            </div>
+                            <div className="card-dash-body">
+                                <h3>{truncateText(survey.title, 50)}</h3>
+                                <p className='dash-body-text'>{truncateText(survey.description, 110)}</p>
+                                <div className="available-dash-card-footer">
+                                    <p className="available-dash-card-dates">
+                                        Last voted on: {new Date(survey.end_date).toLocaleDateString()}
+                                    </p>
+                                    <div className="available-survey-goal">
+                                        Responses goal: <br /><span>{survey.currentResponses} of {survey.totalResponses}</span>
+                                        <img src="https://avatar.iran.liara.run/public" alt="Creator" className="available-survey-creator-avatar" />
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     ))}
                 </div>

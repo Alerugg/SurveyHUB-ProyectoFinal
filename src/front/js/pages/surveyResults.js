@@ -163,30 +163,6 @@ export const SurveyResults = () => {
         setIsEditing(!isEditing);
     };
 
-    const handleDeleteSurvey = async () => {
-        try {
-            const token = localStorage.getItem("jwt-token");
-            const response = await fetch(`${process.env.BACKEND_URL}/api/surveys/${id}`, {
-                method: "DELETE",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-
-            if (response.ok) {
-                alert("Survey deleted successfully!");
-                navigate("/user_logued"); // Redirigir después de eliminar
-            } else {
-                const errorData = await response.json();
-                alert(`Error deleting survey: ${errorData.error}`);
-            }
-        } catch (error) {
-            console.error("Error deleting survey:", error);
-            alert("Failed to delete the survey.");
-        }
-    };
-
     const handleSurveyChange = (field, value) => {
         setEditableSurvey({
             ...editableSurvey,
@@ -244,7 +220,18 @@ export const SurveyResults = () => {
 
     // Renderización condicional basado en el estado de la encuesta
     if (editableSurvey.status === "draft") {
-        return <PendingSurveyView survey={editableSurvey} />;
+        return (
+            <PendingSurveyView 
+                survey={editableSurvey} 
+                isCreator={isCreator} 
+                isEditing={isEditing} 
+                handleToggleEdit={handleToggleEdit}
+                handleSaveChanges={handleSaveChanges}
+                handleSurveyChange={handleSurveyChange}
+                handleQuestionChange={handleQuestionChange}
+                handleOptionChange={handleOptionChange}
+            />
+        );
     } else if (editableSurvey.status === "closed") {
         return <ClosedSurveyView survey={editableSurvey} />;
     }
@@ -255,88 +242,33 @@ export const SurveyResults = () => {
                 <button className="back-button" onClick={handleBack}>
                     ← Back to explore surveys
                 </button>
-                {isEditing ? (
-                    <input
-                        type="text"
-                        className="survey-title-input"
-                        value={editableSurvey.title}
-                        onChange={(e) => handleSurveyChange("title", e.target.value)}
-                    />
-                ) : (
-                    <h2 className="survey-title">{editableSurvey.title}</h2>
-                )}
-                {isEditing ? (
-                    <textarea
-                        className="survey-description-input"
-                        value={editableSurvey.description}
-                        onChange={(e) => handleSurveyChange("description", e.target.value)}
-                    ></textarea>
-                ) : (
-                    <p className="survey-description">{editableSurvey.description}</p>
-                )}
-                {isCreator && (
-                    <>
-                        <button className="edit-btn" onClick={handleToggleEdit}>
-                            {isEditing ? "Cancel" : "Edit Survey"}
-                        </button>
-                        <button className="delete-btn" onClick={handleDeleteSurvey}>
-                            Delete Survey
-                        </button>
-                        {isEditing && (
-                            <button className="save-btn" onClick={handleSaveChanges}>
-                                Save Changes
-                            </button>
-                        )}
-                    </>
-                )}
+                <h2 className="survey-title">{editableSurvey.title}</h2>
+                <p className="survey-description">{editableSurvey.description}</p>
             </div>
 
             <div className="survey-questions">
                 {editableSurvey.questions.map((question, questionIndex) => (
                     <div key={question.id} className="question-container">
-                        {isEditing ? (
-                            <input
-                                type="text"
-                                className="question-input"
-                                value={question.question_text}
-                                onChange={(e) =>
-                                    handleQuestionChange(questionIndex, "question_text", e.target.value)
-                                }
-                            />
-                        ) : (
-                            <h4 className="question-text">
-                                {questionIndex + 1}. {question.question_text}
-                            </h4>
-                        )}
+                        <h4 className="question-text">
+                            {questionIndex + 1}. {question.question_text}
+                        </h4>
                         <div className="options-container">
                             {question.options.map((option, optionIndex) => (
                                 <div key={option.id} className="option">
-                                    {isEditing ? (
-                                        <input
-                                            type="text"
-                                            value={option.option_text}
-                                            onChange={(e) =>
-                                                handleOptionChange(questionIndex, optionIndex, e.target.value)
-                                            }
-                                        />
-                                    ) : (
-                                        <>
-                                            <input
-                                                type={
-                                                    question.question_type === "multiple_choice"
-                                                        ? "checkbox"
-                                                        : "radio"
-                                                }
-                                                name={`question-${question.id}`}
-                                                value={option.id}
-                                                onChange={() =>
-                                                    handleInputChange(question.id, option.id)
-                                                }
-                                                disabled={!store.isAuthenticated || hasVoted}
-                                            />
-                                            <label>{option.option_text}</label>
-                                        </>
-                                    )}
+                                    <input
+                                        type={
+                                            question.question_type === "multiple_choice"
+                                                ? "checkbox"
+                                                : "radio"
+                                        }
+                                        name={`question-${question.id}`}
+                                        value={option.id}
+                                        onChange={() =>
+                                            handleInputChange(question.id, option.id)
+                                        }
+                                        disabled={!store.isAuthenticated || hasVoted}
+                                    />
+                                    <label>{option.option_text}</label>
                                 </div>
                             ))}
                         </div>

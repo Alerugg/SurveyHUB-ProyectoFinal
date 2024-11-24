@@ -57,7 +57,7 @@ export const Navbar = () => {
             {store.isAuthenticated && (
               <>
                 <li className="nav-item me-3">
-                  <Link className="nav-link" to="/dashboard">
+                  <Link className="nav-link" to="/user_logued">
                     <i className="fas fa-poll fa-lg"></i> My Surveys
                   </Link>
                 </li>

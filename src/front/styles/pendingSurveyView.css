@@ -68,3 +68,15 @@
   font-size: 1.5em;
   margin-top: 50px;
 }
+
+
+.options-container {
+  list-style-type: none; /* Evitamos viñetas adicionales */
+  padding-left: 20px; /* Ajuste del padding */
+  margin-top: 10px;
+}
+
+.option {
+  margin-bottom: 10px; /* Aumenta el espacio entre cada opción */
+  line-height: 1.6; /* Incrementa el interlineado */
+}
