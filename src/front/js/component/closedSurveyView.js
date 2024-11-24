@@ -9,10 +9,10 @@ export const ClosedSurveyView = () => {
     const { store, actions } = useContext(Context);
     const navigate = useNavigate();
     const [surveyResults, setSurveyResults] = useState(null);
-    const [surveyDetails, setSurveyDetails] = useState(null); // Detalles de la encuesta
-    const [participantsByQuestion, setParticipantsByQuestion] = useState({}); // Número de votos por pregunta
-    const [mostVotedData, setMostVotedData] = useState({}); // Datos de la respuesta más votada
-    const [highestVotedQuestion, setHighestVotedQuestion] = useState(null); // Pregunta con más votos
+    const [surveyDetails, setSurveyDetails] = useState(null);
+    const [participantsByQuestion, setParticipantsByQuestion] = useState({});
+    const [mostVotedData, setMostVotedData] = useState({});
+    const [highestVotedQuestion, setHighestVotedQuestion] = useState(null);
 
     useEffect(() => {
         if (store.isAuthenticated) {
@@ -59,7 +59,6 @@ export const ClosedSurveyView = () => {
                 const data = await response.json();
                 setSurveyResults(data);
 
-                // Calcular el número de participantes y la respuesta más votada por pregunta
                 const participants = {};
                 const mostVoted = {};
                 let highestVotes = 0;
@@ -84,7 +83,6 @@ export const ClosedSurveyView = () => {
                         totalVotes,
                     };
 
-                    // Identificar la pregunta con más votos
                     if (totalVotes > highestVotes) {
                         highestVotes = totalVotes;
                         highestQuestion = {
@@ -162,8 +160,7 @@ export const ClosedSurveyView = () => {
                     <button className="back-button" onClick={() => navigate("/user_logued")}>← Back to explore surveys</button>
                     <h2 className="survey-title">{surveyDetails.title}</h2>
                 </div>
-                
-                {/* Sección con el resumen de la encuesta después del título */}
+
                 <div className="survey-summary">
                     <p>
                         La encuesta <strong>{surveyDetails.title}</strong>, cuyo objetivo es <strong>{surveyDetails.description}</strong>, 
@@ -171,7 +168,6 @@ export const ClosedSurveyView = () => {
                     </p>
                 </div>
 
-                {/* Gráficas */}
                 <div className="dashboard-container">
                     {barOptions.map((options, index) => (
                         <div key={index} className="chart-card">
@@ -180,7 +176,6 @@ export const ClosedSurveyView = () => {
                     ))}
                 </div>
 
-                {/* Información detallada de los resultados */}
                 <div className="survey-info">
                     {surveyResults.questions.map((question) => (
                         <p key={question.question_id}>
@@ -204,9 +199,8 @@ export const ClosedSurveyView = () => {
                         </p>
                         <ReactECharts option={pieOption} />
                     </div>
-                )} 
+                )}
 
-                {/* La encuesta estuvo abierta */}
                 <p>
                     La encuesta estuvo abierta desde el día <strong>{surveyDetails.start_date}</strong> hasta el día 
                     <strong>{surveyDetails.end_date}</strong>.

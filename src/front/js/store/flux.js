@@ -61,6 +61,7 @@ const getState = ({ getStore, getActions, setStore }) => {
                 const token = localStorage.getItem("jwt-token");
                 if (!token) {
                     console.error("Token not found");
+                    setStore({ userVotedSurveys: [] }); // Asegúrate de limpiar el estado si no hay token
                     return [];
                 }
                 try {
@@ -74,17 +75,20 @@ const getState = ({ getStore, getActions, setStore }) => {
             
                     if (!response.ok) {
                         console.error("Error fetching user voted surveys:", response.statusText);
+                        setStore({ userVotedSurveys: [] });
                         return [];
                     }
             
                     const data = await response.json();
                     setStore({ userVotedSurveys: data });
-                    return data; // Devuelve los datos directamente para usar en el componente
+                    return data; // Devuelve los datos para usarlos en los componentes
                 } catch (error) {
                     console.error("Error fetching user voted surveys:", error);
+                    setStore({ userVotedSurveys: [] });
                     return [];
                 }
             },
+            
             
             
 

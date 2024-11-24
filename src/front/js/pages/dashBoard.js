@@ -11,14 +11,18 @@ const UserDashboard = () => {
 
     useEffect(() => {
         // Solo obtener encuestas si no se han obtenido previamente
-        if (!hasFetchedSurveys.current) {
-            actions.getSurveys();      
-            actions.getUserProfile();  // Asegurarse de cargar el perfil del usuario
-            if (store.user) {
-                actions.getUserVotedSurveys(store.user.id);  // Cargar las encuestas votadas por el usuario
+        const fetchData = async () => {
+            if (!hasFetchedSurveys.current) {
+                await actions.getSurveys();
+                await actions.getUserProfile(); // Asegurarse de cargar el perfil del usuario
+                if (store.user) {
+                    await actions.getUserVotedSurveys(store.user.id); // Cargar las encuestas votadas por el usuario
+                }
+                hasFetchedSurveys.current = true; // Marcar que las encuestas ya se han obtenido
             }
-            hasFetchedSurveys.current = true; // Marcar que las encuestas ya se han obtenido
-        }
+        };
+
+        fetchData();
     }, [actions, store.user]);
 
     useEffect(() => {
@@ -53,6 +57,10 @@ const UserDashboard = () => {
             }
         }
     }, [store.surveys, actions]);
+
+    if (!store.user || !store.surveys || store.surveys.length === 0) {
+        return <div className="loading">Loading your dashboard...</div>;
+    }
 
     return (
         <div className="dashboard-container">
