@@ -17,18 +17,21 @@ export const SurveyResults = () => {
 
     // Fetch survey data
     useEffect(() => {
-        const fetchSurveyData = async () => {
-            if (!store.survey || store.survey.id !== parseInt(id)) {
-                await actions.getSurvey(id);
+        const fetchData = async () => {
+            if (!store.user) {
+                await actions.getUserProfile(); // Cargar el perfil del usuario
             }
-
-            if (store.survey) {
-                setEditableSurvey({ ...store.survey }); // Cargar la encuesta en editableSurvey
+            if (!store.survey || store.survey.id !== parseInt(id)) {
+                await actions.getSurvey(id); // Cargar la encuesta
+            }
+            if (store.survey && store.user) {
+                setEditableSurvey({ ...store.survey }); // Configurar la encuesta editable
             }
         };
-
-        fetchSurveyData();
-    }, [id, store.survey?.id, actions]);
+    
+        fetchData();
+    }, [store.user, store.survey, id, actions]);
+    
 
     // Check if the user has voted
     useEffect(() => {
@@ -159,6 +162,31 @@ export const SurveyResults = () => {
         setIsEditing(!isEditing);
     };
 
+    const handleDeleteSurvey = async () => {
+        try {
+            const token = localStorage.getItem("jwt-token");
+            const response = await fetch(`${process.env.BACKEND_URL}/api/surveys/${id}`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+    
+            if (response.ok) {
+                alert("Survey deleted successfully!");
+                navigate("/user_logued"); // Redirigir después de eliminar
+            } else {
+                const errorData = await response.json();
+                alert(`Error deleting survey: ${errorData.error}`);
+            }
+        } catch (error) {
+            console.error("Error deleting survey:", error);
+            alert("Failed to delete the survey.");
+        }
+    };
+    
+
     const handleSurveyChange = (field, value) => {
         setEditableSurvey({
             ...editableSurvey,
@@ -199,7 +227,7 @@ export const SurveyResults = () => {
             if (response.ok) {
                 alert("Survey updated successfully!");
                 setIsEditing(false);
-                await actions.getSurvey(id); // Actualizar los datos de la encuesta
+                await actions.getSurvey(id);
             } else {
                 alert("Failed to save changes.");
             }
@@ -212,7 +240,7 @@ export const SurveyResults = () => {
         return <div className="loading">Loading survey details...</div>;
     }
 
-    const isCreator = store.user?.id === editableSurvey.creator_id; // Verificar si el usuario es el creador
+    const isCreator = store.user?.id === editableSurvey.creator_id;
 
     return (
         <div className="survey-results-container">
@@ -243,6 +271,9 @@ export const SurveyResults = () => {
                     <>
                         <button className="edit-btn" onClick={handleToggleEdit}>
                             {isEditing ? "Cancel" : "Edit Survey"}
+                        </button>
+                        <button className="delete-btn" onClick={handleDeleteSurvey}>
+                            Delete Survey
                         </button>
                         {isEditing && (
                             <button className="save-btn" onClick={handleSaveChanges}>

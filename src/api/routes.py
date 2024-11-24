@@ -421,11 +421,40 @@ def update_survey_status(id):
 
 @api.route('/surveys/<int:id>', methods=['DELETE'])
 @jwt_required()
-def delete_survey(id):
-    survey = Survey.query.get_or_404(id)
-    db.session.delete(survey)
-    db.session.commit()
-    return jsonify({'message': 'Survey deleted'}), 200
+def delete_full_survey(id):
+    try:
+        # Obtener la encuesta existente
+        survey = Survey.query.get_or_404(id)
+
+        # Verificar si el usuario autenticado es el creador
+        current_user_id = get_jwt_identity()
+        if survey.creator_id != current_user_id:
+            return jsonify({"error": "Unauthorized access"}), 403
+
+        # Eliminar los votos asociados a las opciones de cada pregunta
+        for question in survey.questions:
+            for option in question.options:
+                Vote.query.filter_by(option_id=option.id).delete()
+
+        # Eliminar las opciones de cada pregunta
+        for question in survey.questions:
+            Option.query.filter_by(question_id=question.id).delete()
+
+        # Eliminar las preguntas asociadas a la encuesta
+        Question.query.filter_by(survey_id=survey.id).delete()
+
+        # Finalmente, eliminar la encuesta
+        db.session.delete(survey)
+
+        # Confirmar los cambios
+        db.session.commit()
+
+        return jsonify({"message": "Survey and all associated data deleted successfully"}), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e), "message": "There was an error processing your request."}), 500
+
 
 ## QUESTIONS ENDPOINTS
 
