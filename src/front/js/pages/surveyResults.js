@@ -212,6 +212,30 @@ export const SurveyResults = () => {
         }
     };
 
+    const handleDeleteSurvey = async () => {
+        try {
+            const token = localStorage.getItem("jwt-token");
+            const response = await fetch(`${process.env.BACKEND_URL}/api/surveys/${id}`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            if (response.ok) {
+                alert("Survey deleted successfully!");
+                navigate("/user_logued"); // Redirigir después de eliminar
+            } else {
+                const errorData = await response.json();
+                alert(`Error deleting survey: ${errorData.error}`);
+            }
+        } catch (error) {
+            console.error("Error deleting survey:", error);
+            alert("Failed to delete the survey.");
+        }
+    };
+
     if (!editableSurvey) {
         return <div className="loading">Loading survey details...</div>;
     }
@@ -285,6 +309,12 @@ export const SurveyResults = () => {
                     disabled={!isFormValid || !store.isAuthenticated || hasVoted}
                 >
                     {hasVoted ? "Ya has votado en esta encuesta" : "Submit my responses"}
+                </button>
+            )}
+
+            {isCreator && (
+                <button className="delete-btn" onClick={handleDeleteSurvey}>
+                    Delete Survey
                 </button>
             )}
 

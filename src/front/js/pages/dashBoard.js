@@ -1,4 +1,3 @@
-// UserDashboard.js
 import React, { useContext, useEffect, useRef } from 'react';
 import "../../styles/dashboard.css";
 import { Context } from '../store/appContext';
@@ -16,17 +15,23 @@ const UserDashboard = () => {
         // Solo obtener encuestas si no se han obtenido previamente
         const fetchData = async () => {
             if (!hasFetchedSurveys.current) {
-                await actions.getSurveys();
-                await actions.getUserProfile(); // Asegurarse de cargar el perfil del usuario
-                if (store.user) {
-                    await actions.getUserVotedSurveys(store.user.id); // Cargar las encuestas votadas por el usuario
+                try {
+                    await actions.getSurveys();
+                    await actions.getUserProfile(); // Asegurarse de cargar el perfil del usuario
+                    if (store.user) {
+                        await actions.getUserVotedSurveys(store.user.id); // Cargar las encuestas votadas por el usuario
+                    }
+                    hasFetchedSurveys.current = true; // Marcar que las encuestas ya se han obtenido
+                } catch (error) {
+                    console.error("Error fetching surveys or user profile", error);
                 }
-                hasFetchedSurveys.current = true; // Marcar que las encuestas ya se han obtenido
             }
         };
 
-        fetchData();
-    }, [actions, store.user]);
+        if (store.isAuthenticated) {
+            fetchData();
+        }
+    }, [actions, store.isAuthenticated, store.user]);
 
     useEffect(() => {
         // Actualizar el estado de las encuestas según las fechas
@@ -76,13 +81,17 @@ const UserDashboard = () => {
         return text;
     };
 
-    const activeSurveys = store.surveys
-        .filter(survey => survey.status === 'active' && store.user && survey.creator_id === store.user.id);
+    const activeSurveys = store.surveys && store.user ?
+        store.surveys.filter(survey => survey.status === 'active' && survey.creator_id === store.user.id) : [];
 
-    const pastSurveys = store.surveys
-        .filter(survey => survey.status === 'closed' && store.user && survey.creator_id === store.user.id);
+    const pastSurveys = store.surveys && store.user ?
+        store.surveys.filter(survey => survey.status === 'closed' && survey.creator_id === store.user.id) : [];
 
     const recentVotedSurveys = store.userVotedSurveys || [];
+
+    if (!store.isAuthenticated) {
+        return <div className="loading">Please log in to view your dashboard...</div>;
+    }
 
     if (!store.user || !store.surveys || store.surveys.length === 0) {
         return <div className="loading">Loading your dashboard...</div>;
@@ -103,18 +112,22 @@ const UserDashboard = () => {
                     </div>
                     <div className="annual-interactions">
                         <div className="progress-ring"></div>
-                        <h2>23,648</h2>
-                        <p>Annual Interactions</p>
+                        <h2>{recentVotedSurveys.length}</h2>
+                        <p>Surveys Voted</p>
                     </div>
                 </div>
                 <div className="user-stats">
                     <div className="stat-item">
-                        <p className="stat-title"><IoMdEye /> Survey views</p>
-                        <h2 className="stat-value">50.8K <span className="stat-change positive">28.4% &#x2191;</span></h2>
+                        <p className="stat-title"><IoMdEye /> Survey Votes</p>
+                        <h2 className="stat-value">
+                            {store.surveys.filter(survey => survey.creator_id === store.user?.id && survey.currentResponses != null).reduce((total, survey) => total + survey.currentResponses, 0)}
+                        </h2>
                     </div>
                     <div className="stat-item">
-                        <p className="stat-title"><FaCirclePlus /> Surveys uploaded</p>
-                        <h2 className="stat-value">75.6K <span className="stat-change positive">3.1% &#x2191;</span></h2>
+                        <p className="stat-title"><FaCirclePlus /> Surveys Created</p>
+                        <h2 className="stat-value">
+                            {store.surveys.filter(survey => survey.creator_id === store.user?.id).length}
+                        </h2>
                     </div>
                 </div>
             </div>
