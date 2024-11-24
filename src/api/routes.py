@@ -19,16 +19,16 @@ SECRET_KEY = 'your_secret_key_here'  # Debes reemplazar esto por una clave secre
 @api.route('/users/<int:user_id>/votes/surveys', methods=['GET'])
 @jwt_required()
 def get_user_voted_surveys(user_id):
-    # Obtener el usuario actual desde el token JWT
     current_user_id = get_jwt_identity()
     if current_user_id != user_id:
         return jsonify({"error": "Unauthorized access"}), 403
 
     # Obtener todas las encuestas en las que el usuario ha votado
     votes = Vote.query.filter_by(user_id=user_id).all()
-    survey_ids = {vote.survey_id for vote in votes}
+    if not votes:
+        return jsonify([]), 200
 
-    # Obtener las encuestas a partir de los IDs
+    survey_ids = {vote.survey_id for vote in votes}
     surveys = Survey.query.filter(Survey.id.in_(survey_ids)).all()
 
     # Serializar las encuestas para la respuesta
@@ -45,6 +45,7 @@ def get_user_voted_surveys(user_id):
     ]
 
     return jsonify(surveys_list), 200
+
 
 
 @api.route('/surveys/full', methods=['POST'])
@@ -115,6 +116,8 @@ def create_full_survey():
         db.session.rollback()
         return jsonify({"error": str(e), "message": "There was an error processing your request."}), 500
 
+        
+
 ## USERS ENDPOINTS
 
 @api.route('/users', methods=['GET'])
@@ -144,6 +147,87 @@ def get_user(id):
         "surveys": [survey.serialize() for survey in user.surveys_created]
     }
     return jsonify(user_data)
+
+
+
+
+
+@api.route('/surveys/full', methods=['PUT'])
+@jwt_required()
+def update_full_survey():
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No data provided"}), 400
+
+    try:
+        # Obtener la encuesta existente por ID
+        survey = Survey.query.get(data['id'])
+        if not survey:
+            return jsonify({"error": "Survey not found"}), 404
+
+        # Verificar si el usuario autenticado es el creador
+        current_user_id = get_jwt_identity()
+        if survey.creator_id != current_user_id:
+            return jsonify({"error": "Unauthorized access"}), 403
+
+        # Actualizar los datos de la encuesta
+        survey.title = data.get('title', survey.title)
+        survey.description = data.get('description', survey.description)
+        survey.start_date = data.get('start_date', survey.start_date)
+        survey.end_date = data.get('end_date', survey.end_date)
+        survey.status = data.get('status', survey.status)
+
+        # Actualizar las preguntas
+        for question_data in data.get('questions', []):
+            question = Question.query.get(question_data['id'])
+            if question:
+                question.question_text = question_data.get('question_text', question.question_text)
+                question.order = question_data.get('order', question.order)
+
+                # Actualizar las opciones de cada pregunta
+                for option_data in question_data.get('options', []):
+                    option = Option.query.get(option_data['id'])
+                    if option:
+                        option.option_text = option_data.get('option_text', option.option_text)
+                        option.order = option_data.get('order', option.order)
+                    else:
+                        # Si no existe la opción, crear una nueva
+                        new_option = Option(
+                            question_id=question.id,
+                            option_text=option_data['option_text'],
+                            order=option_data.get('order')
+                        )
+                        db.session.add(new_option)
+            else:
+                # Si no existe la pregunta, crear una nueva
+                new_question = Question(
+                    survey_id=survey.id,
+                    question_text=question_data['question_text'],
+                    question_type=question_data['question_type'],
+                    order=question_data.get('order', len(survey.questions) + 1),
+                    required=question_data.get('required', True)
+                )
+                db.session.add(new_question)
+                db.session.flush()
+
+                # Agregar las opciones de la nueva pregunta
+                for option_data in question_data.get('options', []):
+                    new_option = Option(
+                        question_id=new_question.id,
+                        option_text=option_data['option_text'],
+                        order=option_data.get('order')
+                    )
+                    db.session.add(new_option)
+
+        db.session.commit()
+        return jsonify({"message": "Survey updated successfully"}), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e), "message": "There was an error processing your request."}), 500
+
+
+
 
 @api.route('/users', methods=['POST'])
 def create_user():
@@ -316,32 +400,60 @@ def update_survey(id):
         "type": survey.type
     })
 
-@api.route('/surveys/<int:id>/status', methods=['PUT'])
+@api.route('/surveys/<int:id>', methods=['PUT'])
 @jwt_required()
 def update_survey_status(id):
-    survey = Survey.query.get_or_404(id)
     data = request.get_json()
-    
-    # Validar que el nuevo estado es válido
-    new_status = data.get('status')
-    if new_status not in ['draft', 'active', 'closed']:
-        return jsonify({"error": "Invalid status value"}), 400
+    if not data or 'status' not in data:
+        return jsonify({"error": "Missing status field"}), 400
 
-    # Actualizar el estado
-    survey.status = new_status
+    survey = Survey.query.get(id)
+    if not survey:
+        return jsonify({"error": "Survey not found"}), 404
+
+    survey.status = data['status']
     db.session.commit()
-
     return jsonify(survey.serialize()), 200
+
 
 
 
 @api.route('/surveys/<int:id>', methods=['DELETE'])
 @jwt_required()
-def delete_survey(id):
-    survey = Survey.query.get_or_404(id)
-    db.session.delete(survey)
-    db.session.commit()
-    return jsonify({'message': 'Survey deleted'}), 200
+def delete_full_survey(id):
+    try:
+        # Obtener la encuesta existente
+        survey = Survey.query.get_or_404(id)
+
+        # Verificar si el usuario autenticado es el creador
+        current_user_id = get_jwt_identity()
+        if survey.creator_id != current_user_id:
+            return jsonify({"error": "Unauthorized access"}), 403
+
+        # Eliminar los votos asociados a las opciones de cada pregunta
+        for question in survey.questions:
+            for option in question.options:
+                Vote.query.filter_by(option_id=option.id).delete()
+
+        # Eliminar las opciones de cada pregunta
+        for question in survey.questions:
+            Option.query.filter_by(question_id=question.id).delete()
+
+        # Eliminar las preguntas asociadas a la encuesta
+        Question.query.filter_by(survey_id=survey.id).delete()
+
+        # Finalmente, eliminar la encuesta
+        db.session.delete(survey)
+
+        # Confirmar los cambios
+        db.session.commit()
+
+        return jsonify({"message": "Survey and all associated data deleted successfully"}), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e), "message": "There was an error processing your request."}), 500
+
 
 ## QUESTIONS ENDPOINTS
 
@@ -372,6 +484,7 @@ def create_question():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
 
 @api.route('/questions/<int:id>', methods=['GET'])
 def get_question(id):
@@ -475,6 +588,8 @@ def update_option(id):
         "order": option.order
     })
 
+
+
 @api.route('/options/<int:id>', methods=['DELETE'])
 @jwt_required()
 def delete_option(id):
@@ -557,7 +672,7 @@ def get_current_user():
     
     
 
-@api.route('/survey/<int:survey_id>/votes', methods=['GET'])
+@api.route('/surveys/<int:survey_id>/votes', methods=['GET'])
 def get_survey_votes(survey_id):
     # Obtener todas las preguntas para la encuesta especificada
     questions = Question.query.filter_by(survey_id=survey_id).all()
@@ -621,7 +736,7 @@ def get_survey_votes(survey_id):
         "survey_id": survey_id,
         "questions": serialized_questions,
     }), 200
-    
+
 
 
 
