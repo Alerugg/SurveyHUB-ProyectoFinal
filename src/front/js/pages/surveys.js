@@ -9,43 +9,62 @@ export const AvailableSurveys = () => {
     const { store, actions } = useContext(Context);
     const [searchTerm, setSearchTerm] = useState(""); // Estado para el término de búsqueda
     const [filterStatus, setFilterStatus] = useState("active"); // Estado para el filtro de estado
-    const [showOnlyUserSurveys, setShowOnlyUserSurveys] = useState(false); // Estado para filtrar encuestas del usuario logueado
+    const [showOnlyUserSurveys, setShowOnlyUserSurveys] = useState(
+        JSON.parse(sessionStorage.getItem("showOnlyUserSurveys")) || false // Cargar el estado desde sessionStorage
+    );
+    const [currentPage, setCurrentPage] = useState(1); // Estado para la página actual
+    const surveysPerPage = 12; // Número máximo de encuestas por página
     const navigate = useNavigate();
 
     useEffect(() => {
         actions.getSurveys();
+    }, []);
+
+    useEffect(() => {
         if (store.user) {
-            actions.getUserSurveys(store.user.id); // Obtener encuestas del usuario logueado
+            actions.getUserSurveys(store.user.id);
         }
     }, [store.user]);
 
     useEffect(() => {
-        // Actualizar el estado de las encuestas según las fechas
-        if (store.surveys && store.surveys.length > 0) {
-            store.surveys.forEach((survey) => {
-                const currentDate = moment();
-                const startDate = moment(survey.start_date);
-                const endDate = moment(survey.end_date);
+        sessionStorage.setItem("showOnlyUserSurveys", JSON.stringify(showOnlyUserSurveys));
+    }, [showOnlyUserSurveys]);
 
-                let newStatus = survey.status;
+    useEffect(() => {
+        const updateStatuses = async () => {
+            if (store.surveys && store.surveys.length > 0) {
+                for (const survey of store.surveys) {
+                    const currentDate = moment();
+                    const startDate = moment(survey.start_date);
+                    const endDate = moment(survey.end_date);
 
-                if (currentDate.isBefore(startDate)) {
-                    newStatus = "draft";
-                } else if (currentDate.isBetween(startDate, endDate, undefined, "[]")) {
-                    newStatus = "active";
-                } else if (currentDate.isAfter(endDate)) {
-                    newStatus = "closed";
+                    let newStatus = survey.status;
+
+                    if (currentDate.isBefore(startDate)) {
+                        newStatus = "draft";
+                    } else if (currentDate.isBetween(startDate, endDate, undefined, "[]")) {
+                        newStatus = "active";
+                    } else if (currentDate.isAfter(endDate)) {
+                        newStatus = "closed";
+                    }
+
+                    if (newStatus !== survey.status) {
+                        await actions.updateSurveyStatus(survey.id, newStatus);
+                    }
                 }
+            }
+        };
 
-                if (newStatus !== survey.status) {
-                    actions.updateSurveyStatus(survey.id, newStatus);
-                }
-            });
-        }
+        updateStatuses();
     }, [store.surveys, actions]);
 
     const handleSurveyClick = (id) => {
         navigate(`/surveys/${id}`);
+    };
+
+    const handleShowOnlyUserSurveysToggle = (e) => {
+        const newValue = e.target.checked;
+        setShowOnlyUserSurveys(newValue);
     };
 
     if (!store.surveys || store.surveys.length === 0) {
@@ -73,7 +92,15 @@ export const AvailableSurveys = () => {
     // Ordenar las encuestas activas por fecha de inicio en orden ascendente
     filteredSurveys.sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
 
-    //Funcion que trunca el texto a 70 caracteres
+    // Configuración de la paginación
+    const indexOfLastSurvey = currentPage * surveysPerPage;
+    const indexOfFirstSurvey = indexOfLastSurvey - surveysPerPage;
+    const currentSurveys = filteredSurveys.slice(indexOfFirstSurvey, indexOfLastSurvey);
+    const totalPages = Math.ceil(filteredSurveys.length / surveysPerPage);
+
+    const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+    // Función que trunca el texto a 70 caracteres
     const truncateText = (text, maxLength) => {
         if (text.length > maxLength) {
             return text.slice(0, maxLength) + "..."; // Agrega "..." si se trunca
@@ -115,14 +142,15 @@ export const AvailableSurveys = () => {
                         <input
                             type="checkbox"
                             checked={showOnlyUserSurveys}
-                            onChange={(e) => setShowOnlyUserSurveys(e.target.checked)}
+                            onChange={handleShowOnlyUserSurveysToggle}
                         />
                         Show only my surveys
                     </label>
                 </div>
             </div>
+
             <div className="available-surveys-list">
-                {filteredSurveys.map((survey) => (
+                {currentSurveys.map((survey) => (
                     <div key={survey.id} className="available-survey-card" onClick={() => handleSurveyClick(survey.id)}>
                         <div className="available-survey-card-header">
                             <img src={`https://loremflickr.com/600/400?random=${survey.id}`} alt="Survey" className="available-survey-image" />
@@ -154,6 +182,19 @@ export const AvailableSurveys = () => {
                             </div>
                         </div>
                     </div>
+                ))}
+            </div>
+
+            {/* Paginador */}
+            <div className="pagination-container">
+                {[...Array(totalPages).keys()].map((number) => (
+                    <button
+                        key={number + 1}
+                        onClick={() => paginate(number + 1)}
+                        className={`pagination-button ${currentPage === number + 1 ? "active" : ""}`}
+                    >
+                        {number + 1}
+                    </button>
                 ))}
             </div>
         </div>

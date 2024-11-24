@@ -4,15 +4,15 @@ import "../../styles/surveyResults.css";
 import { Context } from "../store/appContext";
 import ReactECharts from 'echarts-for-react';
 
-export const ClosedSurveyView = () => {
+const ClosedSurveyView = () => {
     const { id } = useParams();
     const { store, actions } = useContext(Context);
     const navigate = useNavigate();
     const [surveyResults, setSurveyResults] = useState(null);
-    const [surveyDetails, setSurveyDetails] = useState(null);
-    const [participantsByQuestion, setParticipantsByQuestion] = useState({});
-    const [mostVotedData, setMostVotedData] = useState({});
-    const [highestVotedQuestion, setHighestVotedQuestion] = useState(null);
+    const [surveyDetails, setSurveyDetails] = useState(null); // Detalles de la encuesta
+    const [participantsByQuestion, setParticipantsByQuestion] = useState({}); // Número de votos por pregunta
+    const [mostVotedData, setMostVotedData] = useState({}); // Datos de la respuesta más votada
+    const [highestVotedQuestion, setHighestVotedQuestion] = useState(null); // Pregunta con más votos
 
     useEffect(() => {
         if (store.isAuthenticated) {
@@ -41,68 +41,80 @@ export const ClosedSurveyView = () => {
         }
     };
 
-    const fetchSurveyResults = async () => {
-        try {
-            const token = localStorage.getItem("jwt-token");
-            if (!token) {
-                throw new Error("User not logged in");
-            }
+const fetchSurveyResults = async () => {
+    try {
+        const token = localStorage.getItem("jwt-token");
+        if (!token) {
+            throw new Error("User not logged in");
+        }
 
-            const response = await fetch(`${process.env.BACKEND_URL}/api/survey/${id}/votes`, {
-                method: "GET",
-                headers: {
-                    "Authorization": `Bearer ${token}`,
-                },
+        const response = await fetch(`${process.env.BACKEND_URL}/api/surveys/${id}/votes`, {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+            },
+        });
+
+        // Imprimir detalles del response para depuración
+        console.log("Response status:", response.status);
+        console.log("Response headers:", response.headers);
+
+        if (response.ok) {
+            // Intentar convertir la respuesta a JSON
+            const data = await response.json();
+            console.log("Data received:", data);
+            setSurveyResults(data);
+
+            // Calcular el número de participantes y la respuesta más votada por pregunta
+            const participants = {};
+            const mostVoted = {};
+            let highestVotes = 0;
+            let highestQuestion = null;
+
+            data.questions.forEach((question) => {
+                const totalVotes = question.options.reduce(
+                    (sum, option) => sum + (option.votes_count || 0),
+                    0
+                );
+
+                participants[question.question_id] = totalVotes;
+
+                const mostVotedOption = question.options.reduce((max, option) =>
+                    option.votes_count > (max?.votes_count || 0) ? option : max,
+                    { option_text: "N/A", votes_count: 0 }
+                );
+
+                mostVoted[question.question_id] = {
+                    text: mostVotedOption?.option_text || "N/A",
+                    votes: mostVotedOption?.votes_count || 0,
+                    totalVotes,
+                };
+
+                // Identificar la pregunta con más votos
+                if (totalVotes > highestVotes) {
+                    highestVotes = totalVotes;
+                    highestQuestion = {
+                        question_text: question.question_text,
+                        totalVotes,
+                        mostVotedOption,
+                    };
+                }
             });
 
-            if (response.ok) {
-                const data = await response.json();
-                setSurveyResults(data);
-
-                const participants = {};
-                const mostVoted = {};
-                let highestVotes = 0;
-                let highestQuestion = null;
-
-                data.questions.forEach((question) => {
-                    const totalVotes = question.options.reduce(
-                        (sum, option) => sum + (option.votes_count || 0),
-                        0
-                    );
-
-                    participants[question.question_id] = totalVotes;
-
-                    const mostVotedOption = question.options.reduce((max, option) =>
-                        option.votes_count > (max?.votes_count || 0) ? option : max,
-                        { option_text: "N/A", votes_count: 0 }
-                    );
-
-                    mostVoted[question.question_id] = {
-                        text: mostVotedOption?.option_text || "N/A",
-                        votes: mostVotedOption?.votes_count || 0,
-                        totalVotes,
-                    };
-
-                    if (totalVotes > highestVotes) {
-                        highestVotes = totalVotes;
-                        highestQuestion = {
-                            question_text: question.question_text,
-                            totalVotes,
-                            mostVotedOption,
-                        };
-                    }
-                });
-
-                setParticipantsByQuestion(participants);
-                setMostVotedData(mostVoted);
-                setHighestVotedQuestion(highestQuestion);
-            } else {
-                throw new Error("Failed to fetch survey results");
-            }
-        } catch (error) {
-            console.error("Error fetching survey results:", error);
+            setParticipantsByQuestion(participants);
+            setMostVotedData(mostVoted);
+            setHighestVotedQuestion(highestQuestion);
+        } else {
+            // En caso de error, imprimir el texto de la respuesta para entender qué se está recibiendo
+            const text = await response.text();
+            console.error("Error response text:", text);
+            throw new Error("Failed to fetch survey results");
         }
-    };
+    } catch (error) {
+        console.error("Error fetching survey results:", error);
+    }
+};
+
 
     if (!surveyDetails || !surveyResults) {
         return <div className="loading">Loading survey details and results...</div>;
@@ -160,7 +172,8 @@ export const ClosedSurveyView = () => {
                     <button className="back-button" onClick={() => navigate("/user_logued")}>← Back to explore surveys</button>
                     <h2 className="survey-title">{surveyDetails.title}</h2>
                 </div>
-
+                
+                {/* Sección con el resumen de la encuesta después del título */}
                 <div className="survey-summary">
                     <p>
                         La encuesta <strong>{surveyDetails.title}</strong>, cuyo objetivo es <strong>{surveyDetails.description}</strong>, 
@@ -168,6 +181,7 @@ export const ClosedSurveyView = () => {
                     </p>
                 </div>
 
+                {/* Gráficas */}
                 <div className="dashboard-container">
                     {barOptions.map((options, index) => (
                         <div key={index} className="chart-card">
@@ -176,6 +190,7 @@ export const ClosedSurveyView = () => {
                     ))}
                 </div>
 
+                {/* Información detallada de los resultados */}
                 <div className="survey-info">
                     {surveyResults.questions.map((question) => (
                         <p key={question.question_id}>
@@ -199,8 +214,9 @@ export const ClosedSurveyView = () => {
                         </p>
                         <ReactECharts option={pieOption} />
                     </div>
-                )}
+                )} 
 
+                {/* La encuesta estuvo abierta */}
                 <p>
                     La encuesta estuvo abierta desde el día <strong>{surveyDetails.start_date}</strong> hasta el día 
                     <strong>{surveyDetails.end_date}</strong>.
@@ -211,3 +227,5 @@ export const ClosedSurveyView = () => {
 
     return null;
 };
+
+export default ClosedSurveyView;

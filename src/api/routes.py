@@ -400,22 +400,21 @@ def update_survey(id):
         "type": survey.type
     })
 
-@api.route('/surveys/<int:id>/status', methods=['PUT'])
+@api.route('/surveys/<int:id>', methods=['PUT'])
 @jwt_required()
 def update_survey_status(id):
-    survey = Survey.query.get_or_404(id)
     data = request.get_json()
-    
-    # Validar que el nuevo estado es válido
-    new_status = data.get('status')
-    if new_status not in ['draft', 'active', 'closed']:
-        return jsonify({"error": "Invalid status value"}), 400
+    if not data or 'status' not in data:
+        return jsonify({"error": "Missing status field"}), 400
 
-    # Actualizar el estado
-    survey.status = new_status
+    survey = Survey.query.get(id)
+    if not survey:
+        return jsonify({"error": "Survey not found"}), 404
+
+    survey.status = data['status']
     db.session.commit()
-
     return jsonify(survey.serialize()), 200
+
 
 
 
@@ -485,6 +484,7 @@ def create_question():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
 
 @api.route('/questions/<int:id>', methods=['GET'])
 def get_question(id):
@@ -588,6 +588,8 @@ def update_option(id):
         "order": option.order
     })
 
+
+
 @api.route('/options/<int:id>', methods=['DELETE'])
 @jwt_required()
 def delete_option(id):
@@ -670,7 +672,7 @@ def get_current_user():
     
     
 
-@api.route('/survey/<int:survey_id>/votes', methods=['GET'])
+@api.route('/surveys/<int:survey_id>/votes', methods=['GET'])
 def get_survey_votes(survey_id):
     # Obtener todas las preguntas para la encuesta especificada
     questions = Question.query.filter_by(survey_id=survey_id).all()

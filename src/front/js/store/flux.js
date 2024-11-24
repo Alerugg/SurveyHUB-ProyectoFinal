@@ -170,36 +170,39 @@ const getState = ({ getStore, getActions, setStore }) => {
                 window.location.href = "/"; // Redirige a la página principal después del logout
             },
 
-            updateUserProfile: async (updatedUser) => {
-                const token = localStorage.getItem("jwt-token");
-                if (!token) {
-                    alert("No se encontró el token de autenticación.");
-                    return false;
-                }
-
+            updateSurveyStatus: async (id, status) => {
                 try {
-                    const response = await fetch(process.env.BACKEND_URL + "/api/user/profile", {
+                    const token = localStorage.getItem("jwt-token");
+                    const response = await fetch(`${process.env.BACKEND_URL}/api/surveys/${id}`, {
                         method: "PUT",
                         headers: {
                             "Content-Type": "application/json",
-                            "Authorization": `Bearer ${token}`,
+                            Authorization: `Bearer ${token}`,
                         },
-                        body: JSON.stringify(updatedUser),
+                        body: JSON.stringify({ status }),
                     });
-
+            
                     if (!response.ok) {
-                        throw new Error("Error al actualizar el perfil del usuario.");
+                        console.error("Error updating survey status:", response.status);
+                        return;
                     }
-
-                    const data = await response.json();
-                    // Actualizamos el store con la nueva información del usuario
-                    setStore({ user: data });
-                    return true;
+            
+                    const updatedSurvey = await response.json();
+            
+                    // Actualizar el estado global
+                    setStore({
+                        surveys: getStore().surveys.map((survey) =>
+                            survey.id === updatedSurvey.id ? updatedSurvey : survey
+                        ),
+                    });
+            
+                    console.log("Survey status updated:", updatedSurvey);
                 } catch (error) {
-                    console.error("Error actualizando el perfil:", error);
-                    return false;
+                    console.error("Error in updateSurveyStatus:", error);
                 }
             },
+            
+            
 
             // flux.js
 

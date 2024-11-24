@@ -3,6 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import "../../styles/surveyResults.css";
 import { Context } from "../store/appContext";
 import moment from "moment";
+import PendingSurveyView from "../component/pendingSurveyView"; // Importación de PendingSurveyView
+import ClosedSurveyView from "../component/closedSurveyView"; // Importación de ClosedSurveyView
 
 export const SurveyResults = () => {
     const { id } = useParams();
@@ -28,10 +30,9 @@ export const SurveyResults = () => {
                 setEditableSurvey({ ...store.survey }); // Configurar la encuesta editable
             }
         };
-    
+
         fetchData();
     }, [store.user, store.survey, id, actions]);
-    
 
     // Check if the user has voted
     useEffect(() => {
@@ -172,7 +173,7 @@ export const SurveyResults = () => {
                     Authorization: `Bearer ${token}`,
                 },
             });
-    
+
             if (response.ok) {
                 alert("Survey deleted successfully!");
                 navigate("/user_logued"); // Redirigir después de eliminar
@@ -185,7 +186,6 @@ export const SurveyResults = () => {
             alert("Failed to delete the survey.");
         }
     };
-    
 
     const handleSurveyChange = (field, value) => {
         setEditableSurvey({
@@ -241,6 +241,13 @@ export const SurveyResults = () => {
     }
 
     const isCreator = store.user?.id === editableSurvey.creator_id;
+
+    // Renderización condicional basado en el estado de la encuesta
+    if (editableSurvey.status === "draft") {
+        return <PendingSurveyView survey={editableSurvey} />;
+    } else if (editableSurvey.status === "closed") {
+        return <ClosedSurveyView survey={editableSurvey} />;
+    }
 
     return (
         <div className="survey-results-container">
