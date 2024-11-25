@@ -1,4 +1,4 @@
-import React, { useEffect, useContext, useState } from "react";
+import React, { useEffect, useContext, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/surveys.css";
 import { Context } from "../store/appContext";
@@ -15,47 +15,56 @@ export const AvailableSurveys = () => {
     const [currentPage, setCurrentPage] = useState(1); // Estado para la página actual
     const surveysPerPage = 12; // Número máximo de encuestas por página
     const navigate = useNavigate();
+    const hasFetchedUserSurveys = useRef(false); // Referencia para verificar si ya se obtuvieron las encuestas
+    const hasFetchedSurveys = useRef(false); // Referencia para evitar un bucle infinito de solicitudes
 
     useEffect(() => {
-        actions.getSurveys();
-    }, []);
-
-    useEffect(() => {
-        if (store.user) {
-            actions.getUserSurveys(store.user.id);
+        if (!hasFetchedSurveys.current) {
+            actions.getSurveys();
+            hasFetchedSurveys.current = true;
         }
-    }, [store.user]);
+    }, [actions]);
+
+    useEffect(() => {
+        if (store.user && !hasFetchedUserSurveys.current) {
+            actions.getUserSurveys(store.user.id);
+            hasFetchedUserSurveys.current = true;
+        }
+    }, [store.user, actions]);
 
     useEffect(() => {
         sessionStorage.setItem("showOnlyUserSurveys", JSON.stringify(showOnlyUserSurveys));
     }, [showOnlyUserSurveys]);
 
     useEffect(() => {
-        const updateStatuses = async () => {
-            if (store.surveys && store.surveys.length > 0) {
-                for (const survey of store.surveys) {
-                    const currentDate = moment();
-                    const startDate = moment(survey.start_date);
-                    const endDate = moment(survey.end_date);
+        // Actualizar el estado de las encuestas según las fechas
+        if (store.surveys && store.surveys.length > 0) {
+            const surveysToUpdate = store.surveys.map((survey) => {
+                const currentDate = moment();
+                const startDate = moment(survey.start_date);
+                const endDate = moment(survey.end_date);
 
-                    let newStatus = survey.status;
+                let newStatus = survey.status;
 
-                    if (currentDate.isBefore(startDate)) {
-                        newStatus = "draft";
-                    } else if (currentDate.isBetween(startDate, endDate, undefined, "[]")) {
-                        newStatus = "active";
-                    } else if (currentDate.isAfter(endDate)) {
-                        newStatus = "closed";
-                    }
-
-                    if (newStatus !== survey.status) {
-                        await actions.updateSurveyStatus(survey.id, newStatus);
-                    }
+                if (currentDate.isBefore(startDate)) {
+                    newStatus = "draft";
+                } else if (currentDate.isBetween(startDate, endDate, undefined, "[]")) {
+                    newStatus = "active";
+                } else if (currentDate.isAfter(endDate)) {
+                    newStatus = "closed";
                 }
-            }
-        };
 
-        updateStatuses();
+                return newStatus !== survey.status ? { id: survey.id, newStatus } : null;
+            }).filter(Boolean);
+
+            // Actualizar solo las encuestas que han cambiado de estado
+            if (surveysToUpdate.length > 0) {
+                surveysToUpdate.forEach(({ id, newStatus }) => {
+                    const token = localStorage.getItem("jwt-token");
+                    actions.updateSurveyStatus(id, newStatus, token);
+                });
+            }
+        }
     }, [store.surveys, actions]);
 
     const handleSurveyClick = (id) => {

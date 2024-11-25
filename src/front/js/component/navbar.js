@@ -23,8 +23,8 @@ export const Navbar = () => {
           to={store.isAuthenticated ? "/user_logued" : "/"}
         >
           <VscGraph className="navbar-icon" />
-          <span className="Etitle navbar-title-highlight">E-</span>
-          <span className="text-white Vtitle">Vote</span>
+          <span className="Etitle navbar-title-highlight">Survey-</span>
+          <span className="text-white Vtitle">Hub</span>
         </Link>
 
         {/* Toggle button for mobile */}
@@ -57,7 +57,7 @@ export const Navbar = () => {
             {store.isAuthenticated && (
               <>
                 <li className="nav-item me-3">
-                  <Link className="nav-link" to="/dashboard">
+                  <Link className="nav-link" to="/user_logued">
                     <i className="fas fa-poll fa-lg"></i> My Surveys
                   </Link>
                 </li>

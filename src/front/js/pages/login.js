@@ -106,7 +106,7 @@ export const Login = () => {
                         />
                     </div>
                     <div className="form-group d-flex justify-content-between">
-                        <Link to="/forgot-password" className="forgot-password-link">Forgot password?</Link>
+                        <Link to="/password_recovery" className="forgot-password-link">Forgot password?</Link>
                     </div>
                     <button type="submit" className="btn login-btn" disabled={isSubmitting}>
                         {isSubmitting ? "Logging in..." : "Log in"}

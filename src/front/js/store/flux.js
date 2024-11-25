@@ -38,24 +38,32 @@ const getState = ({ getStore, getActions, setStore }) => {
 
             getSurveys: async () => {
                 try {
+                    const token = localStorage.getItem("jwt-token");
+                    if (!token) {
+                        throw new Error("No authentication token found");
+                    }
+            
                     const response = await fetch(`${process.env.BACKEND_URL}/api/surveys`, {
                         method: "GET",
                         headers: {
                             "Content-Type": "application/json",
-                            "Authorization": `Bearer ${localStorage.getItem("jwt-token")}`
+                            "Authorization": `Bearer ${token}`
                         }
                     });
-
+            
                     if (!response.ok) {
+                        const errorResponse = await response.json();
+                        console.error("Error details:", errorResponse);
                         throw new Error(`HTTP error! status: ${response.status}`);
                     }
-
+            
                     const result = await response.json();
                     setStore({ surveys: result });
                 } catch (error) {
                     console.error("Error fetching surveys: ", error);
                 }
             },
+            
 
             getUserVotedSurveys: async (userId) => {
                 const token = localStorage.getItem("jwt-token");
@@ -94,20 +102,26 @@ const getState = ({ getStore, getActions, setStore }) => {
 
 
 
-            getUserSurveys: async () => {
+            getUserSurveys: async (userId) => {
+                const token = localStorage.getItem("jwt-token");
+                if (!token || !userId) {
+                    console.error("Token or user ID not found");
+                    return;
+                }
+            
                 try {
-                    const response = await fetch(`${process.env.BACKEND_URL}/api/me`, {
+                    const response = await fetch(`${process.env.BACKEND_URL}/api/users/${userId}/surveys`, {
                         method: "GET",
                         headers: {
                             "Content-Type": "application/json",
-                            "Authorization": `Bearer ${localStorage.getItem("jwt-token")}`
+                            "Authorization": `Bearer ${token}`
                         }
                     });
-
+            
                     if (!response.ok) {
                         throw new Error(`HTTP error! status: ${response.status}`);
                     }
-
+            
                     const result = await response.json();
                     if (result.surveys) {
                         setStore({ surveys: result.surveys });
@@ -118,6 +132,7 @@ const getState = ({ getStore, getActions, setStore }) => {
                     console.error("Error fetching user surveys: ", error);
                 }
             },
+            
 
             getSurvey: async (id) => {
                 try {
@@ -206,7 +221,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 
             // flux.js
 
-            updateUserPassword: async ({ new_password }) => {
+            updateUserPassword: async (userId, data) => {
                 const token = localStorage.getItem("jwt-token");
             
                 if (!token) {
@@ -216,13 +231,13 @@ const getState = ({ getStore, getActions, setStore }) => {
                 }
             
                 try {
-                    const response = await fetch(process.env.BACKEND_URL + "/api/user/update-password", {
+                    const response = await fetch(`${process.env.BACKEND_URL}/api/users/${userId}/update-password`, {
                         method: "PUT",
                         headers: {
                             "Content-Type": "application/json",
                             "Authorization": `Bearer ${token}`
                         },
-                        body: JSON.stringify({ new_password })
+                        body: JSON.stringify(data)
                     });
             
                     if (response.ok) {
@@ -239,13 +254,30 @@ const getState = ({ getStore, getActions, setStore }) => {
                 }
             },
             
+            updateUserProfile: async (userId, updatedUser) => {
+                try {
+                    const response = await fetch(`${process.env.BACKEND_URL}/api/users/${userId}`, {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${localStorage.getItem("jwt-token")}`,
+                        },
+                        body: JSON.stringify(updatedUser),
+                    });
             
-
-
-
-
-
-
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+            
+                    return true;
+                } catch (error) {
+                    console.error("Error en la solicitud de actualización del perfil:", error);
+                    return false;
+                }
+            },
+            
+              
+            
             // Función para verificar si el usuario está autenticado al cargar la aplicación
             checkAuth: async () => {
                 const token = localStorage.getItem("jwt-token");

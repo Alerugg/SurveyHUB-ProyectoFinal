@@ -31,13 +31,18 @@ export const UserProfile = () => {
 
     const handleProfileUpdate = async (e) => {
         e.preventDefault();
+        
+        if (!store.user?.id) {
+            alert("No se ha encontrado un ID de usuario válido.");
+            return;
+        }
 
         const updatedUser = {
             full_name: fullName,
             email: email,
         };
 
-        const success = await actions.updateUserProfile(updatedUser);
+        const success = await actions.updateUserProfile(store.user?.id, updatedUser); // Pasar el ID correctamente
         if (success) {
             alert("Perfil actualizado correctamente.");
             setIsEditing(false);
@@ -52,7 +57,12 @@ export const UserProfile = () => {
             return;
         }
 
-        const success = await actions.updateUserPassword({ new_password: newPassword });
+        if (!store.user?.id) {
+            alert("No se ha encontrado un ID de usuario válido.");
+            return;
+        }
+
+        const success = await actions.updateUserPassword(store.user?.id, { password: newPassword });
         if (success) {
             alert("Contraseña actualizada correctamente.");
             setNewPassword("");
@@ -133,3 +143,5 @@ export const UserProfile = () => {
         </div>
     );
 };
+
+export default UserProfile;
