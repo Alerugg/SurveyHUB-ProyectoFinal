@@ -30,6 +30,33 @@ def update_all_surveys_status():
             survey.status = 'draft'
     db.session.commit()
 
+import smtplib
+from email.mime.text import MIMEText
+
+def send_reset_email(user, reset_token):
+    # URL para restablecer la contraseña
+    reset_url = f"http://yourfrontend.com/reset-password/{reset_token}"
+
+    # Configuración del correo electrónico
+    sender_email = "noreply@surveyhub.com"
+    recipient_email = user.email
+    subject = "Password Reset Instructions"
+    body = f"Hello {user.full_name},\n\nClick the link below to reset your password:\n\n{reset_url}\n\nIf you didn't request a password reset, please ignore this email."
+
+    msg = MIMEText(body)
+    msg["Subject"] = subject
+    msg["From"] = sender_email
+    msg["To"] = recipient_email
+
+    try:
+        with smtplib.SMTP("smtp.your-email-provider.com", 587) as server:
+            server.starttls()
+            server.login("your-email@example.com", "your-email-password")
+            server.sendmail(sender_email, recipient_email, msg.as_string())
+    except Exception as e:
+        print(f"Error sending email: {e}")
+
+
 def has_no_empty_params(rule):
     defaults = rule.defaults if rule.defaults is not None else ()
     arguments = rule.arguments if rule.arguments is not None else ()

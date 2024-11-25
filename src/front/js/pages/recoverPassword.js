@@ -1,3 +1,4 @@
+// ForgotPassword.js
 import React, { useState } from "react";
 import "../../styles/forgotPassword.css";
 import { useNavigate } from "react-router-dom";
@@ -5,14 +6,16 @@ import { useNavigate } from "react-router-dom";
 export const ForgotPassword = () => {
     const [email, setEmail] = useState("");
     const [message, setMessage] = useState(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const navigate = useNavigate();
 
-    const handleSubmit = async (e) => {
+    const handleForgotPassword = async (e) => {
         e.preventDefault();
+        setIsSubmitting(true);
         setMessage(null);
 
         try {
-            const response = await fetch(process.env.BACKEND_URL + "/api/forgot-password", {
+            const response = await fetch(`${process.env.BACKEND_URL}/api/users/forgot-password`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -27,6 +30,8 @@ export const ForgotPassword = () => {
             setMessage("If the email is registered, you will receive password reset instructions.");
         } catch (err) {
             setMessage(err.message);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -34,12 +39,12 @@ export const ForgotPassword = () => {
         <div className="forgot-password-container">
             <div className="forgot-password-form-container">
                 <h1 className="forgot-password-title">
-                    <span className="highlight-e">E</span>
-                    <span className="highlight-vote">vote</span>
+                    <span className="highlight-e">Survey</span>
+                    <span className="highlight-vote">Hub</span>
                 </h1>
                 <h2 className="forgot-password-subtitle">Forgot Your Password?</h2>
                 <p className="forgot-password-description">Please enter your email address below to receive instructions on how to reset your password.</p>
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleForgotPassword}>
                     <div className="form-group-placeholder">
                         <input
                             type="email"
@@ -50,7 +55,9 @@ export const ForgotPassword = () => {
                             required
                         />
                     </div>
-                    <button type="submit" className="btn forgot-password-btn">Send Reset Instructions</button>
+                    <button type="submit" className="btn forgot-password-btn" disabled={isSubmitting}>
+                        {isSubmitting ? "Sending..." : "Send Reset Instructions"}
+                    </button>
                 </form>
                 {message && <div className="message">{message}</div>}
                 <button className="btn back-btn" onClick={() => navigate("/login")}>Back to Login</button>
@@ -58,3 +65,5 @@ export const ForgotPassword = () => {
         </div>
     );
 };
+
+export default ForgotPassword;

@@ -3,10 +3,10 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from api.models import db, User, Survey, Question, Option, Vote
 import jwt
 import datetime
-from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_cors import CORS
 import openai
 import os
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 
 # Inicializa la aplicación de Flask
 app = Flask(__name__)
@@ -47,7 +47,6 @@ def get_user_voted_surveys(user_id):
     ]
 
     return jsonify(surveys_list), 200
-    
 
 
 
@@ -267,6 +266,63 @@ def update_user(id):
         "is_active": user.is_active
     })
 
+
+from api.utils import send_reset_email
+
+@api.route('/users/forgot-password', methods=['POST'])
+def forgot_password():
+    try:
+        data = request.get_json()
+        email = data.get('email')
+
+        if not email:
+            return jsonify({"error": "Email is required"}), 400
+
+        # Buscar al usuario por su correo electrónico
+        user = User.query.filter_by(email=email).first()
+        if user is None:
+            return jsonify({"message": "If the email is registered, you will receive password reset instructions."}), 200
+
+        # Crear un token de restablecimiento de contraseña válido por 1 hora
+        reset_token = create_access_token(identity=user.id, expires_delta=False)
+
+        # Lógica para enviar un correo electrónico con un enlace para restablecer la contraseña
+        send_reset_email(user, reset_token)
+
+        return jsonify({"message": "If the email is registered, you will receive password reset instructions."}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api.route('/users/<int:id>/update-password', methods=['PUT'])
+@jwt_required()
+def update_password(id):
+    try:
+        # Obtener el ID del usuario actual desde el token JWT
+        current_user_id = get_jwt_identity()
+        if current_user_id != id:
+            return jsonify({"error": "Unauthorized access"}), 403
+
+        # Obtener los datos del request
+        data = request.get_json()
+        new_password = data.get('password')
+        if not new_password:
+            return jsonify({"error": "Password is required"}), 400
+
+        # Generar el hash de la nueva contraseña
+        password_hash = generate_password_hash(new_password, method='pbkdf2:sha256', salt_length=16)
+
+        # Actualizar la contraseña del usuario
+        user = User.query.get_or_404(id)
+        user.password_hash = password_hash
+        db.session.commit()
+
+        return jsonify({"message": "Password updated successfully"}), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
 ## LOGIN ENDPOINT
 
 @api.route('/login', methods=['POST'])
@@ -403,9 +459,10 @@ def update_survey(id):
         "type": survey.type
     })
 
-@api.route('/surveys/<int:id>', methods=['PUT'])
+@api.route('/surveys/<int:id>/status', methods=['PUT'])
 @jwt_required()
 def update_survey_status(id):
+    # Endpoint to update the status of a survey by ID
     data = request.get_json()
     if not data or 'status' not in data:
         return jsonify({"error": "Missing status field"}), 400
@@ -704,28 +761,6 @@ def suggest_questions():
         return jsonify({"error": str(e)}), 500
     
 
-@api.route('/users/<int:id>/update-password', methods=['PUT'])
-@jwt_required()
-def update_user_password(id):
-    user = User.query.get_or_404(id)
-    data = request.get_json()
-
-    # Verificar que la nueva contraseña esté en los datos recibidos
-    if 'new_password' not in data:
-        return jsonify({"error": "No new password provided"}), 400
-
-    new_password = data['new_password']
-
-    # Actualizar la contraseña del usuario
-    user.password_hash = generate_password_hash(new_password, method='pbkdf2:sha256')
-    db.session.commit()
-
-    return jsonify({
-        "message": "Password updated successfully"
-    }), 200
-
-    
-
 @api.route('/surveys/<int:survey_id>/votes', methods=['GET'])
 def get_survey_votes(survey_id):
     # Obtener todas las preguntas para la encuesta especificada
@@ -792,7 +827,7 @@ def get_survey_votes(survey_id):
     }), 200
 
 
-    
+
 
 
 

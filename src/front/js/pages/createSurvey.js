@@ -234,12 +234,11 @@ export const CreateSurvey = () => {
                                 required
                             >
                                 <option value="multiple_choice">Multiple Choice</option>
-                                <option value="open_ended">Open-ended</option>
-                                <option value="yes_no">Yes/No</option>
+                                <option value="yes_no">Yes/No (Unique Choice)</option>
                             </select>
                         </div>
                         <div className="mb-3">
-                            <label className="form-label">Add Options (for Multiple Choice)</label>
+                            <label className="form-label">Add Options (for Multiple Choice and Yes/No)</label>
                             <input
                                 type="text"
                                 className="form-control create-survey-input"
@@ -250,7 +249,6 @@ export const CreateSurvey = () => {
                                         e.target.value = "";
                                     }
                                 }}
-                                disabled={currentQuestion.question_type !== "multiple_choice"}
                             />
                             <ul className="mt-2">
                                 {currentQuestion.options.map((option, index) => (
@@ -293,13 +291,11 @@ export const CreateSurvey = () => {
                                 {surveyData.questions.map((q, index) => (
                                     <li key={index}>
                                         <strong>Question {index + 1}: </strong>{q.question_text}
-                                        {q.question_type === "multiple_choice" && (
-                                            <ul>
-                                                {q.options.map((option, optionIndex) => (
-                                                    <li key={optionIndex}>{option.option_text}</li>
-                                                ))}
-                                            </ul>
-                                        )}
+                                        <ul>
+                                            {q.options.map((option, optionIndex) => (
+                                                <li key={optionIndex}>{option.option_text}</li>
+                                            ))}
+                                        </ul>
                                     </li>
                                 ))}
                             </ul>

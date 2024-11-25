@@ -62,7 +62,7 @@ export const UserProfile = () => {
             return;
         }
 
-        const success = await actions.updateUserPassword(store.user?.id, { new_password: newPassword });
+        const success = await actions.updateUserPassword(store.user?.id, { password: newPassword });
         if (success) {
             alert("Contraseña actualizada correctamente.");
             setNewPassword("");

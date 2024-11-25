@@ -60,7 +60,8 @@ const UserDashboard = () => {
             // Actualizar solo las encuestas que han cambiado de estado
             if (surveysToUpdate.length > 0) {
                 surveysToUpdate.forEach(({ id, newStatus }) => {
-                    actions.updateSurveyStatus(id, newStatus);
+                    const token = localStorage.getItem("jwt-token");
+                    actions.updateSurveyStatus(id, newStatus, token);
                 });
             }
         }
