@@ -1,3 +1,4 @@
+// Login Component
 import React, { useState, useContext, useEffect } from "react";
 import "../../styles/login.css";
 import { useNavigate, Link } from "react-router-dom";
@@ -14,7 +15,7 @@ const performLogin = async (email, password) => {
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ email, password })
+            body: JSON.stringify({ email: email, password: password })
         });
 
         console.log("Estado de la respuesta:", resp.status);
@@ -50,32 +51,26 @@ export const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState(null);
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const { store, actions } = useContext(Context);
+    const { actions } = useContext(Context);
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError(null);
-        setIsSubmitting(true);
 
         try {
             const data = await performLogin(email, password);
             console.log("Login exitoso:", data.message);
-            actions.login(data); // Guarda el token y cambia el estado de autenticación
-            navigate("/user_logued"); // Redirige al área protegida o a otra página
+            actions.login(data);                                         // Guarda el token y cambia el estado de autenticación
+            navigate("/user_logued");                                    // Redirige al área protegida o a otra página
         } catch (err) {
-            setError(err.message); // Mostrar el mensaje de error en la interfaz
-        } finally {
-            setIsSubmitting(false);
+            setError(err.message);                                       // Mostrar el mensaje de error en la interfaz
         }
     };
 
     useEffect(() => {
-        if (!store.isAuthenticated) {
-            actions.checkAuth(); // Solo verifica la autenticación si el usuario no está autenticado
-        }
-    }, [store.isAuthenticated, actions]);
+        actions.checkAuth();                                             // Verifica si el usuario sigue autenticado al cargar la página
+    }, []);
 
     return (
         <div className="login-container">
@@ -83,8 +78,8 @@ export const Login = () => {
 
             <div className="login-form-container">
                 <h1 className="login-title">
-                    <span className="highlight-e">E</span>
-                    <span className="highlight-vote">vote</span>
+                    <span className="highlight-e">Survey</span>
+                    <span className="highlight-vote">Hub</span>
                 </h1>
                 <form onSubmit={handleSubmit}>
                     <div className="form-group-placeholder">
@@ -106,11 +101,9 @@ export const Login = () => {
                         />
                     </div>
                     <div className="form-group d-flex justify-content-between">
-                        <Link to="/password_recovery" className="forgot-password-link">Forgot password?</Link>
+                        <Link to="/forgot-password" className="forgot-password-link">Forgot password?</Link>
                     </div>
-                    <button type="submit" className="btn login-btn" disabled={isSubmitting}>
-                        {isSubmitting ? "Logging in..." : "Log in"}
-                    </button>
+                    <button type="submit" className="btn login-btn">Log in</button>
                 </form>
                 {error && <div className="error-message">{error}</div>}
                 <div className="signup-prompt">

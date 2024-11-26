@@ -112,9 +112,11 @@ const UserDashboard = () => {
                         </div>
                     </div>
                     <div className="annual-interactions">
-                        <div className="progress-ring"></div>
-                        <h2>{recentVotedSurveys.length}</h2>
-                        <p>Surveys Voted</p>
+                        <div className="progress-ring">
+                            <h2>{recentVotedSurveys.length}</h2>
+                        </div>
+                        
+                        <p>Surveys voted</p>
                     </div>
                 </div>
                 <div className="user-stats">
@@ -142,7 +144,7 @@ const UserDashboard = () => {
                             className="dash-link"
                             onClick={() => navigate('/surveys')}
                         >
-                            Explore more
+                            Explore all surveys
                         </button>
                     )}
                 </div>
@@ -239,10 +241,6 @@ const UserDashboard = () => {
                                     <p className="available-dash-card-dates">
                                         Last voted on: {new Date(survey.end_date).toLocaleDateString()}
                                     </p>
-                                    <div className="available-survey-goal">
-                                        Responses goal: <br /><span>{survey.currentResponses} of {survey.totalResponses}</span>
-                                        <img src="https://avatar.iran.liara.run/public" alt="Creator" className="available-survey-creator-avatar" />
-                                    </div>
                                 </div>
                             </div>
                         </div>
