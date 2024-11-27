@@ -1,357 +1,91 @@
 /* CreateSurvey.css */
 
+body {
+    background-color: #f5f5f0; /* Blanco hueso */
+    color: rgb(63, 55, 77); /* Morado oscuro */
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
 .create-survey-container {
+    background-color: #f5f5f0;
     padding: 20px;
     min-height: 100vh;
-    padding: 64px;
-    background-color: #f5f5f0;
 }
 
-.image-selector .form-select {
-    width: 100%;
-    padding: 10px;
-    font-size: 1rem;
-    border-radius: 5px;
-    border: 1px solid #ced4da;
-    background-color: #f8f9fa;
-    outline: none;
-    cursor: pointer;
+.header-section {
+    background-color: rgb(63, 55, 77);
+    color: #f5f5f0; /* Blanco hueso */
+    border-radius: 20px;
 }
-
-.create-survey-title{
-    margin-bottom: 30px;
-    font-weight: bold;
-    font-size: 50px;
-    display: flex;
-    justify-content: center;
-}
-
-.create-tabs {
-    font-weight: bold;
-    margin-bottom: 40px;
-    display: flex;
-    justify-content: center;
-}
-
-a.nav-link.title-tabs{
-    font-size: 18px;
-    color: black;
-    position: relative; /* para posicionar el subrayado */
-    padding-bottom: 5px; /* Espacio para el subrayado */
-}
-
-.nav-link.title-tabs.active::after {
-    content: "";
-    display: block;
-    width: 100%;
-    height: 3px; 
-    background-color: #DB6FEB; 
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    border-radius: 2px;
-}
-
-/* para eliminar los bordes de los inputs y el textarea */
-.no-border {
-    border: none;
-    /* outline: none; */
-    /* box-shadow: none; */
-    /* padding: 10px; */
-    background-color: transparent;
-    /* font-size: 1rem; */
-    width: 100%;
-}
-
-/*  para los inputs y textarea al estar en focus (enfocados) */
-.no-border:focus {
-    outline: none; /* Quita el contorno de enfoque */
-    box-shadow: none; /* Sin sombra de caja al enfocar */
-}
-
-/*  estilo del placeholder */
-.create-survey-input-tit.no-border::placeholder {
-    color: black; /* color del placeholder */
-    font-size: 32px;
-    font-weight: bold;
-}
-.create-survey-input-tit.no-border{
-    color: black; 
-    font-size: 32px;
-    font-weight: bold;
-}
-
-.create-survey-input-desc.no-border::placeholder{
-    color: #9B9DA1;
-    font-size: 16px;
-}
-
-input.form-control.create-survey-input.no-border{
-    margin-bottom: 20px;
-}
-
-
-
 
 .create-survey-card {
-    height: 186px;
     background-color: #ffffff;
-    border-radius: 10px;
-    padding: 30px;
-    
-    /* Borde superior */
-    border-top-width: 9px;
-    border-top-style: solid;
-    border-top-color: #DB6FEB;
-
-    /* Bordes laterales e inferior */
-    border-left: 1px solid #C2BDBD;
-    border-right: 1px solid #C2BDBD;
-    border-bottom: 1px solid #C2BDBD;
-}
-
-.container-question-box {
-    display: flex;
-    flex-direction: column;
-    margin-top: 47px;
-    background-color: #ffffff;
-    border-radius: 10px;
-    padding: 30px;
-    border: 1px solid #C2BDBD;
-}
-
-.question-inputs {
-    display: flex;
-    align-items: baseline;
-    margin-bottom: 20px;
-}
-
-.create-survey-input-qt {
-    border-color: #C2BDBD;
-    background: white;
-    margin: 0 24px 0 0;
-    width: 70%;
-    height: 43px;
-}
-
-.create-survey-input-qt::placeholder {
-    color: #9B9DA1;
-    font-size: 16px;
-}
-
-.create-survey-input-qt:focus {
-    outline: none;
-    border: 2px solid pink;
-}
-
-.create-survey-input-q {
-    width: 30%;
-    height: 43px;
-    border-color: #C2BDBD;
-}
-
-.option-create-survey {
-    margin-top: 20px;
-    width: 70%;
+    color: rgb(63, 55, 77); /* Morado oscuro */
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
 }
 
 .create-survey-input {
-    width: 100%;
-    height: 43px;
-}
-
-input.create-survey-input-option {
-    margin-top: 32px;
-    border-top: 0px;
-    border-left: 0px;
-    border-right: 0px;
-    background-color: white;
-    font-size: 16px;
-    color: #9B9DA1;
-    font-weight: 100;
-    border-bottom: 1px solid #C2BDBD;
-}
-
-ul.option-list-create {
-    width: 844px;
-    padding: 0;
-    list-style: none;
-    margin-top: 14px;
-    margin-bottom: 14px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-li.option-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    width: 100%;
-}
-
-input.create-survey-input-option-item {
-    width: calc(100% - 50px);
-    border: none;
-    border-bottom: 1px solid #C2BDBD;
-    background-color: transparent;
-    font-size: 16px;
-    color: #9B9DA1;
-}
-
-input.create-survey-input-option-item:focus {
-    outline: none;
-    border-bottom-color: #9B9DA1;
-}
-
-input.form-control.create-survey-input-option-item{
-    background-color: white;
-    color: black;
-}
-
-.delete-option-btn {
-    background: none;
-    border: none;
-    color: black;
-    cursor: pointer;
-}
-
-
-.add-option-btn {
-    font-weight: bold;
-    margin-top: 10px;
-    font-size: 14px;
-    color: #000;
-    background: none;
-    border: none;
-    cursor: pointer;
-    text-decoration: underline;
-    padding: 0;
-}
-
-
-
-.final-buttons{
-    margin-top: 58px;
-    display: flex;
-    justify-content: space-between;
-    flex-direction: row-reverse;
-    align-items: flex-end;
-}
-
-
-sgv{
-    color: black;
-    width: 40px;
-    height: 20px;
-}
-
-.review-surv-btn{
-    background-color: #DB6FEB;
-    border-radius: 12px;
-    border: none;
-    height: 50px;
-    width: 220px;
-    font-size: 22px;
-    color: white;
-}
-
-
-.modal-backdrop {
-    background-color: rgba(0, 0, 0, 0.9); /* Fondo negro translúcido */
-}
-
-body.modal-open {
-    overflow: hidden; /* Evitar scroll */
-    pointer-events: none; /* Deshabilitar clics */
-}
-
-.modal {
-    pointer-events: auto; /* Habilitar clics solo en la modal */
-}
-
-.modal-settings{
-    margin-bottom: 32px;
-    border-color: #C2BDBD;
-    border-bottom: 1px solid;
-    display: flex;
-    justify-content: space-between;
-}
-
-.form-label-public-surv{
-    margin-top: 4px;
-    font-weight: bold;
-    font-size: 18px;
-    margin-bottom: 32px;
-}
-
-.form-check-input:checked {
-    height: 30px;
-    width: 60px;
-    background-color: #DB6FEB;
-    border-color: #DB6FEB;
-}
-.form-check-input:default {
-    height: 30px;
-    width: 60px;
-    background-color: #DB6FEB;
-    border-color: #DB6FEB;
-}
-
-label.form-check-label-yes-no{
-    margin-top: 6px;
-    font-weight: bold;
-    font-size: 16px;
-    margin-left: 8px;
-}
-
-.modal-content{
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    pointer-events: auto;
-    background-color: #fff;
-    background-clip: padding-box;
-    border: 1px solid rgba(0, 0, 0, .2);
-    border-radius: 12px;
-    outline: 0;
-}
-.btn-close-modal{
+    background-color: #e6e6e6;
     border-radius: 10px;
-    color: white;
-    background-color: #DB6FEB;
+    border: 1px solid #ccc;
+    margin-bottom: 25px;
+    padding: 15px;
+    font-size: 1.1em;
 }
 
-label.form-label{
-    font-size: 18px;
-    font-weight: bold;
-    margin-bottom: 8px;
-    color: #333;
+.remove-btn, .add-btn {
+    border-radius: 10px;
+    transition: transform 0.3s ease;
 }
 
-.close-modal-rev{
-    text-decoration: underline;
-    font-weight: bold;
-    margin-right: 10px;
-    font-size: 18px;
+.remove-btn {
+    background-color: #ff6b6b;
+    color: #ffffff;
+    border: none;
 }
 
-.btn-submit-surv{
-    font-weight: bold;
-    font-size: 18px;
-    color: white;
-    background-color: #DB6FEB;
+.remove-btn:hover {
+    transform: scale(1.05);
 }
 
-.modal-title-rev{
-    font-weight: bold;
-    font-size: 28px;
-    margin-left: auto;
+.add-btn {
+    background-color: #6c757d;
+    color: #ffffff;
+    border: none;
 }
-.modal-body-rev-surv{
-    padding: 28px;
+
+.add-btn:hover {
+    transform: scale(1.05);
 }
-strong{
-font-size: 24px;
+
+.create-survey-input:focus, .form-select:focus {
+    border-color: #DB6FEB;
+    box-shadow: 0 0 5px rgba(219, 111, 235, 0.5);
+}
+
+.btn-primary {
+    background-color: #3F374D;
+    border: none;
+    border-radius: 20px;
+    transition: transform 0.3s ease;
+}
+
+.btn-primary:hover {
+    transform: scale(1.05);
+}
+
+.btn-success {
+    background-color: #3F374D;
+    border: none;
+    border-radius: 20px;
+    padding: 15px 50px;
+    font-size: 1.5rem;
+    transition: transform 0.3s ease;
+}
+
+.btn-success:hover {
+    transform: scale(1.05);
 }
