@@ -1,41 +1,51 @@
-/* CSS updated */
+* CSS updated /
 
-/* userProfile.css */
+/* / userProfile.css */ */
 
 .user-profile-container {
-  max-width: 600px;
   margin: 0 auto;
   padding: 20px;
-  background-color: #ffffff;
-  border-radius: 8px;
+  background-color: #2E2B3B;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .header-section {
-  background-color: #f9f9f9;
+  background-color: rgb(63, 55, 77) !important;
   padding: 30px;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   margin-bottom: 20px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .header-section h2 {
-  color: #5e2e84;
+  color: white;
+  font-weight: bold;
+}
+
+.header-section h2::first-letter{
+  color: #DB6FEB;
   font-weight: bold;
 }
 
 .user-details-card {
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   padding: 20px;
-  background-color: #f9f9f9;
+  background-color: rgb(63, 55, 77);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 50px;
 }
 
 .form-label {
   font-weight: bold;
   margin-bottom: 8px;
-  color: #333;
+  color: white;
 }
 
 .form-control {
@@ -80,6 +90,12 @@
   justify-content: space-between;
 }
 
-.d-flex .btn {
-  margin-left: 10px;
+.edit-btn{
+  background-color: #DB6FEB;
+  color: white;
+}
+
+.password-btn{
+  background-color: #DB6FEB;
+  color: white;
 }
