@@ -24,7 +24,7 @@ export const Register = () => {
         setPassword(newPassword);
 
         if (!validatePassword(newPassword)) {
-            setError("Password must be at least 8 characters, include an uppercase letter, and a special character.");
+            setError("Password requirements: 8 characters, 1 uppercase letter, 1 symbol.");
         } else {
             setError(null);
         }
@@ -94,8 +94,8 @@ export const Register = () => {
             <img src={RegisterLogo} alt="Login" className="login-image-small" />
             <div className="register-form-container mt-5 d-flex justify-content-center">
                 <h1 className="register-title text-center">
-                    <span className="register-e">E</span>
-                    <span className="register-vote">vote</span>
+                    <span className="register-e">Survey</span>
+                    <span className="register-vote">Hub</span>
                 </h1>
                 <form onSubmit={handleSubmit}>
                     <div className="input-reg">
@@ -143,7 +143,7 @@ export const Register = () => {
                         />
                     </div>
                     {error && <div className="error-message">{error}</div>}
-                    <button type="submit" className="btn btn-lg register-btn w-100" disabled={isSubmitting}>
+                    <button type="submit" className="btn btn-lg register-btn" disabled={isSubmitting}>
                         {isSubmitting ? "Creating account..." : "Create account"}
                     </button>
                     <div className="login-register">
@@ -154,3 +154,5 @@ export const Register = () => {
         </div>
     );
 };
+
+
