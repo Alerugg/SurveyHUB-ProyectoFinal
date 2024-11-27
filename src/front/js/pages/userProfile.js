@@ -1,4 +1,3 @@
-// UserProfile.js
 import React, { useState, useContext, useEffect } from "react";
 import { Context } from "../store/appContext";
 import "../../styles/userProfile.css";
@@ -77,7 +76,7 @@ export const UserProfile = () => {
 
     return (
         <div className="user-profile-container">
-            <div className="container mt-5">
+            <div className="container mt-5 content-center">
                 <div className="jumbotron text-center p-5 mb-4 header-section">
                     <h2 className="display-5 fw-bold">Editar Perfil</h2>
                 </div>
@@ -108,7 +107,7 @@ export const UserProfile = () => {
                                 />
                             </div>
                             <div className="d-flex justify-content-between mb-4">
-                                <button type="button" className="btn btn-secondary" onClick={toggleEdit}>
+                                <button type="button" className="btn edit-btn" onClick={toggleEdit}>
                                     {isEditing ? "Cancelar" : "Editar Perfil"}
                                 </button>
                                 {isEditing && (
@@ -123,14 +122,17 @@ export const UserProfile = () => {
                             <div className="d-flex">
                                 <input
                                     type="password"
-                                    className="form-control me-3"
+                                    className="form-control me-2"
                                     value={newPassword}
                                     onChange={(e) => setNewPassword(e.target.value)}
                                     placeholder="Nueva contraseña"
                                 />
+                                
+                            </div>
+                            <div className="mt-3">
                                 <button
                                     type="button"
-                                    className="btn btn-warning"
+                                    className="btn password-btn"
                                     onClick={handlePasswordChange}
                                 >
                                     Cambiar Contraseña

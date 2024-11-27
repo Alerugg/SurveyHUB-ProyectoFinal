@@ -103,7 +103,7 @@ const UserDashboard = () => {
             <div className="dashboard-header jumbotron">
                 <div className="header-content">
                     <div className="user-info">
-                        <img className="user-avatar" src="https://via.placeholder.com/150" alt="User Avatar" />
+                        <img className="user-avatar" src="https://i.pravatar.cc/" alt="User Avatar" />
                         <div className="user-details">
                             <h1>Welcome {store.user?.full_name || "Guest"}</h1>
                             <p className="user-role">Survey expert</p>
@@ -112,9 +112,11 @@ const UserDashboard = () => {
                         </div>
                     </div>
                     <div className="annual-interactions">
-                        <div className="progress-ring"></div>
-                        <h2>{recentVotedSurveys.length}</h2>
-                        <p>Surveys Voted</p>
+                        <div className="progress-ring">
+                            <h2>{recentVotedSurveys.length}</h2>
+                        </div>
+                        
+                        <p>Surveys voted</p>
                     </div>
                 </div>
                 <div className="user-stats">
@@ -142,7 +144,7 @@ const UserDashboard = () => {
                             className="dash-link"
                             onClick={() => navigate('/surveys')}
                         >
-                            Explore more
+                            Explore all surveys
                         </button>
                     )}
                 </div>
@@ -150,7 +152,7 @@ const UserDashboard = () => {
                 <div className="survey-list">
                     {getLimitedSurveys(activeSurveys, 3).map((survey, index) => (
                         <div key={index} className="survey-card" onClick={() => handleSurveyClick(survey.id)}>
-                            <img src={`https://loremflickr.com/600/400?random=${survey.id}`} alt="Survey" className='survey-dash-image' />
+                            <img src={`https://picsum.photos/600/400?random=${survey.id}`} alt="Survey" className='survey-dash-image' />
                             <div className={`available-survey-status-header ${survey.is_public ? 'public' : 'private'}`}>
                                 {survey.is_public ? 'Public' : 'Private'}
                             </div>
@@ -163,7 +165,7 @@ const UserDashboard = () => {
                                     </p>
                                     <div className="available-survey-goal">
                                         Responses goal: <br /><span>{survey.currentResponses} of {survey.totalResponses}</span>
-                                        <img src="https://avatar.iran.liara.run/public" alt="Creator" className="available-survey-creator-avatar" />
+                                        <img src="https://i.pravatar.cc/" alt="Creator" className="available-survey-creator-avatar" />
                                     </div>
                                 </div>
                             </div>
@@ -189,7 +191,7 @@ const UserDashboard = () => {
                 <div className="survey-list">
                     {getLimitedSurveys(pastSurveys, 3).map((survey, index) => (
                         <div key={index} className="survey-card" onClick={() => handleSurveyClick(survey.id)}>
-                            <img src={`https://loremflickr.com/600/400?random=${survey.id}`} alt="Survey" className='survey-dash-image' />
+                            <img src={`https://picsum.photos/600/400?random=${survey.id}`} alt="Survey" className='survey-dash-image' />
                             <div className={`available-survey-status-header ${survey.is_public ? 'public' : 'private'}`}>
                                 {survey.is_public ? 'Public' : 'Private'}
                             </div>
@@ -202,7 +204,7 @@ const UserDashboard = () => {
                                     </p>
                                     <div className="available-survey-goal">
                                         Responses goal: <br /><span>{survey.currentResponses} of {survey.totalResponses}</span>
-                                        <img src="https://avatar.iran.liara.run/public" alt="Creator" className="available-survey-creator-avatar" />
+                                        <img src="https://i.pravatar.cc/" alt="Creator" className="available-survey-creator-avatar" />
                                     </div>
                                 </div>
                             </div>
@@ -228,7 +230,7 @@ const UserDashboard = () => {
                 <div className="survey-list">
                     {getLimitedSurveys(recentVotedSurveys, 3).map((survey, index) => (
                         <div key={index} className="survey-card" onClick={() => handleSurveyClick(survey.id)}>
-                            <img src={`https://loremflickr.com/600/400?random=${survey.id}`} alt="Survey" className='survey-dash-image' />
+                            <img src={`https://picsum.photos/600/400?random=${survey.id}`} alt="Survey" className='survey-dash-image' />
                             <div className={`available-survey-status-header ${survey.is_public ? 'public' : 'private'}`}>
                                 {survey.is_public ? 'Public' : 'Private'}
                             </div>
@@ -241,7 +243,7 @@ const UserDashboard = () => {
                                     </p>
                                     <div className="available-survey-goal">
                                         Responses goal: <br /><span>{survey.currentResponses} of {survey.totalResponses}</span>
-                                        <img src="https://avatar.iran.liara.run/public" alt="Creator" className="available-survey-creator-avatar" />
+                                        <img src="https://i.pravatar.cc/" alt="Creator" className="available-survey-creator-avatar" />
                                     </div>
                                 </div>
                             </div>

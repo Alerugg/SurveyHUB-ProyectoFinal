@@ -1,4 +1,3 @@
-// ForgotPassword.js
 import React, { useState } from "react";
 import "../../styles/forgotPassword.css";
 import { useNavigate } from "react-router-dom";
@@ -36,12 +35,13 @@ export const ForgotPassword = () => {
     };
 
     return (
-        <div className="forgot-password-container">
-            <div className="forgot-password-form-container">
-                <h1 className="forgot-password-title">
-                    <span className="highlight-e">Survey</span>
-                    <span className="highlight-vote">Hub</span>
-                </h1>
+        <div className="forgot-password-container content-center">
+               <div className="jumbotron forgot-header">
+                <h2 className="forgot-password-title">
+                    SurveyHub
+                </h2>
+                </div>
+                <div className="forgot-password-form-container">
                 <h2 className="forgot-password-subtitle">Forgot Your Password?</h2>
                 <p className="forgot-password-description">Please enter your email address below to receive instructions on how to reset your password.</p>
                 <form onSubmit={handleForgotPassword}>
