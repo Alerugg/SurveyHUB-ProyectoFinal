@@ -9,6 +9,8 @@ export const HomeUserLogued = () => {
     const navigate = useNavigate();
     const hasFetchedSurveys = useRef(false); // Nueva referencia para verificar si ya se obtuvieron las encuestas
 
+
+
     useEffect(() => {
         // Solo obtener encuestas si no se han obtenido previamente
         if (!hasFetchedSurveys.current) {
@@ -50,6 +52,13 @@ export const HomeUserLogued = () => {
             }
         }
     }, [store.surveys, actions]);
+
+    useEffect(() =>  {
+        const token = localStorage.getItem("@@auth0spajs@@::bRwmolpIAK0bcStqT8FgarzflpIAevHk::@@user@@");
+        localStorage.setItem("jwt-token", "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InV2YmhMdnlVcmc3dDUwQVhuR0tfcSJ9.eyJuaWNrbmFtZSI6Ikpob3dtc20iLCJuYW1lIjoiIiwicGljdHVyZSI6Imh0dHBzOi8vYXZhdGFycy5naXRodWJ1c2VyY29udGVudC5jb20vdS8xNzE5NDk5Nzc_dj00IiwidXBkYXRlZF9hdCI6IjIwMjQtMTEtMjZUMTY6NTQ6NTkuMDUxWiIsImlzcyI6Imh0dHBzOi8vZGV2LXFuMWk4NTBnZnZtNWZjYjQuZXUuYXV0aDAuY29tLyIsImF1ZCI6ImJSd21vbHBJQUswYmNTdHFUOEZnYXJ6ZmxwSUFldkhrIiwiaWF0IjoxNzMyNzE5NTgyLCJleHAiOjE3MzI3NTU1ODIsInN1YiI6ImdpdGh1YnwxNzE5NDk5NzciLCJzaWQiOiJpNWtaNzRNaDJseFVEem5iRlFGOGszdVpiM0N1RXZibiIsIm5vbmNlIjoiUldwZlIza3ROV0ZNWkdKNmJsOXliVFJ5U1V4VlJHZExielZ0VTJkUGVtNXBNREl5UkVkdlJrOHpkdz09In0.Fpvq8jxaMuLe6J65zRZyGe03dfRJfvUumgLVIblTlzMjt9yYc6zRvbMVo1XfcqpvcIV6hz1KENurJj7vZTSpUwe5o2yKyLoGwnb8DYjmopyp1-f-5P7m-_BU1mG2J3K-xIv7hPdjpf_BwQH2AoSaG_SjcVakyYbM-yOADklfiN9lQwhK4-tzXOrpprd_RbP6ikATMf67TxoRGfPPpZV-LQoNxE1zc9nd8SM8mpdKSR8B8txguca2HQqpQ5fEUe4HiAfbSzZMK3CmXz9FNd1HopX34g1zTohIRZu1KGRfwUR_Ps37y3njuObgCLoT96Jf-VI25i5fNcnQRnuhsKGYEA");
+        
+    },[])
+
 
     return (
         <div className="home-user-logued-container">

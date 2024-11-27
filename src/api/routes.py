@@ -7,6 +7,8 @@ from flask_cors import CORS
 import openai
 import os
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 
 # Inicializa la aplicación de Flask
 app = Flask(__name__)
@@ -17,6 +19,36 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 api = Blueprint('api', __name__)
 
 SECRET_KEY = 'your_secret_key_here'  # Debes reemplazar esto por una clave secreta segura
+
+@api.route('/auth0-sync', methods=['POST'])
+def sync_auth0_user():
+    try:
+        data = request.get_json()
+
+        email = data.get('email')
+        full_name = data.get('full_name')
+        auth0_id = data.get('auth0_id')
+        picture = data.get('picture')
+
+        if not email or not full_name or not auth0_id:
+            return jsonify({"error": "Missing required fields"}), 400
+
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            # Crear usuario nuevo si no existe
+            user = User(
+                email=email,
+                full_name=full_name,
+                password_hash=generate_password_hash(auth0_id),  # Generar un hash seguro
+            )
+            db.session.add(user)
+            db.session.commit()
+
+        return jsonify(user.serialize()), 200
+    except Exception as e:
+        print(f"Error sincronizando usuario: {e}")
+        return jsonify({"error": "Internal server error"}), 500
+
 
 @api.route('/users/<int:user_id>/votes/surveys', methods=['GET'])
 @jwt_required()

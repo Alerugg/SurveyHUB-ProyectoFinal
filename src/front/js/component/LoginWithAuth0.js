@@ -17,15 +17,17 @@ export const Login = () => {
     useEffect(() => {
         if (isAuthenticated && auth0User) {
             setIsProcessing(true);
-
-            // Asegurarse de usar un dominio consistente para el correo
-            const userEmail = auth0User.email || 
-                              `${auth0User.nickname || 'user'}@example.com`; // Usa un dominio estándar si el email no está disponible
-
-            actions.handleAuth0Login({
+            
+            // Construir datos de usuario usando nickname como base
+            const userData = {
                 ...auth0User,
-                email: userEmail
-            })
+                email: auth0User.email || `${auth0User.nickname}@gmail.com`,
+                full_name: auth0User.name || auth0User.nickname
+            };
+
+            console.log("Datos de usuario preparados para sincronización:", userData);
+
+            actions.handleAuth0Login(userData)
                 .then(() => {
                     console.log("Login exitoso con Auth0");
                     navigate('/user_logued');
@@ -91,6 +93,7 @@ export const Login = () => {
         }
     };
 
+    // Redireccionar si ya está autenticado
     useEffect(() => {
         if (localStorage.getItem("jwt-token")) {
             navigate("/user_logued");
@@ -121,7 +124,7 @@ export const Login = () => {
                     ) : (
                         <span>
                             <i className="fas fa-lock me-2"></i>
-                            Continuar con Auth0
+                            Continuar con Github
                         </span>
                     )}
                 </button>
