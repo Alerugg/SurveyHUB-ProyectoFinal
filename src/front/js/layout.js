@@ -58,7 +58,7 @@ const Layout = () => {
                             element={store.isAuthenticated ? <CreateSurvey /> : <Navigate to="/login" />} 
                         />
                         <Route element={<SurveyResults/>} path="/surveys/:id"/>
-                        <Route element={<ForgotPassword/>} path="/password_recovery" />
+                        <Route element={<ForgotPassword/>} path="/forgot-password" />
                         <Route element={<Demo />} path="/demo" />
                         <Route element={<Single />} path="/single/:theid" />
                         <Route element={<h1>Not found!</h1>} />
