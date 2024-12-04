@@ -60,12 +60,11 @@ const fetchSurveyResults = async () => {
         console.log("Response headers:", response.headers);
 
         if (response.ok) {
-            // Intentar convertir la respuesta a JSON
+ 
             const data = await response.json();
             console.log("Data received:", data);
             setSurveyResults(data);
 
-            // Calcular el número de participantes y la respuesta más votada por pregunta
             const participants = {};
             const mostVoted = {};
             let highestVotes = 0;
@@ -90,7 +89,7 @@ const fetchSurveyResults = async () => {
                     totalVotes,
                 };
 
-                // Identificar la pregunta con más votos
+      
                 if (totalVotes > highestVotes) {
                     highestVotes = totalVotes;
                     highestQuestion = {
@@ -105,7 +104,7 @@ const fetchSurveyResults = async () => {
             setMostVotedData(mostVoted);
             setHighestVotedQuestion(highestQuestion);
         } else {
-            // En caso de error, imprimir el texto de la respuesta para entender qué se está recibiendo
+       
             const text = await response.text();
             console.error("Error response text:", text);
             throw new Error("Failed to fetch survey results");
