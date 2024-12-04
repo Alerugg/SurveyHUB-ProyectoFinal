@@ -134,7 +134,7 @@ export const CreateSurvey = () => {
                     <form>
                         <h4>Survey Details</h4>
                         <div className="mb-3">
-                            <label className="form-label">Survey Title</label>
+                            <label className="form-label form-label-create">Survey Title</label>
                             <input
                                 type="text"
                                 className="form-control create-survey-input"
@@ -145,7 +145,7 @@ export const CreateSurvey = () => {
                             />
                         </div>
                         <div className="mb-3">
-                            <label className="form-label">Description</label>
+                            <label className="form-label form-label-create">Description</label>
                             <textarea
                                 className="form-control create-survey-input"
                                 name="description"
@@ -155,7 +155,7 @@ export const CreateSurvey = () => {
                             ></textarea>
                         </div>
                         <div className="mb-3">
-                            <label className="form-label">Start Date</label>
+                            <label className="form-label form-label-create">Start Date</label>
                             <input
                                 type="date"
                                 className="form-control create-survey-input"
@@ -166,7 +166,7 @@ export const CreateSurvey = () => {
                             />
                         </div>
                         <div className="mb-3">
-                            <label className="form-label">End Date</label>
+                            <label className="form-label form-label-create">End Date</label>
                             <input
                                 type="date"
                                 className="form-control create-survey-input"
@@ -177,7 +177,7 @@ export const CreateSurvey = () => {
                             />
                         </div>
                         <div className="mb-3">
-                            <label className="form-label">Survey Status</label>
+                            <label className="form-label form-label-create">Survey Status</label>
                             <select
                                 className="form-select create-survey-input"
                                 name="status"
@@ -191,7 +191,7 @@ export const CreateSurvey = () => {
                             </select>
                         </div>
                         <div className="mb-3">
-                            <label className="form-label">Public Survey?</label>
+                            <label className="form-label form-label-create">Public Survey?</label>
                             <div>
                                 <label className="form-check-label">
                                     <input
@@ -216,7 +216,7 @@ export const CreateSurvey = () => {
 
                         <h4 className="mt-5">Add Questions</h4>
                         <div className="mb-3">
-                            <label className="form-label">Question Text</label>
+                            <label className="form-label form-label-create">Question Text</label>
                             <input
                                 type="text"
                                 className="form-control create-survey-input"
@@ -226,7 +226,7 @@ export const CreateSurvey = () => {
                             />
                         </div>
                         <div className="mb-3">
-                            <label className="form-label">Question Type</label>
+                            <label className="form-label form-label-create">Question Type</label>
                             <select
                                 className="form-select create-survey-input"
                                 value={currentQuestion.question_type}
@@ -238,7 +238,7 @@ export const CreateSurvey = () => {
                             </select>
                         </div>
                         <div className="mb-3">
-                            <label className="form-label">Add Options (for Multiple Choice and Yes/No)</label>
+                            <label className="form-label form-label-create">Add Options (for Multiple Choice and Yes/No)</label>
                             <input
                                 type="text"
                                 className="form-control create-survey-input"

@@ -139,7 +139,7 @@ const UserDashboard = () => {
             <div className="active-surveys">
                 <div className="dash-surv-header">
                     <h2>Your active surveys</h2>
-                    {activeSurveys.length > 3 && (
+                    {activeSurveys.length >= 0 && (
                         <button
                             className="dash-link"
                             onClick={() => navigate('/surveys')}
@@ -178,7 +178,7 @@ const UserDashboard = () => {
             <div className="past-surveys">
                 <div className="dash-surv-header">
                     <h2>Explore your past surveys</h2>
-                    {pastSurveys.length > 3 && (
+                    {pastSurveys.length >= 0 && (
                         <button
                             className="dash-link"
                             onClick={() => navigate('/surveys')}
@@ -217,7 +217,7 @@ const UserDashboard = () => {
             <div className="recent-voting">
                 <div className="dash-surv-header">
                     <h2>What have you been voting on recently?</h2>
-                    {recentVotedSurveys.length > 3 && (
+                    {recentVotedSurveys.length >= 0 && (
                         <button
                             className="dash-link"
                             onClick={() => navigate('/surveys')}
