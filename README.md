@@ -3,7 +3,7 @@
 
 🎯 **SurveyHub** es una plataforma moderna y eficiente para crear, compartir, y gestionar encuestas públicas y privadas. Diseñada con un enfoque en la simplicidad y funcionalidad, permite a los usuarios interactuar en cada etapa del ciclo de vida de una encuesta, desde la creación hasta la visualización de resultados.
 
-![SurveyHub Banner](https://placehold.co/1200x300?text=SurveyHub+Your+Survey+Solution) <!-- Puedes sustituirlo por un banner más atractivo -->
+![SurveyHub Banner](https://github.com/Alerugg/SurveyHUB-ProyectoFinal/blob/aa6d4e4e588b10a9084f8f5fe267361f7b52baa5/src/front/img/homeimg.png) <!-- Puedes sustituirlo por un banner más atractivo -->
 
 ---
 
@@ -27,19 +27,19 @@
 
 2. **Registro e Inicio de Sesión**: 
    > Aprende cómo registrarte y gestionar tu cuenta de manera segura.
-   ![Register and Login](https://placehold.co/600x400?text=Register+and+Login+Video)
+   ![Register and Login](https://github.com/Alerugg/SurveyHUB-ProyectoFinal/blob/aa6d4e4e588b10a9084f8f5fe267361f7b52baa5/VideoSurveyHUB/RegisterLogin.gif)
 
 3. **Crear una Encuesta**: 
    > Diseña tus propias encuestas con opciones personalizables.
-   ![Create Survey](https://placehold.co/600x400?text=Create+Survey+Video)
+   ![Create Survey](https://github.com/Alerugg/SurveyHUB-ProyectoFinal/blob/aa6d4e4e588b10a9084f8f5fe267361f7b52baa5/VideoSurveyHUB/CreateSurveys.gif)
 
 4. **Votar en una Encuesta**: 
    > Descubre cómo participar en encuestas de forma rápida y sencilla.
-   ![Vote in Survey](https://placehold.co/600x400?text=Vote+in+Survey+Video)
+   ![Vote in Survey](https://github.com/Alerugg/SurveyHUB-ProyectoFinal/blob/aa6d4e4e588b10a9084f8f5fe267361f7b52baa5/VideoSurveyHUB/Vote.gif)
 
 5. **Resultados de Encuestas Cerradas**: 
    > Visualiza los resultados y análisis de las encuestas finalizadas.
-   ![Survey Results](https://placehold.co/600x400?text=Survey+Results+Video)
+   ![Survey Results](https://github.com/Alerugg/SurveyHUB-ProyectoFinal/blob/aa6d4e4e588b10a9084f8f5fe267361f7b52baa5/VideoSurveyHUB/Results.gif)
 
 > **Nota**: Sustituye las URLs de los videos por los enlaces reales.
 
