@@ -1,81 +1,169 @@
-# WebApp boilerplate with React JS and Flask API
 
-Build web applications using React.js for the front end and python/flask for your backend API.
+# **SurveyHub**
 
-- Documentation can be found here: https://start.4geeksacademy.com/starters/react-flask
-- Here is a video on [how to use this template](https://www.loom.com/share/f37c6838b3f1496c95111e515e83dd9b)
-- Integrated with Pipenv for package managing.
-- Fast deployment to heroku [in just a few steps here](https://start.4geeksacademy.com/backend/deploy-heroku-posgres).
-- Use of .env file.
-- SQLAlchemy integration for database abstraction.
+🎯 **SurveyHub** es una plataforma moderna y eficiente para crear, compartir, y gestionar encuestas públicas y privadas. Diseñada con un enfoque en la simplicidad y funcionalidad, permite a los usuarios interactuar en cada etapa del ciclo de vida de una encuesta, desde la creación hasta la visualización de resultados.
 
-### 1) Installation:
+![SurveyHub Banner](https://placehold.co/1200x300?text=SurveyHub+Your+Survey+Solution) <!-- Puedes sustituirlo por un banner más atractivo -->
 
-> If you use Github Codespaces (recommended) or Gitpod this template will already come with Python, Node and the Posgres Database installed. If you are working locally make sure to install Python 3.10, Node 
+---
 
-It is recomended to install the backend first, make sure you have Python 3.8, Pipenv and a database engine (Posgress recomended)
+## 🚀 **Características Principales**
 
-1. Install the python packages: `$ pipenv install`
-2. Create a .env file based on the .env.example: `$ cp .env.example .env`
-3. Install your database engine and create your database, depending on your database you have to create a DATABASE_URL variable with one of the possible values, make sure you replace the valudes with your database information:
+- 📋 **Crear Encuestas**: Diseña encuestas públicas o privadas con opciones de selección múltiple o única.
+- 🔑 **Autenticación Segura**: Registro e inicio de sesión para gestionar encuestas personalizadas.
+- ✅ **Participación de Usuarios**: Permite a los participantes votar en tiempo real.
+- 📊 **Resultados Claros**: Visualiza los resultados una vez que la encuesta se cierra, con gráficos claros y dinámicos.
+- 🌐 **Interfaz Intuitiva**: Diseñada para ser amigable en cualquier dispositivo.
 
-| Engine    | DATABASE_URL                                        |
-| --------- | --------------------------------------------------- |
-| SQLite    | sqlite:////test.db                                  |
-| MySQL     | mysql://username:password@localhost:port/example    |
-| Postgress | postgres://username:password@localhost:5432/example |
+---
 
-4. Migrate the migrations: `$ pipenv run migrate` (skip if you have not made changes to the models on the `./src/api/models.py`)
-5. Run the migrations: `$ pipenv run upgrade`
-6. Run the application: `$ pipenv run start`
+## 🖥️ **Demo en Video**
 
-> Note: Codespaces users can connect to psql by typing: `psql -h localhost -U gitpod example`
+¡Explora SurveyHub en acción con estos videos rápidos que destacan cada paso! 👇
 
-### Undo a migration
+1. **Landing Page**: 
+   > Presentación inicial de SurveyHub, donde descubrirás cómo comenzar con nuestras encuestas.
+   ![Landing Page]()
 
-You are also able to undo a migration by running
+2. **Registro e Inicio de Sesión**: 
+   > Aprende cómo registrarte y gestionar tu cuenta de manera segura.
+   ![Register and Login](https://placehold.co/600x400?text=Register+and+Login+Video)
 
-```sh
-$ pipenv run downgrade
+3. **Crear una Encuesta**: 
+   > Diseña tus propias encuestas con opciones personalizables.
+   ![Create Survey](https://placehold.co/600x400?text=Create+Survey+Video)
+
+4. **Votar en una Encuesta**: 
+   > Descubre cómo participar en encuestas de forma rápida y sencilla.
+   ![Vote in Survey](https://placehold.co/600x400?text=Vote+in+Survey+Video)
+
+5. **Resultados de Encuestas Cerradas**: 
+   > Visualiza los resultados y análisis de las encuestas finalizadas.
+   ![Survey Results](https://placehold.co/600x400?text=Survey+Results+Video)
+
+> **Nota**: Sustituye las URLs de los videos por los enlaces reales.
+
+---
+
+## 🛠️ **Tecnologías Utilizadas**
+
+| Frontend  | Backend  | Base de Datos | Herramientas Adicionales |
+|-----------|----------|---------------|--------------------------|
+| React.js  | Flask    | PostgreSQL    | JWT para autenticación  |
+| HTML5     | Python   | SQLAlchemy    | Bootstrap y CSS3        |
+| CSS3      | REST API |               | Render para despliegue  |
+
+---
+
+## 📖 **Cómo Ejecutar el Proyecto Localmente**
+
+### 1️⃣ **Requisitos Previos**
+- Node.js y npm instalados.
+- Python 3.8+.
+- PostgreSQL configurado localmente.
+- Pipenv instalado para gestionar dependencias del backend.
+
+### 2️⃣ **Instalación**
+1. Clona el repositorio:
+   ```bash
+   git clone https://github.com/tuusuario/surveyhub.git
+   cd surveyhub
+   ```
+
+2. Instala las dependencias del frontend:
+   ```bash
+   cd src/front
+   npm install
+   ```
+
+3. Instala las dependencias del backend:
+   ```bash
+   cd ../api
+   pipenv install
+   ```
+
+### 3️⃣ **Configuración**
+- Configura las variables de entorno en un archivo `.env` para el backend:
+  ```env
+  FLASK_APP=app.py
+  FLASK_ENV=development
+  DATABASE_URL=postgresql://usuario:contraseña@localhost/surveyhub
+  JWT_SECRET_KEY=tu_secreto
+  ```
+
+### 4️⃣ **Ejecución**
+1. Inicia el backend:
+   ```bash
+   cd src/api
+   pipenv run start
+   ```
+
+2. Inicia el frontend:
+   ```bash
+   cd src/front
+   npm run start
+   ```
+
+### 5️⃣ **Accede a la Aplicación**
+- Abre [https://proyecto-final-repo-final.onrender.com] en tu navegador para ver SurveyHub en acción.
+
+---
+
+## 📂 **Estructura del Proyecto**
+
+```plaintext
+surveyhub/
+├── .devcontainer/   # Configuración de entorno de desarrollo
+├── docs/            # Documentación del proyecto
+├── migrations/      # Migraciones de base de datos
+├── node_modules/    # Dependencias de npm
+├── public/          # Archivos públicos del frontend
+├── src/             # Código fuente principal
+│   ├── api/         # Backend en Flask
+│   │   ├── __init__.py
+│   │   ├── admin.py
+│   │   ├── commands.py
+│   │   ├── models.py
+│   │   ├── routes.py
+│   │   ├── scheduler.py
+│   │   └── utils.py
+│   ├── front/       # Frontend en React
+│   │   ├── img/     # Imágenes del frontend
+│   │   ├── js/      # Código JavaScript principal
+│   │   │   ├── component/ # Componentes reutilizables
+│   │   │   ├── pages/     # Páginas principales
+│   │   │   ├── store/     # Contexto y lógica de estado
+│   │   │   └── styles/    # Estilos CSS
+├── app.py           # Entrada principal del backend
+├── wsgi.py          # Archivo WSGI para despliegue
+├── .env.example     # Ejemplo de configuración de entorno
+└── README.md        # Este archivo
 ```
 
-### Backend Populate Table Users
+---
 
-To insert test users in the database execute the following command:
+## 🌟 **Contribuciones**
 
-```sh
-$ flask insert-test-users 5
-```
+¡Las contribuciones son bienvenidas! Si tienes ideas para mejorar SurveyHub, sigue estos pasos:
+1. Haz un fork del repositorio.
+2. Crea una nueva rama (`git checkout -b feature-tuidea`).
+3. Realiza tus cambios y súbelos (`git push origin feature-tuidea`).
+4. Abre un pull request.
 
-And you will see the following message:
+---
 
-```
-  Creating test users
-  test_user1@test.com created.
-  test_user2@test.com created.
-  test_user3@test.com created.
-  test_user4@test.com created.
-  test_user5@test.com created.
-  Users created successfully!
-```
+## 🛡️ **Licencia**
 
-### **Important note for the database and the data inside it**
+¡Úsalo y mejóralo libremente!
 
-Every Github codespace environment will have **its own database**, so if you're working with more people eveyone will have a different database and different records inside it. This data **will be lost**, so don't spend too much time manually creating records for testing, instead, you can automate adding records to your database by editing ```commands.py``` file inside ```/src/api``` folder. Edit line 32 function ```insert_test_data``` to insert the data according to your model (use the function ```insert_test_users``` above as an example). Then, all you need to do is run ```pipenv run insert-test-data```.
+---
 
-### Front-End Manual Installation:
+## 🤝 **Contacto**
 
--   Make sure you are using node version 14+ and that you have already successfully installed and runned the backend.
+¿Tienes preguntas o sugerencias? ¡Contáctame!
 
-1. Install the packages: `$ npm install`
-2. Start coding! start the webpack dev server `$ npm run start`
+- **Correo Electrónico:** [alejandro.ruggeri.l@gmail.com]
+- **LinkedIn:** [www.linkedin.com/in/aleruggeril]
+- **GitHub:** [https://github.com/Alerugg]
 
-## Publish your website!
-
-This boilerplate it's 100% read to deploy with Render.com and Heroku in a matter of minutes. Please read the [official documentation about it](https://start.4geeksacademy.com/deploy).
-
-### Contributors
-
-This template was built as part of the 4Geeks Academy [Coding Bootcamp](https://4geeksacademy.com/us/coding-bootcamp) by [Alejandro Sanchez](https://twitter.com/alesanchezr) and many other contributors. Find out more about our [Full Stack Developer Course](https://4geeksacademy.com/us/coding-bootcamps/part-time-full-stack-developer), and [Data Science Bootcamp](https://4geeksacademy.com/us/coding-bootcamps/datascience-machine-learning).
-
-You can find other templates and resources like this at the [school github page](https://github.com/4geeksacademy/).
+---
