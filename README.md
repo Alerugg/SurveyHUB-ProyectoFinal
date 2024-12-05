@@ -23,7 +23,7 @@
 
 1. **Landing Page**: 
    > Presentación inicial de SurveyHub, donde descubrirás cómo comenzar con nuestras encuestas.
-   ![Landing Page]()
+   ![Landing Page](https://github.com/Alerugg/SurveyHUB-ProyectoFinal/blob/8be4b7d3d3e464dfc4670bd2a467c72188dcfbf2/VideoSurveyHUB/LandingPage.gif)
 
 2. **Registro e Inicio de Sesión**: 
    > Aprende cómo registrarte y gestionar tu cuenta de manera segura.
